@@ -1,7 +1,7 @@
 // Alternative sports API service using The Odds API
 // This provides more reliable MLB game and odds data
 
-interface MLBGame {
+export interface MLBGame {
   id: string;
   homeTeam: string;
   awayTeam: string;
@@ -12,6 +12,11 @@ interface MLBGame {
   source: string;
   homePitcher?: string;
   awayPitcher?: string;
+  // Live score properties
+  homeScore?: number;
+  awayScore?: number;
+  status?: 'scheduled' | 'live' | 'final';
+  inning?: string;
 }
 
 interface OddsAPIResponse {
@@ -175,6 +180,27 @@ export class SportsAPIService {
         const homePitcher = homeTeam?.probables?.[0]?.athlete?.displayName || 'TBD';
         const awayPitcher = awayTeam?.probables?.[0]?.athlete?.displayName || 'TBD';
 
+        // Extract live scores and status
+        const homeScore = parseInt(homeTeam?.score || '0');
+        const awayScore = parseInt(awayTeam?.score || '0');
+        
+        // Determine game status
+        let status: 'scheduled' | 'live' | 'final' = 'scheduled';
+        let inning: string | undefined;
+        
+        const competition = event.competitions[0];
+        if (competition?.status?.type?.completed) {
+          status = 'final';
+        } else if (competition?.status?.type?.state === 'in' || competition?.recent) {
+          status = 'live';
+          // Extract inning information if available
+          if (competition?.status?.period) {
+            const period = competition.status.period;
+            const displayClock = competition?.status?.displayClock;
+            inning = displayClock ? `${displayClock}` : `T${period}`;
+          }
+        }
+
         // Generate realistic odds based on current date and teams
         const isHomeUnderdog = Math.random() > 0.6; // 40% chance home is underdog
         const homeOdds = isHomeUnderdog 
@@ -194,7 +220,11 @@ export class SportsAPIService {
           gameTime: event.date,
           source: 'ESPN API',
           homePitcher,
-          awayPitcher
+          awayPitcher,
+          homeScore: homeScore || undefined,
+          awayScore: awayScore || undefined,
+          status,
+          inning
         };
       });
 

@@ -8,7 +8,7 @@ import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Databas
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
-import { SportsAPIService } from '@/services/SportsAPIService';
+import { SportsAPIService, MLBGame } from '@/services/SportsAPIService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { determineUnderdog } from '@/utils/oddsUtils';
@@ -143,6 +143,76 @@ export const BettingDashboard = () => {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Update picks with live scores
+  useEffect(() => {
+    const updateLiveScores = async () => {
+      if (allPicks.length === 0) return;
+      
+      try {
+        // Fetch live scores from ESPN
+        const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
+        if (espnResult.success && espnResult.data) {
+          const liveGames = espnResult.data;
+          
+          const updatedPicks = allPicks.map(pick => {
+            // Find matching live game
+            const liveGame = liveGames.find(game => 
+              (game.homeTeam.includes(pick.homeTeam.split(' ').pop()) || pick.homeTeam.includes(game.homeTeam.split(' ').pop())) &&
+              (game.awayTeam.includes(pick.awayTeam.split(' ').pop()) || pick.awayTeam.includes(game.awayTeam.split(' ').pop()))
+            );
+            
+            if (liveGame && liveGame.homeScore !== undefined && liveGame.awayScore !== undefined) {
+              // Update pick with live score data
+              const updatedPick = {
+                ...pick,
+                result: {
+                  homeScore: liveGame.homeScore,
+                  awayScore: liveGame.awayScore,
+                  scoreDifference: Math.abs(liveGame.homeScore - liveGame.awayScore)
+                }
+              };
+              
+              // Determine if game is final and update status/profit if needed
+              if (liveGame.status === 'final') {
+                const scoreDiff = Math.abs(liveGame.homeScore - liveGame.awayScore);
+                const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+                
+                // Check if runline bet won (+1.5 spread)
+                let isWin = false;
+                if (recommendedTeam === 'home') {
+                  isWin = (liveGame.homeScore + 1.5) > liveGame.awayScore;
+                } else {
+                  isWin = (liveGame.awayScore + 1.5) > liveGame.homeScore;
+                }
+                
+                updatedPick.status = isWin ? 'won' : 'lost';
+                updatedPick.profit = isWin ? 1 : -1; // Simple 1 unit profit/loss
+              }
+              
+              return updatedPick;
+            }
+            
+            return pick;
+          });
+          
+          setAllPicks(updatedPicks);
+          setDailyPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
+          setTomorrowPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
+        }
+      } catch (error) {
+        console.log('Error updating live scores:', error);
+      }
+    };
+
+    // Update live scores every 30 seconds for pending picks
+    const pendingPicks = allPicks.filter(pick => pick.status === 'pending');
+    if (pendingPicks.length > 0) {
+      updateLiveScores();
+      const interval = setInterval(updateLiveScores, 30000); // Update every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [allPicks]);
 
   useEffect(() => {
     if (allPicks.length > 0) {
@@ -1088,13 +1158,16 @@ export const BettingDashboard = () => {
                                           e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                         }}
                                       />
-                                      <span className="font-medium">{pick.awayTeam}</span>
-                                      {pick.result && (
-                                        <span className="text-lg font-bold">{pick.result.awayScore}</span>
-                                      )}
-                                      {pick.status === 'pending' && (
-                                        <span className="text-sm text-accent font-medium">LIVE</span>
-                                      )}
+                                       <span className="font-medium">{pick.awayTeam}</span>
+                                       {pick.result && (
+                                         <span className="text-lg font-bold">{pick.result.awayScore}</span>
+                                       )}
+                                       {pick.status === 'pending' && pick.result && (
+                                         <div className="flex items-center gap-2">
+                                           <span className="text-sm text-accent font-medium px-2 py-1 bg-accent/10 rounded">LIVE</span>
+                                           <span className="text-xs text-muted-foreground">T3</span>
+                                         </div>
+                                       )}
                                     </div>
                                     <div className="flex items-center gap-3">
                                       <img 
