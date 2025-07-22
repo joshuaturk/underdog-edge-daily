@@ -117,8 +117,11 @@ export class BettingAnalysisService {
     
     // Calculate ROI based on $10 bets per game
     const totalInvested = completedPicks.length * 10; // $10 per bet
-    const totalProfitDollars = totalProfit * 10; // Convert units to dollars (assuming 1 unit = $10)
-    const roi = totalInvested > 0 ? (totalProfitDollars / totalInvested) * 100 : 0;
+    // For winning bets, profit includes original wager + winnings
+    // For losing bets, profit is -10 (lost wager)
+    // Total payout = original investment + profit
+    const totalPayout = totalInvested + (totalProfit * 10);
+    const roi = totalInvested > 0 ? ((totalPayout - totalInvested) / totalInvested) * 100 : 0;
 
     // Calculate current streak
     let streak: { type: 'win' | 'loss'; count: number } = { type: 'win', count: 0 };
