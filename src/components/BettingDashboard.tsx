@@ -7,6 +7,7 @@ import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { FirecrawlService } from '@/services/FirecrawlService';
 import { ApiKeySetup } from '@/components/ApiKeySetup';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 
 export const BettingDashboard = () => {
@@ -158,7 +159,8 @@ export const BettingDashboard = () => {
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               {isUsingLiveData ? 'Scrape Data' : 'Generate Picks'}
