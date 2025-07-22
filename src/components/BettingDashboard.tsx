@@ -89,31 +89,54 @@ export const BettingDashboard = () => {
           
           console.log('Scrape result:', crawlResult);
           
-          if (crawlResult.success && crawlResult.data && crawlResult.data.markdown) {
-            console.log('Live MLB data scraped successfully:', crawlResult.data);
+          if (crawlResult.success && crawlResult.data && crawlResult.data.parsedGames) {
+            console.log('Live MLB data scraped successfully:', crawlResult.data.parsedGames);
             
-            // Try to parse the scraped data for actual games
-            let actualGames = [];
-            try {
-              const parsedGames = FirecrawlService.parseOddsData(crawlResult.data.markdown);
-              if (parsedGames.length > 0) {
-                actualGames = parsedGames;
-                console.log('Parsed games from live data:', actualGames);
+            // Use the real parsed games from betting sites
+            const realGames = crawlResult.data.parsedGames;
+            const games = realGames.map(game => ({
+              homeTeam: game.homeTeam,
+              awayTeam: game.awayTeam,
+              isHomeUnderdog: game.homeOdds > game.awayOdds,
+              odds: game.runlineOdds || (game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds),
+              source: game.source
+            }));
+            
+            setIsUsingLiveData(true);
+            const newPicks: BettingPick[] = [];
+            
+            games.forEach(game => {
+              const pick = BettingAnalysisService.analyzeGame(
+                game.homeTeam,
+                game.awayTeam,
+                game.isHomeUnderdog,
+                game.odds
+              );
+              
+              if (pick) {
+                // Add source information to the pick
+                pick.reason += ` (Source: ${game.source})`;
+                newPicks.push(pick);
               }
-            } catch (parseError) {
-              console.error('Error parsing scraped data:', parseError);
-            }
+            });
             
-            // Use actual games if found, otherwise fall back to fixed demo data
-            const games = actualGames.length > 0 ? actualGames.map(game => ({
+            setDailyPicks(newPicks);
+            setLastUpdate(new Date());
+            
+            toast({
+              title: "Real MLB Data Retrieved!",
+              description: `Found ${newPicks.length} qualifying picks from ${crawlResult.data.source} with live odds`,
+            });
+          } else if (crawlResult.success && crawlResult.data && crawlResult.data.markdown) {
+            // Try to parse the markdown data
+            const parsedGames = FirecrawlService.parseOddsData(crawlResult.data.markdown);
+            const games = parsedGames.length > 0 ? parsedGames.map(game => ({
               homeTeam: game.homeTeam,
               awayTeam: game.awayTeam,
               isHomeUnderdog: game.homeOdds > game.awayOdds,
               odds: game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds
             })) : getFixedDemoGames();
             
-            // We have a working API connection, so mark as live data even if using demo games
-            setIsUsingLiveData(true);
             const newPicks: BettingPick[] = [];
             
             games.forEach(game => {
