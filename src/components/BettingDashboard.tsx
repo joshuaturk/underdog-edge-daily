@@ -26,7 +26,9 @@ const sportsMenu = [
   { name: 'NHL', symbol: '🏒' },
   { name: 'NBA', symbol: '🏀' },
   { name: 'NFL', symbol: '🏈' },
-  { name: 'Soccer', symbol: '⚽' }
+  { name: 'Soccer', symbol: '⚽' },
+  { name: 'Golf', symbol: '⛳' },
+  { name: 'Tennis', symbol: '🎾' }
 ];
 
 export const BettingDashboard = () => {
