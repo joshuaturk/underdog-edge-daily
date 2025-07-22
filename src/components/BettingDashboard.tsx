@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         Zap, GraduationCap, School, Snowflake, Dribbble, Trophy } from 'lucide-react';
+         Circle, GraduationCap, Dribbble, Snowflake, Trophy } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -14,13 +14,13 @@ import { useToast } from '@/hooks/use-toast';
 
 // Sports navigation data with icons
 const sportsMenu = [
-  { name: 'MLB', icon: Zap, active: true },
+  { name: 'MLB', icon: Circle, active: true }, // Baseball ⚾
   { name: 'NCAA Football', icon: Trophy },
   { name: 'NCAA Bball', icon: Dribbble },
-  { name: 'NHL', icon: Snowflake },
+  { name: 'NHL', icon: Snowflake }, // Hockey 🏒
   { name: 'NBA', icon: Dribbble },
-  { name: 'NFL', icon: Target },
-  { name: 'Soccer', icon: Target }
+  { name: 'NFL', icon: Trophy }, // American Football 🏈  
+  { name: 'Soccer', icon: Circle } // Soccer Ball ⚽
 ];
 
 export const BettingDashboard = () => {
