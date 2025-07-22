@@ -136,18 +136,36 @@ export const BettingDashboard = () => {
           if (result.success && result.data && result.data.length > 0) {
             console.log('Live MLB data fetched successfully:', result.data);
             
-            // Use the real games data
+            // For Odds API data, we need to get pitcher info from ESPN
+            let espnPitcherData: any[] = [];
+            try {
+              const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
+              if (espnResult.success && espnResult.data) {
+                espnPitcherData = espnResult.data;
+              }
+            } catch (espnError) {
+              console.log('Could not fetch pitcher data from ESPN:', espnError);
+            }
+            
+            // Use the real games data and merge with pitcher info
             const realGames = result.data;
             const games = realGames.map(game => {
               const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+              
+              // Try to find matching ESPN game for pitcher data
+              const espnGame = espnPitcherData.find(eg => 
+                (eg.homeTeam.includes(game.homeTeam.split(' ').pop()) || game.homeTeam.includes(eg.homeTeam.split(' ').pop())) &&
+                (eg.awayTeam.includes(game.awayTeam.split(' ').pop()) || game.awayTeam.includes(eg.awayTeam.split(' ').pop()))
+              );
+              
               return {
                 homeTeam: game.homeTeam,
                 awayTeam: game.awayTeam,
                 isHomeUnderdog,
                 odds: game.runlineOdds || underdogOdds,
                 source: game.source,
-                homePitcher: game.homePitcher,
-                awayPitcher: game.awayPitcher
+                homePitcher: espnGame?.homePitcher || undefined,
+                awayPitcher: espnGame?.awayPitcher || undefined
               };
             });
             

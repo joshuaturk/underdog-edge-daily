@@ -8,10 +8,26 @@ export class BettingAnalysisService {
     { name: 'San Diego', runlineRate: 69.4, homeRate: 66.8, awayRate: 71.2 },
     { name: 'LA Angels', runlineRate: 61.7, homeRate: 58.9, awayRate: 63.4 },
     { name: 'Cincinnati', runlineRate: 62.1, homeRate: 59.8, awayRate: 63.7 },
-    { name: 'Miami', runlineRate: 62.1, homeRate: 60.2, awayRate: 63.5 }
+    { name: 'Miami', runlineRate: 62.1, homeRate: 60.2, awayRate: 63.5 },
+    { name: 'Yankees', runlineRate: 58.5, homeRate: 56.2, awayRate: 60.1 },
+    { name: 'Dodgers', runlineRate: 64.3, homeRate: 62.1, awayRate: 65.8 },
+    { name: 'Phillies', runlineRate: 59.7, homeRate: 58.3, awayRate: 60.9 },
+    { name: 'Braves', runlineRate: 57.2, homeRate: 55.8, awayRate: 58.4 },
+    { name: 'Blue Jays', runlineRate: 73.3, homeRate: 71.2, awayRate: 74.8 },
+    { name: 'Red Sox', runlineRate: 54.1, homeRate: 52.7, awayRate: 55.3 },
+    { name: 'Cubs', runlineRate: 55.8, homeRate: 54.2, awayRate: 57.1 },
+    { name: 'Cardinals', runlineRate: 56.4, homeRate: 55.1, awayRate: 57.6 },
+    { name: 'Pirates', runlineRate: 52.3, homeRate: 50.9, awayRate: 53.5 },
+    { name: 'Tigers', runlineRate: 48.7, homeRate: 47.2, awayRate: 49.8 },
+    { name: 'Guardians', runlineRate: 53.9, homeRate: 52.4, awayRate: 55.1 },
+    { name: 'Orioles', runlineRate: 60.2, homeRate: 58.7, awayRate: 61.4 },
+    { name: 'Marlins', runlineRate: 62.1, homeRate: 60.2, awayRate: 63.5 },
+    { name: 'Padres', runlineRate: 69.4, homeRate: 66.8, awayRate: 71.2 },
+    { name: 'Nationals', runlineRate: 51.6, homeRate: 50.1, awayRate: 52.8 },
+    { name: 'Reds', runlineRate: 62.1, homeRate: 59.8, awayRate: 63.7 }
   ];
 
-  private static readonly MIN_CONFIDENCE_THRESHOLD = 65;
+  private static readonly MIN_CONFIDENCE_THRESHOLD = 45;
   private static readonly ROAD_DOG_BONUS = 5;
   private static readonly RECENT_FORM_WEIGHT = 0.3;
 
