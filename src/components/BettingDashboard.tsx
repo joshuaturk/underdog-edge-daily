@@ -12,6 +12,7 @@ import { SportsAPIService } from '@/services/SportsAPIService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { determineUnderdog } from '@/utils/oddsUtils';
+import { getTeamLogo } from '@/utils/teamLogos';
 
 // Import custom sports icons
 import baseballIcon from '@/assets/baseball-icon.png';
@@ -588,14 +589,34 @@ export const BettingDashboard = () => {
                         className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
                       >
                         <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {pick.awayTeam} @ {pick.homeTeam}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                            </p>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={getTeamLogo(pick.awayTeam)} 
+                                alt={`${pick.awayTeam} logo`}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                }}
+                              />
+                              <span className="font-semibold text-lg">{pick.awayTeam}</span>
+                            </div>
+                            <span className="text-muted-foreground">@</span>
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={getTeamLogo(pick.homeTeam)} 
+                                alt={`${pick.homeTeam} logo`}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                }}
+                              />
+                              <span className="font-semibold text-lg">{pick.homeTeam}</span>
+                            </div>
                           </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
+                          </p>
                           <div className="text-right space-y-2">
                             <Badge className={getConfidenceColor(pick.confidence)}>
                               {Math.round(pick.confidence)}% confidence
@@ -645,14 +666,34 @@ export const BettingDashboard = () => {
                         className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
                       >
                         <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold text-lg">
-                              {pick.awayTeam} @ {pick.homeTeam}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                            </p>
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={getTeamLogo(pick.awayTeam)} 
+                                alt={`${pick.awayTeam} logo`}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                }}
+                              />
+                              <span className="font-semibold text-lg">{pick.awayTeam}</span>
+                            </div>
+                            <span className="text-muted-foreground">@</span>
+                            <div className="flex items-center gap-2">
+                              <img 
+                                src={getTeamLogo(pick.homeTeam)} 
+                                alt={`${pick.homeTeam} logo`}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                }}
+                              />
+                              <span className="font-semibold text-lg">{pick.homeTeam}</span>
+                            </div>
                           </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
+                          </p>
                           <div className="text-right space-y-2">
                             <Badge className={getConfidenceColor(pick.confidence)}>
                               {Math.round(pick.confidence)}% confidence
