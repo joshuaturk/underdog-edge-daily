@@ -626,11 +626,8 @@ export const BettingDashboard = () => {
               <img 
                 src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
                 alt="Underdog Runline Logo"
-                className="w-32 h-32 object-contain"
+                className="w-75 h-75 object-contain"
               />
-            </div>
-            <div className="text-xl font-medium">
-              Underdog Runline
             </div>
             <TabsList className="grid w-auto grid-cols-2">
               <TabsTrigger value="today" className="flex items-center gap-2">
