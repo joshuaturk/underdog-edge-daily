@@ -799,6 +799,9 @@ export const BettingDashboard = () => {
                             <Badge className={getConfidenceColor(pick.confidence)}>
                               {Math.round(pick.confidence)}% confidence
                             </Badge>
+                            <div className="text-sm font-medium text-foreground">
+                              +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
+                            </div>
                             <Badge variant="outline">
                               {pick.odds > 0 ? '+' : ''}{pick.odds}
                             </Badge>
@@ -905,14 +908,17 @@ export const BettingDashboard = () => {
                             </div>
                           </div>
                           
-                          <div className="text-right space-y-2 ml-4">
-                            <Badge className={getConfidenceColor(pick.confidence)}>
-                              {Math.round(pick.confidence)}% confidence
-                            </Badge>
-                            <Badge variant="outline">
-                              {pick.odds > 0 ? '+' : ''}{pick.odds}
-                            </Badge>
-                          </div>
+                           <div className="text-right space-y-2 ml-4">
+                             <Badge className={getConfidenceColor(pick.confidence)}>
+                               {Math.round(pick.confidence)}% confidence
+                             </Badge>
+                             <div className="text-sm font-medium text-foreground">
+                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
+                             </div>
+                             <Badge variant="outline">
+                               {pick.odds > 0 ? '+' : ''}{pick.odds}
+                             </Badge>
+                           </div>
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
