@@ -590,9 +590,11 @@ export const BettingDashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              Underdog Runline
-            </h1>
+            <img 
+              src="/lovable-uploads/dd539c92-21e7-4b6b-a42d-30ca2cbc239a.png" 
+              alt="betbud.ai"
+              className="h-12 object-contain"
+            />
             <p className="text-muted-foreground mt-1">
               Advanced underdog runline analysis & daily picks
             </p>
