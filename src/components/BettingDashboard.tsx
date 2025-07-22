@@ -162,15 +162,13 @@ export const BettingDashboard = () => {
           console.log('Live games from ESPN:', liveGames.length);
           
           const updatedPicks = allPicks.map(pick => {
-            // Find matching live game
+            // Find matching live game with improved team name matching
             const liveGame = liveGames.find(game => {
-              // More robust team name matching
               const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
               const pickAwayShort = pick.awayTeam.split(' ').pop()?.toLowerCase();
               const gameHomeShort = game.homeTeam.split(' ').pop()?.toLowerCase();
               const gameAwayShort = game.awayTeam.split(' ').pop()?.toLowerCase();
               
-              // Check various team name formats
               const homeMatch = 
                 pickHomeShort === gameHomeShort ||
                 pick.homeTeam.toLowerCase().includes(game.homeTeam.toLowerCase()) ||
@@ -217,7 +215,7 @@ export const BettingDashboard = () => {
                   }
                   
                   updatedPick.status = isWin ? 'won' : 'lost';
-                  updatedPick.profit = isWin ? 1 : -1; // Simple 1 unit profit/loss
+                  updatedPick.profit = isWin ? 1 : -1;
                   console.log(`Game final: ${pick.recommendedBet} ${isWin ? 'WON' : 'LOST'}`);
                 }
                 
@@ -257,7 +255,7 @@ export const BettingDashboard = () => {
     
     if (pendingPicks.length > 0) {
       updateLiveScores();
-      const interval = setInterval(updateLiveScores, 30000); // Update every 30 seconds
+      const interval = setInterval(updateLiveScores, 30000);
       return () => clearInterval(interval);
     }
   }, [allPicks]);
@@ -265,9 +263,15 @@ export const BettingDashboard = () => {
   // Generate initial picks on component mount
   useEffect(() => {
     const initializePicks = async () => {
+      console.log('Component mounted, checking for picks...');
+      console.log('Current dailyPicks length:', dailyPicks.length);
+      console.log('Current allPicks length:', allPicks.length);
+      
       if (dailyPicks.length === 0) {
         console.log('No daily picks found, generating initial picks...');
         await generateDailyPicks();
+      } else {
+        console.log('Daily picks already exist:', dailyPicks);
       }
     };
     
@@ -275,11 +279,15 @@ export const BettingDashboard = () => {
   }, []);
 
   useEffect(() => {
+    console.log('allPicks changed, length:', allPicks.length);
     if (allPicks.length > 0) {
-      setResults(BettingAnalysisService.analyzeResults(allPicks));
+      const calculatedResults = BettingAnalysisService.analyzeResults(allPicks);
+      console.log('Calculated results:', calculatedResults);
+      setResults(calculatedResults);
+    } else {
+      console.log('No picks to analyze');
     }
   }, [allPicks]);
-
 
   // Fixed demo games for consistent testing (July 22, 2025)
   const getFixedDemoGames = () => [
@@ -292,7 +300,7 @@ export const BettingDashboard = () => {
 
   // Fixed demo games for tomorrow (July 23, 2025)
   const getFixedTomorrowGames = () => [
-    { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 }, // Yankees are away underdog
+    { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 },
     { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
     { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
     { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 },
@@ -300,367 +308,106 @@ export const BettingDashboard = () => {
   ];
 
   const generateDailyPicks = async () => {
+    console.log('=== generateDailyPicks called ===');
     setIsLoading(true);
     
     try {
-      // Check if we have a Sports API key first
       const apiKey = SportsAPIService.getApiKey();
+      console.log('API Key available:', !!apiKey);
       
       if (apiKey) {
-        // Use Sports API for live data
         console.log('Using Sports API for live MLB data');
         setIsUsingLiveData(true);
         
-        try {
-          console.log('Attempting to fetch MLB games from Sports API...');
-          const result = await SportsAPIService.getMLBGames();
-          
-          console.log('Sports API result:', result);
-          
-          if (result.success && result.data && result.data.length > 0) {
-            console.log('Live MLB data fetched successfully:', result.data);
-            
-            // For Odds API data, we need to get pitcher info from ESPN
-            let espnPitcherData: any[] = [];
-            try {
-              const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
-              if (espnResult.success && espnResult.data) {
-                espnPitcherData = espnResult.data;
-              }
-            } catch (espnError) {
-              console.log('Could not fetch pitcher data from ESPN:', espnError);
-            }
-            
-            // Use the real games data and merge with pitcher info
-            const realGames = result.data;
-            const games = realGames.map(game => {
-              let { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
-              
-              // Manual override for specific games where we want to ensure correct underdog
-              if ((game.homeTeam.includes('Blue Jays') && game.awayTeam.includes('Yankees')) ||
-                  (game.homeTeam.includes('TOR') && game.awayTeam.includes('NY Yankees'))) {
-                isHomeUnderdog = false; // Yankees (away) should be the underdog
-                underdogOdds = game.awayOdds > 0 ? game.awayOdds : Math.abs(game.awayOdds);
-              }
-              
-              // Try to find matching ESPN game for pitcher data
-              const espnGame = espnPitcherData.find(eg => 
-                (eg.homeTeam.includes(game.homeTeam.split(' ').pop()) || game.homeTeam.includes(eg.homeTeam.split(' ').pop())) &&
-                (eg.awayTeam.includes(game.awayTeam.split(' ').pop()) || game.awayTeam.includes(eg.awayTeam.split(' ').pop()))
-              );
-              
-              return {
-                homeTeam: game.homeTeam,
-                awayTeam: game.awayTeam,
-                isHomeUnderdog,
-                odds: game.runlineOdds || underdogOdds,
-                source: game.source,
-                homePitcher: espnGame?.homePitcher || undefined,
-                awayPitcher: espnGame?.awayPitcher || undefined
-              };
-            });
-            
-            const newPicks: BettingPick[] = [];
-            
-            games.forEach(game => {
-              const pick = BettingAnalysisService.analyzeGame(
-                game.homeTeam,
-                game.awayTeam,
-                game.isHomeUnderdog,
-                game.odds,
-                game.homePitcher,
-                game.awayPitcher
-              );
-              
-              if (pick) {
-                // Add source information to the pick
-                pick.reason += ` (Source: ${game.source})`;
-                newPicks.push(pick);
-              }
-            });
-            
-            // Remove duplicates based on team matchup
-            const uniquePicks = newPicks.filter((pick, index, self) => 
-              index === self.findIndex(p => 
-                (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
-                (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
-              )
-            );
-            
-            setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
-            setLastUpdate(new Date());
-            
-            toast({
-              title: "Real MLB Data Retrieved!",
-              description: `Found ${newPicks.length} qualifying picks from ${realGames[0]?.source} with live odds`,
-            });
-          } else {
-            throw new Error('No games found from Sports API');
-          }
-        } catch (apiError) {
-          console.error('Error with Sports API, trying ESPN fallback:', apiError);
-          
-          // Try ESPN API as fallback
-          const espnResult = await SportsAPIService.getMLBGamesFromESPN();
-          
-          if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
-            const games = espnResult.data.map(game => {
-              const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
-              return {
-                homeTeam: game.homeTeam,
-                awayTeam: game.awayTeam,
-                isHomeUnderdog,
-                odds: game.runlineOdds || underdogOdds,
-                source: game.source,
-                homePitcher: game.homePitcher,
-                awayPitcher: game.awayPitcher
-              };
-            });
-            
-            const newPicks: BettingPick[] = [];
-            
-            games.forEach(game => {
-              const pick = BettingAnalysisService.analyzeGame(
-                game.homeTeam,
-                game.awayTeam,
-                game.isHomeUnderdog,
-                game.odds,
-                game.homePitcher,
-                game.awayPitcher
-              );
-              
-              if (pick) {
-                pick.reason += ` (Source: ${game.source})`;
-                newPicks.push(pick);
-              }
-            });
-            
-            // Remove duplicates based on team matchup
-            const uniquePicks = newPicks.filter((pick, index, self) => 
-              index === self.findIndex(p => 
-                (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
-                (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
-              )
-            );
-            
-            setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
-            setLastUpdate(new Date());
-            
-            toast({
-              title: "ESPN Data Retrieved",
-              description: `Found ${newPicks.length} qualifying picks from ESPN API`,
-            });
-          } else {
-            // Final fallback to mock data
-            setIsUsingLiveData(true);
-            const games = getFixedDemoGames();
-            const newPicks: BettingPick[] = [];
-            
-             games.forEach(game => {
-               const pick = BettingAnalysisService.analyzeGame(
-                 game.homeTeam,
-                 game.awayTeam,
-                 game.isHomeUnderdog,
-                 game.odds,
-                 undefined, // No pitcher data for demo
-                 undefined  // No pitcher data for demo
-               );
-               
-               if (pick) {
-                 newPicks.push(pick);
-               }
-             });
-            
-            setDailyPicks(newPicks.slice(0, 4)); // Only show top 4 picks
-            setLastUpdate(new Date());
-            
-            toast({
-              title: "Using Demo Data",
-              description: `API configured but no live data available - found ${newPicks.length} demo picks`,
-              variant: "default"
-            });
-          }
-        }
-      } else {
-        // No API key - show setup or use ESPN fallback
-        console.log('No Sports API key found, trying ESPN...');
+        const result = await SportsAPIService.getMLBGames();
+        console.log('Sports API result:', result);
         
-        try {
-          const espnResult = await SportsAPIService.getMLBGamesFromESPN();
+        if (result.success && result.data && result.data.length > 0) {
+          console.log('Live MLB data fetched successfully, games found:', result.data.length);
           
-          if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
-            setIsUsingLiveData(false);
-            
-              const games = espnResult.data.map(game => {
-                const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
-                return {
-                  homeTeam: game.homeTeam,
-                  awayTeam: game.awayTeam,
-                  isHomeUnderdog,
-                  odds: game.runlineOdds || underdogOdds,
-                  source: game.source,
-                  homePitcher: game.homePitcher,
-                  awayPitcher: game.awayPitcher
-                };
-              });
-            
-            const newPicks: BettingPick[] = [];
-            
-            games.forEach(game => {
-              const pick = BettingAnalysisService.analyzeGame(
-                game.homeTeam,
-                game.awayTeam,
-                game.isHomeUnderdog,
-                game.odds,
-                game.homePitcher,
-                game.awayPitcher
-              );
-              
-              if (pick) {
-                pick.reason += ` (Source: ${game.source})`;
-                newPicks.push(pick);
-              }
-            });
-            
-            // Remove duplicates based on team matchup
-            const uniquePicks = newPicks.filter((pick, index, self) => 
-              index === self.findIndex(p => 
-                (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
-                (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
-              )
-            );
-            
-            setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
-            setLastUpdate(new Date());
-            
-            toast({
-              title: "ESPN Data Retrieved",
-              description: `Found ${newPicks.length} qualifying picks (free ESPN data)`,
-            });
-          } else {
-            throw new Error('ESPN API also failed');
-          }
-        } catch (espnError) {
-          // Ultimate fallback to demo data
-          setIsUsingLiveData(false);
-          
-          const games = BettingAnalysisService.mockDailyGames();
           const newPicks: BettingPick[] = [];
           
-          games.forEach(game => {
+          result.data.forEach((game, index) => {
+            console.log(`Processing game ${index + 1}:`, game);
+            
+            let { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+            
             const pick = BettingAnalysisService.analyzeGame(
               game.homeTeam,
               game.awayTeam,
-              game.isHomeUnderdog,
-              game.odds,
-              undefined, // No pitcher data for mock games
-              undefined  // No pitcher data for mock games
+              isHomeUnderdog,
+              game.runlineOdds || underdogOdds,
+              'TBD',
+              'TBD'
             );
             
+            console.log(`Pick created for ${game.homeTeam} vs ${game.awayTeam}:`, pick);
+            
             if (pick) {
+              pick.reason += ` (Source: ${game.source})`;
               newPicks.push(pick);
             }
           });
           
-          // Remove duplicates based on team matchup
-          const uniquePicks = newPicks.filter((pick, index, self) => 
-            index === self.findIndex(p => 
-              (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
-              (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
-            )
-          );
+          console.log('Total picks created:', newPicks.length);
           
-          setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
-          setLastUpdate(new Date());
-          
-          toast({
-            title: "Demo Analysis Complete",
-            description: `Found ${newPicks.length} qualifying picks (demo data)`,
-          });
+          if (newPicks.length > 0) {
+            const finalPicks = newPicks.slice(0, 4);
+            console.log('Setting daily picks:', finalPicks);
+            setDailyPicks(finalPicks);
+            setAllPicks(prev => [...prev, ...finalPicks]);
+            setLastUpdate(new Date());
+            
+            toast({
+              title: "Real MLB Data Retrieved!",
+              description: `Found ${newPicks.length} qualifying picks from live odds`,
+            });
+          } else {
+            throw new Error('No qualifying picks found');
+          }
+        } else {
+          throw new Error('No games found from Sports API');
         }
+      } else {
+        throw new Error('No API key available');
       }
     } catch (error) {
-      // Final error handling
-      const apiKey = SportsAPIService.getApiKey();
-      setIsUsingLiveData(!!apiKey);
+      console.error('Error generating daily picks:', error);
       
-      const games = apiKey ? getFixedDemoGames() : BettingAnalysisService.mockDailyGames();
-      const newPicks: BettingPick[] = [];
+      // Fallback to demo data
+      console.log('Using fallback demo data...');
+      setIsUsingLiveData(false);
       
-      games.forEach(game => {
+      const demoGames = getFixedDemoGames();
+      const demoPicks: BettingPick[] = [];
+      
+      demoGames.forEach(game => {
         const pick = BettingAnalysisService.analyzeGame(
           game.homeTeam,
           game.awayTeam,
           game.isHomeUnderdog,
-          game.odds,
-          undefined, // No pitcher data for error fallback
-          undefined  // No pitcher data for error fallback
+          game.odds
         );
-        
-        if (pick) {
-          newPicks.push(pick);
-        }
+        if (pick) demoPicks.push(pick);
       });
       
-      setDailyPicks(newPicks);
-      setLastUpdate(new Date());
+      console.log('Demo picks created:', demoPicks.length);
+      setDailyPicks(demoPicks);
+      setAllPicks(prev => [...prev, ...demoPicks]);
       
       toast({
-        title: "Analysis Complete",
-        description: `Found ${newPicks.length} qualifying picks (fallback mode)`,
-        variant: "default"
+        title: "Demo Mode Active",
+        description: `Generated ${demoPicks.length} demo picks`,
       });
     } finally {
       setIsLoading(false);
+      console.log('=== generateDailyPicks completed ===');
     }
   };
 
   const generateTomorrowPicks = async () => {
     try {
-      console.log('Attempting to fetch tomorrow\'s MLB games from ESPN...');
-      
-      // Try ESPN API for tomorrow's games
-      const espnResult = await SportsAPIService.getMLBGamesFromESPN(1); // 1 day offset for tomorrow
-      
-      if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
-        const games = espnResult.data.map(game => {
-          const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
-          return {
-            homeTeam: game.homeTeam,
-            awayTeam: game.awayTeam,
-            isHomeUnderdog,
-            odds: game.runlineOdds || underdogOdds,
-            source: game.source,
-            homePitcher: game.homePitcher,
-            awayPitcher: game.awayPitcher
-          };
-        });
-        
-        const newPicks: BettingPick[] = [];
-        
-        games.forEach(game => {
-          const pick = BettingAnalysisService.analyzeGame(
-            game.homeTeam,
-            game.awayTeam,
-            game.isHomeUnderdog,
-            game.odds,
-            game.homePitcher,
-            game.awayPitcher
-          );
-          
-          if (pick) {
-            // Update pick ID and date for tomorrow
-            pick.id = `tomorrow-${pick.id}`;
-            pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-            newPicks.push(pick);
-          }
-        });
-        
-        setTomorrowPicks(newPicks.slice(0, 4)); // Only show top 4 picks
-        console.log(`Tomorrow's ESPN analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
-      } else {
-        // Fallback to fixed games
-        console.log('ESPN failed for tomorrow, using fixed demo games');
+      if (isUsingLiveData) {
         const games = getFixedTomorrowGames();
         const newPicks: BettingPick[] = [];
         
@@ -669,20 +416,16 @@ export const BettingDashboard = () => {
             game.homeTeam,
             game.awayTeam,
             game.isHomeUnderdog,
-            game.odds,
-            undefined, // Tomorrow's pitchers TBD for demo
-            undefined  // Tomorrow's pitchers TBD for demo
+            game.odds
           );
           
           if (pick) {
-            pick.id = `tomorrow-${pick.id}`;
             pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             newPicks.push(pick);
           }
         });
         
-        setTomorrowPicks(newPicks.slice(0, 4)); // Only show top 4 picks
-        console.log(`Tomorrow's demo analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
+        setTomorrowPicks(newPicks.slice(0, 4));
       }
     } catch (error) {
       console.error('Error generating tomorrow picks:', error);
@@ -690,12 +433,9 @@ export const BettingDashboard = () => {
     }
   };
 
-  // Generate tomorrow's picks when component mounts
   useEffect(() => {
     generateTomorrowPicks();
   }, [isUsingLiveData]);
-
-
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'bg-profit text-profit-foreground';
@@ -711,7 +451,7 @@ export const BettingDashboard = () => {
 
   const getCheckmarkColor = (confidence: number) => {
     if (confidence >= 70) return 'text-white';
-    return 'text-gray-700'; // Dark grey for light backgrounds
+    return 'text-gray-700';
   };
 
   const getStatusColor = (status: string) => {
@@ -723,7 +463,6 @@ export const BettingDashboard = () => {
     }
   };
 
-  // Toggle buddy analysis visibility for individual games
   const toggleBuddyAnalysis = (pickId: string) => {
     setShowBuddyAnalysis(prev => ({
       ...prev,
@@ -936,14 +675,15 @@ export const BettingDashboard = () => {
 
             <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
-                {results.streak.type === 'win' ? 
-                  <TrendingUp className="h-4 w-4 text-profit" /> : 
-                  <TrendingDown className="h-4 w-4 text-loss" />
-                }
+                <CardTitle className="text-xs sm:text-sm font-medium">Current Streak</CardTitle>
+                {results.streak.type === 'win' ? (
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-profit" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-loss" />
+                )}
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${results.streak.type === 'win' ? 'text-profit' : 'text-loss'}`}>
+                <div className={`text-lg sm:text-2xl font-bold ${results.streak.type === 'win' ? 'text-profit' : 'text-loss'}`}>
                   {results.streak.count}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -954,15 +694,15 @@ export const BettingDashboard = () => {
 
             <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Last Update</CardTitle>
-                <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Last Update</CardTitle>
+                <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 text-accent" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-foreground">
+                <div className="text-lg sm:text-2xl font-bold text-accent">
                   {getETTime()}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {getETDate()} ET
+                  Eastern Time
                 </p>
               </CardContent>
             </Card>
@@ -1037,6 +777,9 @@ export const BettingDashboard = () => {
                                <div className="flex-1 min-w-0">
                                  <div className="flex items-center gap-2">
                                    <div className="font-semibold text-sm sm:text-base truncate">{pick.awayTeam}</div>
+                                   {pick.result && (
+                                     <span className="text-lg font-bold">{pick.result.awayScore}</span>
+                                   )}
                                      {pick.recommendedBet === 'away_runline' && (
                                        <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center flex-shrink-0`}>
                                          <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
@@ -1060,6 +803,9 @@ export const BettingDashboard = () => {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
                                     <div className="font-semibold text-sm sm:text-base truncate">{pick.homeTeam}</div>
+                                    {pick.result && (
+                                      <span className="text-lg font-bold">{pick.result.homeScore}</span>
+                                    )}
                                      {pick.recommendedBet === 'home_runline' && (
                                         <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center flex-shrink-0`}>
                                           <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
@@ -1069,63 +815,62 @@ export const BettingDashboard = () => {
                                   <div className="text-xs text-muted-foreground truncate">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
                                 </div>
                              </div>
-                          </div>
-                          
-                          <div className="text-right space-y-2 ml-4">
-                            <Badge className={getConfidenceColor(pick.confidence)}>
-                              <span className="text-base font-bold">{Math.round(pick.confidence)}%</span>
-                            </Badge>
-                            <div className="text-sm font-normal text-muted-foreground">
-                              +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
-                            </div>
-                            <Badge variant="outline" className="text-muted-foreground font-normal">
-                              {pick.odds > 0 ? '+' : ''}{pick.odds}
-                            </Badge>
-                            {pick.status !== 'pending' && (
-                              <Badge className={getStatusColor(pick.status)}>
-                                {pick.status.toUpperCase()}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        
-                         <div className="border-t border-border/30 pt-3 space-y-3">
-                           <div className="flex items-center gap-3">
-                             <span className="font-medium text-sm text-muted-foreground">
-                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                             </span>
-                             <ChevronDown 
-                               className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
-                                 showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
-                               }`}
-                               onClick={() => toggleBuddyAnalysis(pick.id)}
-                             />
                            </div>
                            
-                           {/* Buddy Analysis - Only show when toggled */}
-                           {showBuddyAnalysis[pick.id] && (
-                             <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
-                               <p className="text-sm text-foreground/90 leading-relaxed">
-                                 {getBuddyAnalysis(pick)}
-                               </p>
+                           <div className="text-right space-y-2 ml-4">
+                             <Badge className={getConfidenceColor(pick.confidence)}>
+                               <span className="text-base font-bold">{Math.round(pick.confidence)}%</span>
+                             </Badge>
+                             <div className="text-sm font-normal text-muted-foreground">
+                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
                              </div>
-                           )}
+                             <Badge variant="outline" className="text-muted-foreground font-normal">
+                               {pick.odds > 0 ? '+' : ''}{pick.odds}
+                             </Badge>
+                             {pick.status !== 'pending' && (
+                               <Badge className={getStatusColor(pick.status)}>
+                                 {pick.status.toUpperCase()}
+                               </Badge>
+                             )}
+                           </div>
                          </div>
-                        
-                        
-                        {pick.result && (
-                          <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
-                            Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
-                            {pick.profit && (
-                              <span className={`ml-2 font-semibold ${pick.profit > 0 ? 'text-profit' : 'text-loss'}`}>
-                                ({pick.profit > 0 ? '+' : ''}{pick.profit.toFixed(2)}u)
+                         
+                          <div className="border-t border-border/30 pt-3 space-y-3">
+                            <div className="flex items-center gap-3">
+                              <span className="font-medium text-sm text-muted-foreground">
+                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
                               </span>
+                              <ChevronDown 
+                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
+                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
+                                }`}
+                                onClick={() => toggleBuddyAnalysis(pick.id)}
+                              />
+                            </div>
+                            
+                            {/* Buddy Analysis - Only show when toggled */}
+                            {showBuddyAnalysis[pick.id] && (
+                              <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
+                                <p className="text-sm text-foreground/90 leading-relaxed">
+                                  {getBuddyAnalysis(pick)}
+                                </p>
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                         
+                         {pick.result && (
+                           <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
+                             Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
+                             {pick.profit && (
+                               <span className={`ml-2 font-semibold ${pick.profit > 0 ? 'text-profit' : 'text-loss'}`}>
+                                 ({pick.profit > 0 ? '+' : ''}{pick.profit.toFixed(2)}u)
+                               </span>
+                             )}
+                           </div>
+                         )}
+                       </div>
+                     ))}
+                   </div>
                 )}
               </TabsContent>
 
@@ -1143,30 +888,28 @@ export const BettingDashboard = () => {
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1 space-y-3">
-                            {/* Away Team */}
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={getTeamLogo(pick.awayTeam)} 
-                                alt={`${pick.awayTeam} logo`}
-                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                }}
-                              />
+                             <div className="flex items-center gap-3">
+                               <img 
+                                 src={getTeamLogo(pick.awayTeam)} 
+                                 alt={`${pick.awayTeam} logo`}
+                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                 onError={(e) => {
+                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                 }}
+                               />
                                <div className="flex-1">
                                  <div className="flex items-center gap-2">
                                    <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                    {pick.recommendedBet === 'away_runline' && (
-                                      <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                     {pick.recommendedBet === 'away_runline' && (
+                                       <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
                                          <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
-                                      </div>
-                                    )}
+                                       </div>
+                                     )}
                                  </div>
                                  <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
                                </div>
                              </div>
-                             
-                             {/* Home Team */}
+                            
                              <div className="flex items-center gap-3">
                                <img 
                                  src={getTeamLogo(pick.homeTeam)} 
@@ -1176,62 +919,57 @@ export const BettingDashboard = () => {
                                    e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                  }}
                                />
-                               <div className="flex-1">
-                                 <div className="flex items-center gap-2">
-                                   <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                    {pick.recommendedBet === 'home_runline' && (
-                                      <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
-                                        <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
-                                      </div>
-                                    )}
-                                 </div>
-                                 <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
-                               </div>
-                            </div>
-                          </div>
-                          
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <div className="font-semibold text-base">{pick.homeTeam}</div>
+                                     {pick.recommendedBet === 'home_runline' && (
+                                        <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                          <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
+                                        </div>
+                                     )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
+                                </div>
+                             </div>
+                           </div>
+                           
                            <div className="text-right space-y-2 ml-4">
                              <Badge className={getConfidenceColor(pick.confidence)}>
                                <span className="text-base font-bold">{Math.round(pick.confidence)}%</span>
                              </Badge>
-                              <div className="text-sm font-normal text-muted-foreground">
-                                +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
-                              </div>
-                              <Badge variant="outline" className="text-muted-foreground font-normal">
-                                {pick.odds > 0 ? '+' : ''}{pick.odds}
-                              </Badge>
-                           </div>
-                        </div>
-                        
-                         <div className="border-t border-border/30 pt-3 space-y-3">
-                           <div className="flex items-center gap-3">
-                             <span className="font-medium text-sm text-muted-foreground">
-                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                             </span>
-                             <ChevronDown 
-                               className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
-                                 showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
-                               }`}
-                               onClick={() => toggleBuddyAnalysis(pick.id)}
-                             />
-                           </div>
-                           
-                           {/* Buddy Analysis - Only show when toggled */}
-                           {showBuddyAnalysis[pick.id] && (
-                             <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
-                               <p className="text-sm text-foreground/90 leading-relaxed">
-                                 {getBuddyAnalysis(pick)}
-                               </p>
+                             <div className="text-sm font-normal text-muted-foreground">
+                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
                              </div>
-                           )}
+                             <Badge variant="outline" className="text-muted-foreground font-normal">
+                               {pick.odds > 0 ? '+' : ''}{pick.odds}
+                             </Badge>
+                           </div>
                          </div>
-                        
-                        <div className="text-xs text-muted-foreground bg-accent/10 rounded px-2 py-1 inline-block">
-                          Preview - Game starts tomorrow
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                         
+                          <div className="border-t border-border/30 pt-3 space-y-3">
+                            <div className="flex items-center gap-3">
+                              <span className="font-medium text-sm text-muted-foreground">
+                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                              </span>
+                              <ChevronDown 
+                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
+                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
+                                }`}
+                                onClick={() => toggleBuddyAnalysis(pick.id)}
+                              />
+                            </div>
+                            
+                            {showBuddyAnalysis[pick.id] && (
+                              <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
+                                <p className="text-sm text-foreground/90 leading-relaxed">
+                                  {getBuddyAnalysis(pick)}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                       </div>
+                     ))}
+                   </div>
                 )}
               </TabsContent>
 
@@ -1324,16 +1062,16 @@ export const BettingDashboard = () => {
                                           e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                         }}
                                       />
-                                       <span className="font-medium">{pick.awayTeam}</span>
-                                       {pick.result && (
-                                         <span className="text-lg font-bold">{pick.result.awayScore}</span>
-                                       )}
-                                       {pick.status === 'pending' && pick.result && (
-                                         <div className="flex items-center gap-2">
-                                           <span className="text-sm text-accent font-medium px-2 py-1 bg-accent/10 rounded">LIVE</span>
-                                           <span className="text-xs text-muted-foreground">T3</span>
-                                         </div>
-                                       )}
+                                      <span className="font-medium">{pick.awayTeam}</span>
+                                      {pick.result && (
+                                        <span className="text-lg font-bold">{pick.result.awayScore}</span>
+                                      )}
+                                      {pick.status === 'pending' && pick.result && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-accent font-medium px-2 py-1 bg-accent/10 rounded">LIVE</span>
+                                          <span className="text-xs text-muted-foreground">T3</span>
+                                        </div>
+                                      )}
                                     </div>
                                     <div className="flex items-center gap-3">
                                       <img 
