@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         GraduationCap, Dribbble, Trophy, ChevronDown } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy, ChevronDown, Check } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -764,37 +764,51 @@ export const BettingDashboard = () => {
                       >
                         <div className="flex justify-between items-start mb-3">
                           <div className="flex-1 space-y-3">
-                            {/* Away Team */}
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={getTeamLogo(pick.awayTeam)} 
-                                alt={`${pick.awayTeam} logo`}
-                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                }}
-                              />
-                              <div className="flex-1">
-                                <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
-                              </div>
-                            </div>
+                             {/* Away Team */}
+                             <div className="flex items-center gap-3">
+                               <img 
+                                 src={getTeamLogo(pick.awayTeam)} 
+                                 alt={`${pick.awayTeam} logo`}
+                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                 onError={(e) => {
+                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                 }}
+                               />
+                               <div className="flex-1">
+                                 <div className="flex items-center gap-2">
+                                   <div className="font-semibold text-base">{pick.awayTeam}</div>
+                                   {pick.recommendedBet === 'away_runline' && (
+                                     <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
+                                       <Check className="w-3 h-3 text-white" />
+                                     </div>
+                                   )}
+                                 </div>
+                                 <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
+                               </div>
+                             </div>
                             
-                            {/* Home Team */}
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={getTeamLogo(pick.homeTeam)} 
-                                alt={`${pick.homeTeam} logo`}
-                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                }}
-                              />
-                              <div className="flex-1">
-                                <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
-                              </div>
-                            </div>
+                             {/* Home Team */}
+                             <div className="flex items-center gap-3">
+                               <img 
+                                 src={getTeamLogo(pick.homeTeam)} 
+                                 alt={`${pick.homeTeam} logo`}
+                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                 onError={(e) => {
+                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                 }}
+                               />
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <div className="font-semibold text-base">{pick.homeTeam}</div>
+                                    {pick.recommendedBet === 'home_runline' && (
+                                      <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
+                                        <Check className="w-3 h-3 text-white" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
+                                </div>
+                             </div>
                           </div>
                           
                           <div className="text-right space-y-2 ml-4">
@@ -879,26 +893,40 @@ export const BettingDashboard = () => {
                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                 }}
                               />
-                              <div className="flex-1">
-                                <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
-                              </div>
-                            </div>
-                            
-                            {/* Home Team */}
-                            <div className="flex items-center gap-3">
-                              <img 
-                                src={getTeamLogo(pick.homeTeam)} 
-                                alt={`${pick.homeTeam} logo`}
-                                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                }}
-                              />
-                              <div className="flex-1">
-                                <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
-                              </div>
+                               <div className="flex-1">
+                                 <div className="flex items-center gap-2">
+                                   <div className="font-semibold text-base">{pick.awayTeam}</div>
+                                   {pick.recommendedBet === 'away_runline' && (
+                                     <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
+                                       <Check className="w-3 h-3 text-white" />
+                                     </div>
+                                   )}
+                                 </div>
+                                 <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
+                               </div>
+                             </div>
+                             
+                             {/* Home Team */}
+                             <div className="flex items-center gap-3">
+                               <img 
+                                 src={getTeamLogo(pick.homeTeam)} 
+                                 alt={`${pick.homeTeam} logo`}
+                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                 onError={(e) => {
+                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                 }}
+                               />
+                               <div className="flex-1">
+                                 <div className="flex items-center gap-2">
+                                   <div className="font-semibold text-base">{pick.homeTeam}</div>
+                                   {pick.recommendedBet === 'home_runline' && (
+                                     <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
+                                       <Check className="w-3 h-3 text-white" />
+                                     </div>
+                                   )}
+                                 </div>
+                                 <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
+                               </div>
                             </div>
                           </div>
                           
