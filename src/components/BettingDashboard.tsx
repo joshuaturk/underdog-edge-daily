@@ -124,7 +124,9 @@ export const BettingDashboard = () => {
                 awayTeam: game.awayTeam,
                 isHomeUnderdog,
                 odds: game.runlineOdds || underdogOdds,
-                source: game.source
+                source: game.source,
+                homePitcher: game.homePitcher,
+                awayPitcher: game.awayPitcher
               };
             });
             
@@ -135,7 +137,9 @@ export const BettingDashboard = () => {
                 game.homeTeam,
                 game.awayTeam,
                 game.isHomeUnderdog,
-                game.odds
+                game.odds,
+                game.homePitcher,
+                game.awayPitcher
               );
               
               if (pick) {
@@ -169,7 +173,9 @@ export const BettingDashboard = () => {
                 awayTeam: game.awayTeam,
                 isHomeUnderdog,
                 odds: game.runlineOdds || underdogOdds,
-                source: game.source
+                source: game.source,
+                homePitcher: game.homePitcher,
+                awayPitcher: game.awayPitcher
               };
             });
             
@@ -180,7 +186,9 @@ export const BettingDashboard = () => {
                 game.homeTeam,
                 game.awayTeam,
                 game.isHomeUnderdog,
-                game.odds
+                game.odds,
+                game.homePitcher,
+                game.awayPitcher
               );
               
               if (pick) {
@@ -202,18 +210,20 @@ export const BettingDashboard = () => {
             const games = getFixedDemoGames();
             const newPicks: BettingPick[] = [];
             
-            games.forEach(game => {
-              const pick = BettingAnalysisService.analyzeGame(
-                game.homeTeam,
-                game.awayTeam,
-                game.isHomeUnderdog,
-                game.odds
-              );
-              
-              if (pick) {
-                newPicks.push(pick);
-              }
-            });
+             games.forEach(game => {
+               const pick = BettingAnalysisService.analyzeGame(
+                 game.homeTeam,
+                 game.awayTeam,
+                 game.isHomeUnderdog,
+                 game.odds,
+                 undefined, // No pitcher data for demo
+                 undefined  // No pitcher data for demo
+               );
+               
+               if (pick) {
+                 newPicks.push(pick);
+               }
+             });
             
             setDailyPicks(newPicks);
             setLastUpdate(new Date());
@@ -253,7 +263,9 @@ export const BettingDashboard = () => {
                 game.homeTeam,
                 game.awayTeam,
                 game.isHomeUnderdog,
-                game.odds
+                game.odds,
+                undefined, // No pitcher data for this fallback
+                undefined  // No pitcher data for this fallback
               );
               
               if (pick) {
@@ -284,7 +296,9 @@ export const BettingDashboard = () => {
               game.homeTeam,
               game.awayTeam,
               game.isHomeUnderdog,
-              game.odds
+              game.odds,
+              undefined, // No pitcher data for mock games
+              undefined  // No pitcher data for mock games
             );
             
             if (pick) {
@@ -314,7 +328,9 @@ export const BettingDashboard = () => {
           game.homeTeam,
           game.awayTeam,
           game.isHomeUnderdog,
-          game.odds
+          game.odds,
+          undefined, // No pitcher data for error fallback
+          undefined  // No pitcher data for error fallback
         );
         
         if (pick) {
@@ -352,7 +368,9 @@ export const BettingDashboard = () => {
             game.homeTeam,
             game.awayTeam,
             game.isHomeUnderdog,
-            game.odds
+            game.odds,
+            undefined, // Tomorrow's pitchers TBD
+            undefined  // Tomorrow's pitchers TBD
           );
           
           if (pick) {
@@ -379,7 +397,9 @@ export const BettingDashboard = () => {
           game.homeTeam,
           game.awayTeam,
           game.isHomeUnderdog,
-          game.odds
+          game.odds,
+          undefined, // No pitcher data for mock tomorrow games
+          undefined  // No pitcher data for mock tomorrow games
         );
         
         if (pick) {
@@ -602,7 +622,7 @@ export const BettingDashboard = () => {
                               />
                               <div className="flex-1">
                                 <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                <div className="text-xs text-muted-foreground">Starting Pitcher TBD</div>
+                                <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
                               </div>
                             </div>
                             
@@ -618,7 +638,7 @@ export const BettingDashboard = () => {
                               />
                               <div className="flex-1">
                                 <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                <div className="text-xs text-muted-foreground">Starting Pitcher TBD</div>
+                                <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
                               </div>
                             </div>
                           </div>
@@ -690,7 +710,7 @@ export const BettingDashboard = () => {
                               />
                               <div className="flex-1">
                                 <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                <div className="text-xs text-muted-foreground">Starting Pitcher TBD</div>
+                                <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
                               </div>
                             </div>
                             
@@ -706,7 +726,7 @@ export const BettingDashboard = () => {
                               />
                               <div className="flex-1">
                                 <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                <div className="text-xs text-muted-foreground">Starting Pitcher TBD</div>
+                                <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
                               </div>
                             </div>
                           </div>

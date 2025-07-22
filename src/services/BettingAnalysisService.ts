@@ -15,7 +15,7 @@ export class BettingAnalysisService {
   private static readonly ROAD_DOG_BONUS = 5;
   private static readonly RECENT_FORM_WEIGHT = 0.3;
 
-  static analyzeGame(homeTeam: string, awayTeam: string, isHomeUnderdog: boolean, odds: number): BettingPick | null {
+  static analyzeGame(homeTeam: string, awayTeam: string, isHomeUnderdog: boolean, odds: number, homePitcher?: string, awayPitcher?: string): BettingPick | null {
     const homeStats = this.getTeamStats(homeTeam);
     const awayStats = this.getTeamStats(awayTeam);
     
@@ -60,7 +60,9 @@ export class BettingAnalysisService {
       confidence: Math.min(confidence, 95), // Cap at 95%
       reason,
       odds,
-      status: 'pending'
+      status: 'pending',
+      homePitcher,
+      awayPitcher
     };
   }
 

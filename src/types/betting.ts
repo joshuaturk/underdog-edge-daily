@@ -14,6 +14,8 @@ export interface BettingPick {
     scoreDifference: number;
   };
   profit?: number;
+  homePitcher?: string;
+  awayPitcher?: string;
 }
 
 export interface TeamStats {
