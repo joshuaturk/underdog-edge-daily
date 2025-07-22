@@ -264,21 +264,19 @@ export const BettingDashboard = () => {
             <p className="text-muted-foreground mt-1">
               Advanced underdog runline analysis & daily picks
             </p>
-            <div className="flex items-center gap-2 mt-2">
-              {isUsingLiveData ? (
-                <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20">
-                  <Globe className="w-3 h-3 mr-1" />
-                  Live Data
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-                  <Database className="w-3 h-3 mr-1" />
-                  Demo Mode
-                </Badge>
-              )}
-            </div>
           </div>
           <div className="flex items-center gap-2">
+            {isUsingLiveData ? (
+              <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20">
+                <Globe className="w-3 h-3 mr-1" />
+                Live Data
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
+                <Database className="w-3 h-3 mr-1" />
+                Demo Mode
+              </Badge>
+            )}
             <ThemeToggle />
             <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
