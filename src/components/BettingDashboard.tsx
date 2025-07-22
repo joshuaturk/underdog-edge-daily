@@ -598,7 +598,7 @@ export const BettingDashboard = () => {
                           </div>
                           <div className="text-right space-y-2">
                             <Badge className={getConfidenceColor(pick.confidence)}>
-                              {pick.confidence.toFixed(1)}% confidence
+                              {Math.round(pick.confidence)}% confidence
                             </Badge>
                             <Badge variant="outline">
                               {pick.odds > 0 ? '+' : ''}{pick.odds}
@@ -655,7 +655,7 @@ export const BettingDashboard = () => {
                           </div>
                           <div className="text-right space-y-2">
                             <Badge className={getConfidenceColor(pick.confidence)}>
-                              {pick.confidence.toFixed(1)}% confidence
+                              {Math.round(pick.confidence)}% confidence
                             </Badge>
                             <Badge variant="outline">
                               {pick.odds > 0 ? '+' : ''}{pick.odds}
