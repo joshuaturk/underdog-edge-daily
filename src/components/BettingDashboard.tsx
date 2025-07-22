@@ -566,6 +566,12 @@ export const BettingDashboard = () => {
     return 'bg-secondary text-secondary-foreground';
   };
 
+  const getCircleColor = (confidence: number) => {
+    if (confidence >= 80) return 'bg-profit';
+    if (confidence >= 70) return 'bg-accent';
+    return 'bg-secondary';
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'won': return 'bg-profit text-profit-foreground';
@@ -777,11 +783,11 @@ export const BettingDashboard = () => {
                                <div className="flex-1">
                                  <div className="flex items-center gap-2">
                                    <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                   {pick.recommendedBet === 'away_runline' && (
-                                     <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
-                                       <Check className="w-3 h-3 text-white" />
-                                     </div>
-                                   )}
+                                    {pick.recommendedBet === 'away_runline' && (
+                                      <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                        <Check className="w-3 h-3 text-white" />
+                                      </div>
+                                    )}
                                  </div>
                                  <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
                                </div>
@@ -800,11 +806,11 @@ export const BettingDashboard = () => {
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
                                     <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                    {pick.recommendedBet === 'home_runline' && (
-                                      <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
-                                        <Check className="w-3 h-3 text-white" />
-                                      </div>
-                                    )}
+                                     {pick.recommendedBet === 'home_runline' && (
+                                       <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                         <Check className="w-3 h-3 text-white" />
+                                       </div>
+                                     )}
                                   </div>
                                   <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
                                 </div>
@@ -896,11 +902,11 @@ export const BettingDashboard = () => {
                                <div className="flex-1">
                                  <div className="flex items-center gap-2">
                                    <div className="font-semibold text-base">{pick.awayTeam}</div>
-                                   {pick.recommendedBet === 'away_runline' && (
-                                     <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
-                                       <Check className="w-3 h-3 text-white" />
-                                     </div>
-                                   )}
+                                    {pick.recommendedBet === 'away_runline' && (
+                                      <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                        <Check className="w-3 h-3 text-white" />
+                                      </div>
+                                    )}
                                  </div>
                                  <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
                                </div>
@@ -919,11 +925,11 @@ export const BettingDashboard = () => {
                                <div className="flex-1">
                                  <div className="flex items-center gap-2">
                                    <div className="font-semibold text-base">{pick.homeTeam}</div>
-                                   {pick.recommendedBet === 'home_runline' && (
-                                     <div className="bg-green-600 rounded-full p-1 flex items-center justify-center">
-                                       <Check className="w-3 h-3 text-white" />
-                                     </div>
-                                   )}
+                                    {pick.recommendedBet === 'home_runline' && (
+                                      <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                        <Check className="w-3 h-3 text-white" />
+                                      </div>
+                                    )}
                                  </div>
                                  <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
                                </div>
