@@ -523,7 +523,7 @@ export const BettingDashboard = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Target className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">MLB Picks</h3>
+              <h3 className="text-lg font-semibold">Underdog Runline</h3>
             </div>
             <TabsList className="grid w-auto grid-cols-2">
               <TabsTrigger value="today" className="flex items-center gap-2">
