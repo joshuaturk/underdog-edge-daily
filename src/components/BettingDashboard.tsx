@@ -95,6 +95,7 @@ export const BettingDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isUsingLiveData, setIsUsingLiveData] = useState(true); // Always start with live data
+  const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({}); // Track which games show analysis
   const { toast } = useToast();
 
   // Helper function to get dates in ET timezone
@@ -542,6 +543,14 @@ export const BettingDashboard = () => {
     }
   };
 
+  // Toggle buddy analysis visibility for individual games
+  const toggleBuddyAnalysis = (pickId: string) => {
+    setShowBuddyAnalysis(prev => ({
+      ...prev,
+      [pickId]: !prev[pickId]
+    }));
+  };
+
   // Main component render
   return (
     <div className="min-h-screen bg-background">
@@ -770,26 +779,38 @@ export const BettingDashboard = () => {
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
-                           <div className="flex items-center gap-3">
-                             <img 
-                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
-                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
-                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                               onError={(e) => {
-                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                               }}
-                             />
-                             <span className="font-medium text-sm">
-                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                             </span>
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-3">
+                               <img 
+                                 src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
+                                 alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
+                                 className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                                 onError={(e) => {
+                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                 }}
+                               />
+                               <span className="font-medium text-sm">
+                                 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                               </span>
+                             </div>
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => toggleBuddyAnalysis(pick.id)}
+                               className="text-xs"
+                             >
+                               Betbud Insight
+                             </Button>
                            </div>
                            
-                           {/* Buddy Analysis */}
-                           <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
-                             <p className="text-sm text-foreground/90 leading-relaxed">
-                               {getBuddyAnalysis(pick)}
-                             </p>
-                           </div>
+                           {/* Buddy Analysis - Only show when toggled */}
+                           {showBuddyAnalysis[pick.id] && (
+                             <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
+                               <p className="text-sm text-foreground/90 leading-relaxed">
+                                 {getBuddyAnalysis(pick)}
+                               </p>
+                             </div>
+                           )}
                          </div>
                         
                         
@@ -867,26 +888,38 @@ export const BettingDashboard = () => {
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
-                           <div className="flex items-center gap-3">
-                             <img 
-                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
-                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
-                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                               onError={(e) => {
-                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                               }}
-                             />
-                             <span className="font-medium text-sm">
-                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                             </span>
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-3">
+                               <img 
+                                 src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
+                                 alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
+                                 className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                                 onError={(e) => {
+                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                 }}
+                               />
+                               <span className="font-medium text-sm">
+                                 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                               </span>
+                             </div>
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => toggleBuddyAnalysis(pick.id)}
+                               className="text-xs"
+                             >
+                               Betbud Insight
+                             </Button>
                            </div>
                            
-                           {/* Buddy Analysis */}
-                           <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
-                             <p className="text-sm text-foreground/90 leading-relaxed">
-                               {getBuddyAnalysis(pick)}
-                             </p>
-                           </div>
+                           {/* Buddy Analysis - Only show when toggled */}
+                           {showBuddyAnalysis[pick.id] && (
+                             <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
+                               <p className="text-sm text-foreground/90 leading-relaxed">
+                                 {getBuddyAnalysis(pick)}
+                               </p>
+                             </div>
+                           )}
                          </div>
                         
                         <div className="text-xs text-muted-foreground bg-accent/10 rounded px-2 py-1 inline-block">
