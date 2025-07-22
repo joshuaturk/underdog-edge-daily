@@ -149,56 +149,84 @@ export const BettingDashboard = () => {
     const updateLiveScores = async () => {
       if (allPicks.length === 0) return;
       
+      console.log('Updating live scores for', allPicks.length, 'picks');
+      
       try {
         // Fetch live scores from ESPN
         const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
+        console.log('ESPN result for live scores:', espnResult);
+        
         if (espnResult.success && espnResult.data) {
           const liveGames = espnResult.data;
+          console.log('Live games from ESPN:', liveGames.length);
           
           const updatedPicks = allPicks.map(pick => {
             // Find matching live game
-            const liveGame = liveGames.find(game => 
-              (game.homeTeam.includes(pick.homeTeam.split(' ').pop()) || pick.homeTeam.includes(game.homeTeam.split(' ').pop())) &&
-              (game.awayTeam.includes(pick.awayTeam.split(' ').pop()) || pick.awayTeam.includes(game.awayTeam.split(' ').pop()))
-            );
+            const liveGame = liveGames.find(game => {
+              const homeMatch = game.homeTeam.includes(pick.homeTeam.split(' ').pop()!) || 
+                               pick.homeTeam.includes(game.homeTeam.split(' ').pop()!);
+              const awayMatch = game.awayTeam.includes(pick.awayTeam.split(' ').pop()!) || 
+                               pick.awayTeam.includes(game.awayTeam.split(' ').pop()!);
+              return homeMatch && awayMatch;
+            });
             
-            if (liveGame && liveGame.homeScore !== undefined && liveGame.awayScore !== undefined) {
-              // Update pick with live score data
-              const updatedPick = {
-                ...pick,
-                result: {
-                  homeScore: liveGame.homeScore,
-                  awayScore: liveGame.awayScore,
-                  scoreDifference: Math.abs(liveGame.homeScore - liveGame.awayScore)
-                }
-              };
+            if (liveGame) {
+              console.log(`Found matching game for ${pick.homeTeam} vs ${pick.awayTeam}:`, liveGame);
               
-              // Determine if game is final and update status/profit if needed
-              if (liveGame.status === 'final') {
-                const scoreDiff = Math.abs(liveGame.homeScore - liveGame.awayScore);
-                const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+              if (liveGame.homeScore !== undefined && liveGame.awayScore !== undefined) {
+                // Update pick with live score data
+                const updatedPick = {
+                  ...pick,
+                  result: {
+                    homeScore: liveGame.homeScore,
+                    awayScore: liveGame.awayScore,
+                    scoreDifference: Math.abs(liveGame.homeScore - liveGame.awayScore)
+                  }
+                };
                 
-                // Check if runline bet won (+1.5 spread)
-                let isWin = false;
-                if (recommendedTeam === 'home') {
-                  isWin = (liveGame.homeScore + 1.5) > liveGame.awayScore;
-                } else {
-                  isWin = (liveGame.awayScore + 1.5) > liveGame.homeScore;
+                console.log(`Updated pick with scores: ${liveGame.homeScore}-${liveGame.awayScore}`);
+                
+                // Determine if game is final and update status/profit if needed
+                if (liveGame.status === 'final') {
+                  const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+                  
+                  // Check if runline bet won (+1.5 spread)
+                  let isWin = false;
+                  if (recommendedTeam === 'home') {
+                    isWin = (liveGame.homeScore + 1.5) > liveGame.awayScore;
+                  } else {
+                    isWin = (liveGame.awayScore + 1.5) > liveGame.homeScore;
+                  }
+                  
+                  updatedPick.status = isWin ? 'won' : 'lost';
+                  updatedPick.profit = isWin ? 1 : -1; // Simple 1 unit profit/loss
+                  console.log(`Game final: ${pick.recommendedBet} ${isWin ? 'WON' : 'LOST'}`);
                 }
                 
-                updatedPick.status = isWin ? 'won' : 'lost';
-                updatedPick.profit = isWin ? 1 : -1; // Simple 1 unit profit/loss
+                return updatedPick;
+              } else {
+                console.log('Live game found but no scores yet:', liveGame);
               }
-              
-              return updatedPick;
+            } else {
+              console.log(`No matching live game found for ${pick.homeTeam} vs ${pick.awayTeam}`);
             }
             
             return pick;
           });
           
-          setAllPicks(updatedPicks);
-          setDailyPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
-          setTomorrowPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
+          // Only update if we found changes
+          const hasChanges = updatedPicks.some((pick, index) => 
+            pick.result !== allPicks[index].result || pick.status !== allPicks[index].status
+          );
+          
+          if (hasChanges) {
+            console.log('Updating picks with live scores');
+            setAllPicks(updatedPicks);
+            setDailyPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
+            setTomorrowPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
+          } else {
+            console.log('No changes to update');
+          }
         }
       } catch (error) {
         console.log('Error updating live scores:', error);
@@ -207,6 +235,8 @@ export const BettingDashboard = () => {
 
     // Update live scores every 30 seconds for pending picks
     const pendingPicks = allPicks.filter(pick => pick.status === 'pending');
+    console.log('Pending picks for live updates:', pendingPicks.length);
+    
     if (pendingPicks.length > 0) {
       updateLiveScores();
       const interval = setInterval(updateLiveScores, 30000); // Update every 30 seconds
@@ -214,11 +244,53 @@ export const BettingDashboard = () => {
     }
   }, [allPicks]);
 
+  // Initialize with some demo picks that have live scores for testing
   useEffect(() => {
-    if (allPicks.length > 0) {
-      setResults(BettingAnalysisService.analyzeResults(allPicks));
+    if (dailyPicks.length === 0) {
+      // Only set demo data if no real picks exist
+      const demoPicks: BettingPick[] = [
+        {
+          id: 'demo-1',
+          date: new Date().toISOString().split('T')[0],
+          homeTeam: 'CLE Guardians',
+          awayTeam: 'BAL Orioles',
+          recommendedBet: 'away_runline',
+          confidence: 75,
+          reason: 'BAL Orioles as road underdog - Strong road performance',
+          odds: -144,
+          status: 'pending',
+          homePitcher: 'Joey Cantillo',
+          awayPitcher: 'Trevor Rogers',
+          result: {
+            homeScore: 2,
+            awayScore: 4,
+            scoreDifference: 2
+          }
+        },
+        {
+          id: 'demo-2',
+          date: new Date().toISOString().split('T')[0],
+          homeTeam: 'WAS Nationals',
+          awayTeam: 'CIN Reds',
+          recommendedBet: 'away_runline',
+          confidence: 68,
+          reason: 'CIN Reds as road underdog - Solid runline coverage',
+          odds: 116,
+          status: 'pending',
+          homePitcher: 'Michael Soroka',
+          awayPitcher: 'Nick Lodolo',
+          result: {
+            homeScore: 1,
+            awayScore: 3,
+            scoreDifference: 2
+          }
+        }
+      ];
+      
+      setDailyPicks(demoPicks);
+      setAllPicks(demoPicks);
     }
-  }, [allPicks]);
+  }, [dailyPicks.length]);
 
 
   // Fixed demo games for consistent testing (July 22, 2025)
