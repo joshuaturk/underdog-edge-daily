@@ -32,6 +32,7 @@ const sportsMenu = [
 ];
 
 export const BettingDashboard = () => {
+  // Clean state initialization for live data
   const [dailyPicks, setDailyPicks] = useState<BettingPick[]>([]);
   const [tomorrowPicks, setTomorrowPicks] = useState<BettingPick[]>([]);
   const [allPicks, setAllPicks] = useState<BettingPick[]>([]);
@@ -439,6 +440,7 @@ export const BettingDashboard = () => {
     }
   };
 
+  // Main component render
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
