@@ -64,9 +64,30 @@ export const BettingDashboard = () => {
     });
   };
 
-  // Auto-generate picks on mount
+  // Auto-fetch at 7am ET daily
   useEffect(() => {
-    generateDailyPicks();
+    const checkAndFetch = () => {
+      const now = new Date();
+      const etHour = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"})).getHours();
+      
+      // Check if it's 7am ET and we haven't fetched today
+      if (etHour === 7) {
+        const lastFetchDate = localStorage.getItem('lastAutoFetch');
+        const today = new Date().toDateString();
+        
+        if (lastFetchDate !== today) {
+          console.log('Auto-fetching daily data at 7am ET');
+          generateDailyPicks();
+          localStorage.setItem('lastAutoFetch', today);
+        }
+      }
+    };
+
+    // Check immediately and then every hour
+    checkAndFetch();
+    const interval = setInterval(checkAndFetch, 60 * 60 * 1000); // Check every hour
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -245,16 +266,18 @@ export const BettingDashboard = () => {
           if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
             setIsUsingLiveData(false);
             
-            const games = espnResult.data.map(game => {
-              const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
-              return {
-                homeTeam: game.homeTeam,
-                awayTeam: game.awayTeam,
-                isHomeUnderdog,
-                odds: game.runlineOdds || underdogOdds,
-                source: game.source
-              };
-            });
+              const games = espnResult.data.map(game => {
+                const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+                return {
+                  homeTeam: game.homeTeam,
+                  awayTeam: game.awayTeam,
+                  isHomeUnderdog,
+                  odds: game.runlineOdds || underdogOdds,
+                  source: game.source,
+                  homePitcher: game.homePitcher,
+                  awayPitcher: game.awayPitcher
+                };
+              });
             
             const newPicks: BettingPick[] = [];
             
@@ -264,8 +287,8 @@ export const BettingDashboard = () => {
                 game.awayTeam,
                 game.isHomeUnderdog,
                 game.odds,
-                undefined, // No pitcher data for this fallback
-                undefined  // No pitcher data for this fallback
+                game.homePitcher,
+                game.awayPitcher
               );
               
               if (pick) {
@@ -352,64 +375,77 @@ export const BettingDashboard = () => {
   };
 
   const generateTomorrowPicks = async () => {
-    const apiKey = SportsAPIService.getApiKey();
-    
-    if (apiKey) {
-      // Try to get tomorrow's games from Sports API
-      try {
-        console.log('Attempting to fetch tomorrow\'s MLB games...');
-        // For now, use tomorrow's fixed games - in production this would fetch tomorrow's actual schedule
-        const games = getFixedTomorrowGames();
+    try {
+      console.log('Attempting to fetch tomorrow\'s MLB games from ESPN...');
+      
+      // Try ESPN API for tomorrow's games
+      const espnResult = await SportsAPIService.getMLBGamesFromESPN(1); // 1 day offset for tomorrow
+      
+      if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
+        const games = espnResult.data.map(game => {
+          const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+          return {
+            homeTeam: game.homeTeam,
+            awayTeam: game.awayTeam,
+            isHomeUnderdog,
+            odds: game.runlineOdds || underdogOdds,
+            source: game.source,
+            homePitcher: game.homePitcher,
+            awayPitcher: game.awayPitcher
+          };
+        });
+        
         const newPicks: BettingPick[] = [];
         
         games.forEach(game => {
-          // Apply the SAME criteria as today's games
           const pick = BettingAnalysisService.analyzeGame(
             game.homeTeam,
             game.awayTeam,
             game.isHomeUnderdog,
             game.odds,
-            undefined, // Tomorrow's pitchers TBD
-            undefined  // Tomorrow's pitchers TBD
+            game.homePitcher,
+            game.awayPitcher
           );
           
           if (pick) {
             // Update pick ID and date for tomorrow
             pick.id = `tomorrow-${pick.id}`;
-            pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // Tomorrow's date
+            pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             newPicks.push(pick);
           }
         });
         
         setTomorrowPicks(newPicks);
-        console.log(`Tomorrow's analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
-      } catch (error) {
-        console.error('Error generating tomorrow picks:', error);
-        setTomorrowPicks([]);
-      }
-    } else {
-      // No API key - use mock data
-      const games = BettingAnalysisService.mockDailyGames();
-      const newPicks: BettingPick[] = [];
-      
-      games.forEach(game => {
-        const pick = BettingAnalysisService.analyzeGame(
-          game.homeTeam,
-          game.awayTeam,
-          game.isHomeUnderdog,
-          game.odds,
-          undefined, // No pitcher data for mock tomorrow games
-          undefined  // No pitcher data for mock tomorrow games
-        );
+        console.log(`Tomorrow's ESPN analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
+      } else {
+        // Fallback to fixed games
+        console.log('ESPN failed for tomorrow, using fixed demo games');
+        const games = getFixedTomorrowGames();
+        const newPicks: BettingPick[] = [];
         
-        if (pick) {
-          pick.id = `tomorrow-${pick.id}`;
-          pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          newPicks.push(pick);
-        }
-      });
-      
-      setTomorrowPicks(newPicks);
+        games.forEach(game => {
+          const pick = BettingAnalysisService.analyzeGame(
+            game.homeTeam,
+            game.awayTeam,
+            game.isHomeUnderdog,
+            game.odds,
+            undefined, // Tomorrow's pitchers TBD for demo
+            undefined  // Tomorrow's pitchers TBD for demo
+          );
+          
+          if (pick) {
+            pick.id = `tomorrow-${pick.id}`;
+            pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            newPicks.push(pick);
+          }
+        });
+        
+        setTomorrowPicks(newPicks);
+        console.log(`Tomorrow's demo analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
+      }
+    } catch (error) {
+      console.error('Error generating tomorrow picks:', error);
+      setTomorrowPicks([]);
     }
   };
 
@@ -464,7 +500,7 @@ export const BettingDashboard = () => {
             <ThemeToggle />
             <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              {isUsingLiveData ? 'Refresh Live Data' : 'Generate Analysis'}
+              Refresh Live Data
             </Button>
           </div>
         </div>

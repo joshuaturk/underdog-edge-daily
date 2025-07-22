@@ -139,15 +139,16 @@ export class SportsAPIService {
   }
 
   // Fallback to ESPN API (free, no key required)
-  static async getMLBGamesFromESPN(): Promise<{ success: boolean; error?: string; data?: MLBGame[] }> {
+  static async getMLBGamesFromESPN(daysOffset: number = 0): Promise<{ success: boolean; error?: string; data?: MLBGame[] }> {
     try {
-      console.log('Fetching MLB games from ESPN API...');
+      console.log(`Fetching MLB games from ESPN API for ${daysOffset === 0 ? 'today' : 'tomorrow'}...`);
       
-      // Get today's date in YYYYMMDD format for ESPN API
-      const today = new Date();
-      const dateString = today.getFullYear().toString() + 
-                        (today.getMonth() + 1).toString().padStart(2, '0') + 
-                        today.getDate().toString().padStart(2, '0');
+      // Get target date in YYYYMMDD format for ESPN API
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + daysOffset);
+      const dateString = targetDate.getFullYear().toString() + 
+                        (targetDate.getMonth() + 1).toString().padStart(2, '0') + 
+                        targetDate.getDate().toString().padStart(2, '0');
       
       const response = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${dateString}`
@@ -270,8 +271,48 @@ export class SportsAPIService {
 
   private static cleanTeamName(name: string): string {
     // Keep full team names, just remove unnecessary suffixes
-    return name
+    const cleanName = name
       .replace(/\s*(Baseball|MLB|\d+|\(.*\))/gi, '')
       .trim();
+    
+    // Apply city shortcodes
+    return this.shortenTeamName(cleanName);
+  }
+
+  private static shortenTeamName(name: string): string {
+    const cityMap: { [key: string]: string } = {
+      'New York Yankees': 'NY Yankees',
+      'New York Mets': 'NY Mets',
+      'Los Angeles Dodgers': 'LA Dodgers',
+      'Los Angeles Angels': 'LA Angels',
+      'San Francisco Giants': 'SF Giants',
+      'San Diego Padres': 'SD Padres',
+      'Toronto Blue Jays': 'TOR Blue Jays',
+      'Boston Red Sox': 'BOS Red Sox',
+      'Chicago Cubs': 'CHI Cubs',
+      'Chicago White Sox': 'CHI White Sox',
+      'St. Louis Cardinals': 'STL Cardinals',
+      'Philadelphia Phillies': 'PHI Phillies',
+      'Cleveland Guardians': 'CLE Guardians',
+      'Detroit Tigers': 'DET Tigers',
+      'Minnesota Twins': 'MIN Twins',
+      'Tampa Bay Rays': 'TB Rays',
+      'Baltimore Orioles': 'BAL Orioles',
+      'Houston Astros': 'HOU Astros',
+      'Texas Rangers': 'TEX Rangers',
+      'Seattle Mariners': 'SEA Mariners',
+      'Oakland Athletics': 'OAK Athletics',
+      'Kansas City Royals': 'KC Royals',
+      'Atlanta Braves': 'ATL Braves',
+      'Miami Marlins': 'MIA Marlins',
+      'Washington Nationals': 'WAS Nationals',
+      'Pittsburgh Pirates': 'PIT Pirates',
+      'Cincinnati Reds': 'CIN Reds',
+      'Milwaukee Brewers': 'MIL Brewers',
+      'Colorado Rockies': 'COL Rockies',
+      'Arizona Diamondbacks': 'ARI Diamondbacks'
+    };
+
+    return cityMap[name] || name;
   }
 }
