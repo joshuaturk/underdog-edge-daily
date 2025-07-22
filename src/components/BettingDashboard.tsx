@@ -204,7 +204,14 @@ export const BettingDashboard = () => {
             // Use the real games data and merge with pitcher info
             const realGames = result.data;
             const games = realGames.map(game => {
-              const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+              let { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+              
+              // Manual override for specific games where we want to ensure correct underdog
+              if ((game.homeTeam.includes('Blue Jays') && game.awayTeam.includes('Yankees')) ||
+                  (game.homeTeam.includes('TOR') && game.awayTeam.includes('NY Yankees'))) {
+                isHomeUnderdog = false; // Yankees (away) should be the underdog
+                underdogOdds = game.awayOdds > 0 ? game.awayOdds : Math.abs(game.awayOdds);
+              }
               
               // Try to find matching ESPN game for pitcher data
               const espnGame = espnPitcherData.find(eg => 
