@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
@@ -12,12 +13,33 @@ import { useToast } from '@/hooks/use-toast';
 
 export const BettingDashboard = () => {
   const [dailyPicks, setDailyPicks] = useState<BettingPick[]>([]);
+  const [tomorrowPicks, setTomorrowPicks] = useState<BettingPick[]>([]);
   const [allPicks, setAllPicks] = useState<BettingPick[]>([]);
   const [results, setResults] = useState<BettingResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isUsingLiveData, setIsUsingLiveData] = useState(false);
   const { toast } = useToast();
+
+  // Helper function to get dates in ET timezone
+  const getETDate = (daysOffset: number = 0) => {
+    const now = new Date();
+    const etDate = new Date(now.getTime() + (daysOffset * 24 * 60 * 60 * 1000));
+    return etDate.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric',
+      timeZone: 'America/New_York'
+    });
+  };
+
+  const getETTime = () => {
+    return new Date().toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: 'America/New_York'
+    });
+  };
 
   // Auto-generate picks on mount
   useEffect(() => {
@@ -38,6 +60,15 @@ export const BettingDashboard = () => {
     { homeTeam: 'Dodgers', awayTeam: 'Giants', isHomeUnderdog: false, odds: -180 },
     { homeTeam: 'Astros', awayTeam: 'Rangers', isHomeUnderdog: false, odds: -120 },
     { homeTeam: 'Marlins', awayTeam: 'Mets', isHomeUnderdog: true, odds: 160 }
+  ];
+
+  // Fixed demo games for tomorrow (July 23, 2025)
+  const getFixedTomorrowGames = () => [
+    { homeTeam: 'Orioles', awayTeam: 'Blue Jays', isHomeUnderdog: true, odds: 135 },
+    { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
+    { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
+    { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 },
+    { homeTeam: 'Tigers', awayTeam: 'Twins', isHomeUnderdog: true, odds: 155 }
   ];
 
   const generateDailyPicks = async () => {
@@ -199,6 +230,34 @@ export const BettingDashboard = () => {
     }
   };
 
+  const generateTomorrowPicks = async () => {
+    const localApiKey = FirecrawlService.getApiKey();
+    const games = localApiKey ? getFixedTomorrowGames() : BettingAnalysisService.mockDailyGames();
+    const newPicks: BettingPick[] = [];
+    
+    games.forEach(game => {
+      const pick = BettingAnalysisService.analyzeGame(
+        game.homeTeam,
+        game.awayTeam,
+        game.isHomeUnderdog,
+        game.odds
+      );
+      
+      if (pick) {
+        // Update pick ID to avoid conflicts with today's picks
+        pick.id = `tomorrow-${pick.id}`;
+        newPicks.push(pick);
+      }
+    });
+    
+    setTomorrowPicks(newPicks);
+  };
+
+  // Generate tomorrow's picks when component mounts
+  useEffect(() => {
+    generateTomorrowPicks();
+  }, [isUsingLiveData]);
+
   const simulateResults = (pick: BettingPick) => {
     // Simulate game results based on confidence
     const winProbability = pick.confidence / 100;
@@ -343,98 +402,161 @@ export const BettingDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-foreground">
-                  {lastUpdate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {getETTime()}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {lastUpdate.toLocaleDateString()}
+                  {getETDate()} ET
                 </p>
               </CardContent>
             </Card>
           </div>
         )}
 
-        {/* Today's Picks */}
+        {/* Picks Tabs */}
         <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              Today's Top Picks
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-sm text-muted-foreground font-normal">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                </span>
-                <Badge variant="outline">
-                  {dailyPicks.length} qualified
-                </Badge>
+          <Tabs defaultValue="today" className="w-full">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-primary" />
+                  <h3 className="text-lg font-semibold">MLB Picks</h3>
+                </div>
+                <TabsList className="grid w-auto grid-cols-2">
+                  <TabsTrigger value="today" className="flex items-center gap-2">
+                    Today
+                    <span className="text-xs text-muted-foreground">
+                      {getETDate()}
+                    </span>
+                    <Badge variant="outline" className="ml-1">
+                      {dailyPicks.length}
+                    </Badge>
+                  </TabsTrigger>
+                  <TabsTrigger value="tomorrow" className="flex items-center gap-2">
+                    Tomorrow
+                    <span className="text-xs text-muted-foreground">
+                      {getETDate(1)}
+                    </span>
+                    <Badge variant="outline" className="ml-1">
+                      {tomorrowPicks.length}
+                    </Badge>
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {dailyPicks.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {dailyPicks.map((pick) => (
-                  <div 
-                    key={pick.id}
-                    className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-semibold text-lg">
-                          {pick.awayTeam} @ {pick.homeTeam}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                        </p>
-                      </div>
-                      <div className="text-right space-y-2">
-                        <Badge className={getConfidenceColor(pick.confidence)}>
-                          {pick.confidence.toFixed(1)}% confidence
-                        </Badge>
-                        <Badge variant="outline">
-                          {pick.odds > 0 ? '+' : ''}{pick.odds}
-                        </Badge>
-                        {pick.status !== 'pending' && (
-                          <Badge className={getStatusColor(pick.status)}>
-                            {pick.status.toUpperCase()}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {pick.reason}
-                    </p>
-                    
-                    {pick.status === 'pending' && (
-                      <Button 
-                        onClick={() => simulateResults(pick)}
-                        variant="outline" 
-                        size="sm"
-                        className="hover:bg-primary/10"
-                      >
-                        Simulate Result
-                      </Button>
-                    )}
-                    
-                    {pick.result && (
-                      <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
-                        Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
-                        {pick.profit && (
-                          <span className={`ml-2 font-semibold ${pick.profit > 0 ? 'text-profit' : 'text-loss'}`}>
-                            ({pick.profit > 0 ? '+' : ''}{pick.profit.toFixed(2)}u)
-                          </span>
-                        )}
-                      </div>
-                    )}
+            </CardHeader>
+            
+            <CardContent>
+              <TabsContent value="today" className="mt-0">
+                {dailyPicks.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+                ) : (
+                  <div className="space-y-4">
+                    {dailyPicks.map((pick) => (
+                      <div 
+                        key={pick.id}
+                        className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {pick.awayTeam} @ {pick.homeTeam}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
+                            </p>
+                          </div>
+                          <div className="text-right space-y-2">
+                            <Badge className={getConfidenceColor(pick.confidence)}>
+                              {pick.confidence.toFixed(1)}% confidence
+                            </Badge>
+                            <Badge variant="outline">
+                              {pick.odds > 0 ? '+' : ''}{pick.odds}
+                            </Badge>
+                            {pick.status !== 'pending' && (
+                              <Badge className={getStatusColor(pick.status)}>
+                                {pick.status.toUpperCase()}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {pick.reason}
+                        </p>
+                        
+                        {pick.status === 'pending' && (
+                          <Button 
+                            onClick={() => simulateResults(pick)}
+                            variant="outline" 
+                            size="sm"
+                            className="hover:bg-primary/10"
+                          >
+                            Simulate Result
+                          </Button>
+                        )}
+                        
+                        {pick.result && (
+                          <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
+                            Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
+                            {pick.profit && (
+                              <span className={`ml-2 font-semibold ${pick.profit > 0 ? 'text-profit' : 'text-loss'}`}>
+                                ({pick.profit > 0 ? '+' : ''}{pick.profit.toFixed(2)}u)
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="tomorrow" className="mt-0">
+                {tomorrowPicks.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No picks available for tomorrow yet
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {tomorrowPicks.map((pick) => (
+                      <div 
+                        key={pick.id}
+                        className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h3 className="font-semibold text-lg">
+                              {pick.awayTeam} @ {pick.homeTeam}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
+                            </p>
+                          </div>
+                          <div className="text-right space-y-2">
+                            <Badge className={getConfidenceColor(pick.confidence)}>
+                              {pick.confidence.toFixed(1)}% confidence
+                            </Badge>
+                            <Badge variant="outline">
+                              {pick.odds > 0 ? '+' : ''}{pick.odds}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {pick.reason}
+                        </p>
+                        
+                        <div className="text-xs text-muted-foreground bg-accent/10 rounded px-2 py-1 inline-block">
+                          Preview - Game starts tomorrow
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </CardContent>
+          </Tabs>
         </Card>
       </div>
     </div>
