@@ -591,7 +591,7 @@ export const BettingDashboard = () => {
         <div className="flex justify-between items-start">
           <div>
             <img 
-              src="/lovable-uploads/dd539c92-21e7-4b6b-a42d-30ca2cbc239a.png" 
+              src="/lovable-uploads/db562826-74b8-4870-8f78-da45d663e372.png" 
               alt="betbud.ai"
               className="h-12 object-contain"
             />
