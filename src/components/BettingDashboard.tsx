@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         GraduationCap, Dribbble, Trophy } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy, ChevronDown } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -791,14 +791,12 @@ export const BettingDashboard = () => {
                              <span className="font-medium text-sm">
                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
                              </span>
-                             <Button
-                               variant="outline"
-                               size="sm"
-                               onClick={() => toggleBuddyAnalysis(pick.id)}
-                               className="text-xs bg-blue-600 text-white border-blue-600 hover:bg-blue-700 px-2 py-1 h-auto"
-                             >
-                               Betbud Insight
-                             </Button>
+                              <ChevronDown 
+                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
+                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
+                                }`}
+                                onClick={() => toggleBuddyAnalysis(pick.id)}
+                              />
                            </div>
                            
                            {/* Buddy Analysis - Only show when toggled */}
@@ -898,14 +896,12 @@ export const BettingDashboard = () => {
                              <span className="font-medium text-sm">
                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
                              </span>
-                             <Button
-                               variant="outline"
-                               size="sm"
-                               onClick={() => toggleBuddyAnalysis(pick.id)}
-                               className="text-xs bg-blue-600 text-white border-blue-600 hover:bg-blue-700 px-2 py-1 h-auto"
-                             >
-                               Betbud Insight
-                             </Button>
+                              <ChevronDown 
+                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
+                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
+                                }`}
+                                onClick={() => toggleBuddyAnalysis(pick.id)}
+                              />
                            </div>
                            
                            {/* Buddy Analysis - Only show when toggled */}
