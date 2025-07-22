@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         GraduationCap, Dribbble, Trophy } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy, Settings } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
-import { FirecrawlService } from '@/services/FirecrawlService';
+import { SportsAPIService } from '@/services/SportsAPIService';
+import { SportsAPISetup } from '@/components/SportsAPISetup';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,6 +40,7 @@ export const BettingDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isUsingLiveData, setIsUsingLiveData] = useState(false);
+  const [showAPISetup, setShowAPISetup] = useState(false);
   const { toast } = useToast();
 
   // Helper function to get dates in ET timezone
@@ -95,25 +97,25 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Check if we have a local API key first
-      const localApiKey = FirecrawlService.getApiKey();
+      // Check if we have a Sports API key first
+      const apiKey = SportsAPIService.getApiKey();
       
-      if (localApiKey) {
-        // Use local API key for live data
-        console.log('Using local Firecrawl API key for live data');
+      if (apiKey) {
+        // Use Sports API for live data
+        console.log('Using Sports API for live MLB data');
         setIsUsingLiveData(true);
         
         try {
-          console.log('Attempting to scrape MLB schedule...');
-          const crawlResult = await FirecrawlService.scrapeMLBSchedule();
+          console.log('Attempting to fetch MLB games from Sports API...');
+          const result = await SportsAPIService.getMLBGames();
           
-          console.log('Scrape result:', crawlResult);
+          console.log('Sports API result:', result);
           
-          if (crawlResult.success && crawlResult.data && crawlResult.data.parsedGames) {
-            console.log('Live MLB data scraped successfully:', crawlResult.data.parsedGames);
+          if (result.success && result.data && result.data.length > 0) {
+            console.log('Live MLB data fetched successfully:', result.data);
             
-            // Use the real parsed games from betting sites
-            const realGames = crawlResult.data.parsedGames;
+            // Use the real games data
+            const realGames = result.data;
             const games = realGames.map(game => ({
               homeTeam: game.homeTeam,
               awayTeam: game.awayTeam,
@@ -122,7 +124,6 @@ export const BettingDashboard = () => {
               source: game.source
             }));
             
-            setIsUsingLiveData(true);
             const newPicks: BettingPick[] = [];
             
             games.forEach(game => {
@@ -145,18 +146,53 @@ export const BettingDashboard = () => {
             
             toast({
               title: "Real MLB Data Retrieved!",
-              description: `Found ${newPicks.length} qualifying picks from ${crawlResult.data.source} with live odds`,
+              description: `Found ${newPicks.length} qualifying picks from ${realGames[0]?.source} with live odds`,
             });
-          } else if (crawlResult.success && crawlResult.data && crawlResult.data.markdown) {
-            // Try to parse the markdown data
-            const parsedGames = FirecrawlService.parseOddsData(crawlResult.data.markdown);
-            const games = parsedGames.length > 0 ? parsedGames.map(game => ({
+          } else {
+            throw new Error('No games found from Sports API');
+          }
+        } catch (apiError) {
+          console.error('Error with Sports API, trying ESPN fallback:', apiError);
+          
+          // Try ESPN API as fallback
+          const espnResult = await SportsAPIService.getMLBGamesFromESPN();
+          
+          if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
+            const games = espnResult.data.map(game => ({
               homeTeam: game.homeTeam,
               awayTeam: game.awayTeam,
               isHomeUnderdog: game.homeOdds > game.awayOdds,
-              odds: game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds
-            })) : getFixedDemoGames();
+              odds: game.runlineOdds || (game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds),
+              source: game.source
+            }));
             
+            const newPicks: BettingPick[] = [];
+            
+            games.forEach(game => {
+              const pick = BettingAnalysisService.analyzeGame(
+                game.homeTeam,
+                game.awayTeam,
+                game.isHomeUnderdog,
+                game.odds
+              );
+              
+              if (pick) {
+                pick.reason += ` (Source: ${game.source})`;
+                newPicks.push(pick);
+              }
+            });
+            
+            setDailyPicks(newPicks);
+            setLastUpdate(new Date());
+            
+            toast({
+              title: "ESPN Data Retrieved",
+              description: `Found ${newPicks.length} qualifying picks from ESPN API`,
+            });
+          } else {
+            // Final fallback to mock data
+            setIsUsingLiveData(true);
+            const games = getFixedDemoGames();
             const newPicks: BettingPick[] = [];
             
             games.forEach(game => {
@@ -176,17 +212,61 @@ export const BettingDashboard = () => {
             setLastUpdate(new Date());
             
             toast({
-              title: "Live MLB Data Retrieved",
-              description: `Successfully scraped today's games - found ${newPicks.length} qualifying picks`,
+              title: "Using Demo Data",
+              description: `API configured but no live data available - found ${newPicks.length} demo picks`,
+              variant: "default"
+            });
+          }
+        }
+      } else {
+        // No API key - show setup or use ESPN fallback
+        console.log('No Sports API key found, trying ESPN...');
+        
+        try {
+          const espnResult = await SportsAPIService.getMLBGamesFromESPN();
+          
+          if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
+            setIsUsingLiveData(false);
+            
+            const games = espnResult.data.map(game => ({
+              homeTeam: game.homeTeam,
+              awayTeam: game.awayTeam,
+              isHomeUnderdog: game.homeOdds > game.awayOdds,
+              odds: game.runlineOdds || (game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds),
+              source: game.source
+            }));
+            
+            const newPicks: BettingPick[] = [];
+            
+            games.forEach(game => {
+              const pick = BettingAnalysisService.analyzeGame(
+                game.homeTeam,
+                game.awayTeam,
+                game.isHomeUnderdog,
+                game.odds
+              );
+              
+              if (pick) {
+                pick.reason += ` (Source: ${game.source})`;
+                newPicks.push(pick);
+              }
+            });
+            
+            setDailyPicks(newPicks);
+            setLastUpdate(new Date());
+            
+            toast({
+              title: "ESPN Data Retrieved",
+              description: `Found ${newPicks.length} qualifying picks (free ESPN data)`,
             });
           } else {
-            throw new Error('Failed to scrape live data');
+            throw new Error('ESPN API also failed');
           }
-        } catch (scrapeError) {
-          console.error('Error scraping live data:', scrapeError);
-          // Keep as live data mode since API key is configured - just use fixed games
-          setIsUsingLiveData(true);
-          const games = getFixedDemoGames();
+        } catch (espnError) {
+          // Ultimate fallback to demo data
+          setIsUsingLiveData(false);
+          
+          const games = BettingAnalysisService.mockDailyGames();
           const newPicks: BettingPick[] = [];
           
           games.forEach(game => {
@@ -206,45 +286,17 @@ export const BettingDashboard = () => {
           setLastUpdate(new Date());
           
           toast({
-            title: "Live Data Connection Active",
-            description: `API key configured - found ${newPicks.length} qualifying picks`,
-            variant: "default"
+            title: "Demo Analysis Complete",
+            description: `Found ${newPicks.length} qualifying picks (demo data)`,
           });
         }
-      } else {
-        // Fallback to demo data
-        setIsUsingLiveData(false);
-        
-        const games = BettingAnalysisService.mockDailyGames();
-        const newPicks: BettingPick[] = [];
-        
-        games.forEach(game => {
-          const pick = BettingAnalysisService.analyzeGame(
-            game.homeTeam,
-            game.awayTeam,
-            game.isHomeUnderdog,
-            game.odds
-          );
-          
-          if (pick) {
-            newPicks.push(pick);
-          }
-        });
-        
-        setDailyPicks(newPicks);
-        setLastUpdate(new Date());
-        
-        toast({
-          title: "Demo Analysis Complete",
-          description: `Found ${newPicks.length} qualifying picks (demo data)`,
-        });
       }
     } catch (error) {
-      // Keep as live data mode if API key is configured
-      const localApiKey = FirecrawlService.getApiKey();
-      setIsUsingLiveData(!!localApiKey);
+      // Final error handling
+      const apiKey = SportsAPIService.getApiKey();
+      setIsUsingLiveData(!!apiKey);
       
-      const games = localApiKey ? getFixedDemoGames() : BettingAnalysisService.mockDailyGames();
+      const games = apiKey ? getFixedDemoGames() : BettingAnalysisService.mockDailyGames();
       const newPicks: BettingPick[] = [];
       
       games.forEach(game => {
@@ -265,7 +317,7 @@ export const BettingDashboard = () => {
       
       toast({
         title: "Analysis Complete",
-        description: `Found ${newPicks.length} qualifying picks (demo mode)`,
+        description: `Found ${newPicks.length} qualifying picks (fallback mode)`,
         variant: "default"
       });
     } finally {
@@ -274,13 +326,13 @@ export const BettingDashboard = () => {
   };
 
   const generateTomorrowPicks = async () => {
-    const localApiKey = FirecrawlService.getApiKey();
+    const apiKey = SportsAPIService.getApiKey();
     
-    if (localApiKey) {
-      // Try to scrape tomorrow's games from betting sites
+    if (apiKey) {
+      // Try to get tomorrow's games from Sports API
       try {
-        console.log('Attempting to scrape tomorrow\'s MLB games...');
-        // For now, use tomorrow's fixed games - in production this would scrape tomorrow's actual schedule
+        console.log('Attempting to fetch tomorrow\'s MLB games...');
+        // For now, use tomorrow's fixed games - in production this would fetch tomorrow's actual schedule
         const games = getFixedTomorrowGames();
         const newPicks: BettingPick[] = [];
         
@@ -389,6 +441,27 @@ export const BettingDashboard = () => {
     }
   };
 
+  // Show API setup if requested
+  if (showAPISetup) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="mb-6">
+          <Button 
+            onClick={() => setShowAPISetup(false)} 
+            variant="outline"
+            className="mb-4"
+          >
+            ← Back to Dashboard
+          </Button>
+        </div>
+        <SportsAPISetup onApiKeySet={() => {
+          setShowAPISetup(false);
+          generateDailyPicks(); // Refresh data with new API
+        }} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
@@ -414,6 +487,15 @@ export const BettingDashboard = () => {
                 Demo Mode
               </Badge>
             )}
+            <Button 
+              onClick={() => setShowAPISetup(true)} 
+              variant="outline" 
+              size="sm"
+              className="shrink-0"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              API Setup
+            </Button>
             <ThemeToggle />
             <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
