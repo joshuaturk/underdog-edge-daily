@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         Circle, GraduationCap, Dribbble, Snowflake, Trophy, Disc, Shield } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -12,15 +12,21 @@ import { FirecrawlService } from '@/services/FirecrawlService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 
-// Sports navigation data with icons
+// Import custom sports icons
+import baseballIcon from '@/assets/baseball-icon.png';
+import hockeyIcon from '@/assets/hockey-icon.png';
+import footballIcon from '@/assets/football-icon.png';
+import soccerIcon from '@/assets/soccer-icon.png';
+
+// Sports navigation data with custom icons
 const sportsMenu = [
-  { name: 'MLB', icon: Disc, active: true }, // Baseball ⚾ (round like a ball)
+  { name: 'MLB', customIcon: baseballIcon, active: true },
   { name: 'NCAA Football', icon: Trophy },
-  { name: 'NCAA Bball', icon: Dribbble }, // Basketball 🏀
-  { name: 'NHL', icon: Snowflake }, // Hockey 🏒 (ice sport)
-  { name: 'NBA', icon: Dribbble }, // Basketball 🏀
-  { name: 'NFL', icon: Shield }, // American Football 🏈 (protective gear)
-  { name: 'Soccer', icon: Circle } // Soccer Ball ⚽ (round ball)
+  { name: 'NCAA Bball', icon: Dribbble },
+  { name: 'NHL', customIcon: hockeyIcon },
+  { name: 'NBA', icon: Dribbble },
+  { name: 'NFL', customIcon: footballIcon },
+  { name: 'Soccer', customIcon: soccerIcon }
 ];
 
 export const BettingDashboard = () => {
@@ -419,7 +425,6 @@ export const BettingDashboard = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-center gap-1 flex-wrap">
               {sportsMenu.map((sport, index) => {
-                const IconComponent = sport.icon;
                 return (
                   <Button
                     key={sport.name}
@@ -431,7 +436,15 @@ export const BettingDashboard = () => {
                         : "hover:bg-muted"
                     }`}
                   >
-                    <IconComponent className="w-4 h-4" />
+                    {sport.customIcon ? (
+                      <img 
+                        src={sport.customIcon} 
+                        alt={`${sport.name} icon`}
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <sport.icon className="w-4 h-4" />
+                    )}
                     {sport.name}
                   </Button>
                 );
