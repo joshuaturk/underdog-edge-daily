@@ -744,7 +744,7 @@ export const BettingDashboard = () => {
                 style={{ width: '300px', height: '300px' }}
               />
             </div>
-            <TabsList className="grid w-auto grid-cols-2">
+            <TabsList className="grid w-auto grid-cols-3">
               <TabsTrigger value="today" className="flex items-center gap-2">
                 Today
                 <span className="text-xs text-muted-foreground">
@@ -761,6 +761,12 @@ export const BettingDashboard = () => {
                 </span>
                 <Badge variant="outline" className="ml-1">
                   {tomorrowPicks.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="results" className="flex items-center gap-2">
+                Results
+                <Badge variant="outline" className="ml-1">
+                  {allPicks.length}
                 </Badge>
               </TabsTrigger>
             </TabsList>
@@ -992,6 +998,175 @@ export const BettingDashboard = () => {
                   </div>
                 )}
               </TabsContent>
+
+              <TabsContent value="results" className="mt-0">
+                <div className="space-y-6">
+                  {/* Win Rate Summary */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">Overall Win Rate</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-primary">
+                          {results?.winRate.toFixed(1) || '0.0'}%
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {results?.wonPicks || 0} wins / {results?.totalPicks || 0} total picks
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">Total Profit</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className={`text-2xl font-bold ${results && results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                          {results ? (results.totalProfit >= 0 ? '+' : '') + results.totalProfit.toFixed(2) : '0.00'}u
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {results?.roi.toFixed(1) || '0.0'}% ROI
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">Live Games</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-accent">
+                          {allPicks.filter(p => p.status === 'pending').length}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Active picks being tracked
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* All Picks with Live Scores */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Trophy className="w-5 h-5 text-primary" />
+                      All Tracked Picks
+                    </h3>
+                    
+                    {allPicks.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <h4 className="text-lg font-medium mb-2">No picks tracked yet</h4>
+                        <p>Make some picks in Today or Tomorrow tabs to see results here</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {allPicks.map((pick) => (
+                          <div 
+                            key={pick.id}
+                            className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
+                              pick.status === 'pending' 
+                                ? 'from-accent/5 to-accent/10 border-accent/20' 
+                                : pick.status === 'won'
+                                ? 'from-profit/5 to-profit/10 border-profit/20'
+                                : pick.status === 'lost'
+                                ? 'from-loss/5 to-loss/10 border-loss/20'
+                                : 'from-card to-card/50'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1 space-y-2">
+                                {/* Game Teams with Live Scores */}
+                                <div className="flex items-center justify-between">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-3">
+                                      <img 
+                                        src={getTeamLogo(pick.awayTeam)} 
+                                        alt={`${pick.awayTeam} logo`}
+                                        className="w-6 h-6 rounded-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                        }}
+                                      />
+                                      <span className="font-medium">{pick.awayTeam}</span>
+                                      {pick.result && (
+                                        <span className="text-lg font-bold">{pick.result.awayScore}</span>
+                                      )}
+                                      {pick.status === 'pending' && (
+                                        <span className="text-sm text-accent font-medium">LIVE</span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                      <img 
+                                        src={getTeamLogo(pick.homeTeam)} 
+                                        alt={`${pick.homeTeam} logo`}
+                                        className="w-6 h-6 rounded-full object-cover"
+                                        onError={(e) => {
+                                          e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                        }}
+                                      />
+                                      <span className="font-medium">{pick.homeTeam}</span>
+                                      {pick.result && (
+                                        <span className="text-lg font-bold">{pick.result.homeScore}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                {/* Pick Details with Status Indicator */}
+                                <div className="flex items-center gap-3 pt-2 border-t border-border/30">
+                                  <span className="text-sm text-muted-foreground">
+                                    {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
+                                  </span>
+                                  {pick.status === 'pending' && pick.result && (
+                                    <div className="flex items-center gap-1">
+                                      {/* Live pick status indicator */}
+                                      {(() => {
+                                        const scoreDiff = Math.abs(pick.result.homeScore - pick.result.awayScore);
+                                        const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+                                        const isWinning = recommendedTeam === 'home' 
+                                          ? (pick.result.homeScore > pick.result.awayScore - 1.5)
+                                          : (pick.result.awayScore > pick.result.homeScore - 1.5);
+                                        
+                                        return isWinning ? (
+                                          <div className="bg-profit rounded-full p-1">
+                                            <Check className="w-3 h-3 text-white" />
+                                          </div>
+                                        ) : (
+                                          <div className="bg-loss rounded-full p-1">
+                                            <span className="w-3 h-3 text-white text-xs">✗</span>
+                                          </div>
+                                        );
+                                      })()}
+                                      <span className="text-xs text-accent font-medium">
+                                        {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="text-right space-y-1 ml-4">
+                                <Badge className={getStatusColor(pick.status)}>
+                                  {pick.status.toUpperCase()}
+                                </Badge>
+                                <div className="text-sm text-muted-foreground">
+                                  {Math.round(pick.confidence)}% confidence
+                                </div>
+                                {pick.profit !== undefined && (
+                                  <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                    {pick.profit >= 0 ? '+' : ''}{pick.profit.toFixed(2)}u
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                       </div>
+                     )}
+                   </div>
+                 </div>
+               </TabsContent>
             </CardContent>
           </Card>
         </Tabs>
