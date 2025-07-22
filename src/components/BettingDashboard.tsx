@@ -162,7 +162,7 @@ export const BettingDashboard = () => {
 
   // Fixed demo games for tomorrow (July 23, 2025)
   const getFixedTomorrowGames = () => [
-    { homeTeam: 'Orioles', awayTeam: 'Blue Jays', isHomeUnderdog: true, odds: 135 },
+    { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 }, // Yankees are away underdog
     { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
     { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
     { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 },
