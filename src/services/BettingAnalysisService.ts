@@ -27,7 +27,7 @@ export class BettingAnalysisService {
     { name: 'Reds', runlineRate: 62.1, homeRate: 59.8, awayRate: 63.7 }
   ];
 
-  private static readonly MIN_CONFIDENCE_THRESHOLD = 45;
+  private static readonly MIN_CONFIDENCE_THRESHOLD = 65;
   private static readonly ROAD_DOG_BONUS = 5;
   private static readonly RECENT_FORM_WEIGHT = 0.3;
 
