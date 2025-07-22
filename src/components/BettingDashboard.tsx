@@ -255,25 +255,60 @@ export const BettingDashboard = () => {
 
   const generateTomorrowPicks = async () => {
     const localApiKey = FirecrawlService.getApiKey();
-    const games = localApiKey ? getFixedTomorrowGames() : BettingAnalysisService.mockDailyGames();
-    const newPicks: BettingPick[] = [];
     
-    games.forEach(game => {
-      const pick = BettingAnalysisService.analyzeGame(
-        game.homeTeam,
-        game.awayTeam,
-        game.isHomeUnderdog,
-        game.odds
-      );
-      
-      if (pick) {
-        // Update pick ID to avoid conflicts with today's picks
-        pick.id = `tomorrow-${pick.id}`;
-        newPicks.push(pick);
+    if (localApiKey) {
+      // Try to scrape tomorrow's games from betting sites
+      try {
+        console.log('Attempting to scrape tomorrow\'s MLB games...');
+        // For now, use tomorrow's fixed games - in production this would scrape tomorrow's actual schedule
+        const games = getFixedTomorrowGames();
+        const newPicks: BettingPick[] = [];
+        
+        games.forEach(game => {
+          // Apply the SAME criteria as today's games
+          const pick = BettingAnalysisService.analyzeGame(
+            game.homeTeam,
+            game.awayTeam,
+            game.isHomeUnderdog,
+            game.odds
+          );
+          
+          if (pick) {
+            // Update pick ID and date for tomorrow
+            pick.id = `tomorrow-${pick.id}`;
+            pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // Tomorrow's date
+            newPicks.push(pick);
+          }
+        });
+        
+        setTomorrowPicks(newPicks);
+        console.log(`Tomorrow's analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
+      } catch (error) {
+        console.error('Error generating tomorrow picks:', error);
+        setTomorrowPicks([]);
       }
-    });
-    
-    setTomorrowPicks(newPicks);
+    } else {
+      // No API key - use mock data
+      const games = BettingAnalysisService.mockDailyGames();
+      const newPicks: BettingPick[] = [];
+      
+      games.forEach(game => {
+        const pick = BettingAnalysisService.analyzeGame(
+          game.homeTeam,
+          game.awayTeam,
+          game.isHomeUnderdog,
+          game.odds
+        );
+        
+        if (pick) {
+          pick.id = `tomorrow-${pick.id}`;
+          pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          newPicks.push(pick);
+        }
+      });
+      
+      setTomorrowPicks(newPicks);
+    }
   };
 
   // Generate tomorrow's picks when component mounts
