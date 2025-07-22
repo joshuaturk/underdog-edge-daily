@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         Circle, GraduationCap, Dribbble, Snowflake, Trophy } from 'lucide-react';
+         Circle, GraduationCap, Dribbble, Snowflake, Trophy, Disc, Shield } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -14,13 +14,13 @@ import { useToast } from '@/hooks/use-toast';
 
 // Sports navigation data with icons
 const sportsMenu = [
-  { name: 'MLB', icon: Circle, active: true }, // Baseball ⚾
+  { name: 'MLB', icon: Disc, active: true }, // Baseball ⚾ (round like a ball)
   { name: 'NCAA Football', icon: Trophy },
-  { name: 'NCAA Bball', icon: Dribbble },
-  { name: 'NHL', icon: Snowflake }, // Hockey 🏒
-  { name: 'NBA', icon: Dribbble },
-  { name: 'NFL', icon: Trophy }, // American Football 🏈  
-  { name: 'Soccer', icon: Circle } // Soccer Ball ⚽
+  { name: 'NCAA Bball', icon: Dribbble }, // Basketball 🏀
+  { name: 'NHL', icon: Snowflake }, // Hockey 🏒 (ice sport)
+  { name: 'NBA', icon: Dribbble }, // Basketball 🏀
+  { name: 'NFL', icon: Shield }, // American Football 🏈 (protective gear)
+  { name: 'Soccer', icon: Circle } // Soccer Ball ⚽ (round ball)
 ];
 
 export const BettingDashboard = () => {
