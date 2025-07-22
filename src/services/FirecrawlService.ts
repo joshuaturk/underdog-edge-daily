@@ -99,8 +99,33 @@ export class FirecrawlService {
   }
 
   static async scrapeMLBSchedule(): Promise<{ success: boolean; error?: string; data?: any }> {
-    // ESPN MLB schedule
-    return this.scrapeSportsData('https://www.espn.com/mlb/schedule');
+    // Try multiple sources in order of reliability
+    const sources = [
+      'https://www.mlb.com/schedule',
+      'https://www.baseball-reference.com/leagues/majors/2025-schedule.shtml',
+      'https://www.cbssports.com/mlb/schedule/',
+      'https://sports.yahoo.com/mlb/schedule/',
+      'https://www.foxsports.com/mlb/schedule'
+    ];
+
+    for (const url of sources) {
+      try {
+        console.log(`Attempting to scrape from: ${url}`);
+        const result = await this.scrapeSportsData(url);
+        
+        if (result.success && result.data && result.data.markdown) {
+          console.log(`Successfully scraped from: ${url}`);
+          return result;
+        } else {
+          console.log(`Failed to get data from: ${url}`);
+        }
+      } catch (error) {
+        console.log(`Error scraping ${url}:`, error);
+        continue;
+      }
+    }
+
+    return { success: false, error: 'All MLB schedule sources failed' };
   }
 
   static parseOddsData(scrapedData: string): Array<{homeTeam: string, awayTeam: string, homeOdds: number, awayOdds: number}> {
