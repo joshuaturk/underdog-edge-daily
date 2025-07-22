@@ -799,10 +799,10 @@ export const BettingDashboard = () => {
                             <Badge className={getConfidenceColor(pick.confidence)}>
                               <span className="text-lg font-bold">{Math.round(pick.confidence)}%</span>
                             </Badge>
-                            <div className="text-sm font-medium text-foreground">
+                            <div className="text-sm font-normal text-muted-foreground">
                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
                             </div>
-                            <Badge variant="outline">
+                            <Badge variant="outline" className="text-muted-foreground font-normal">
                               {pick.odds > 0 ? '+' : ''}{pick.odds}
                             </Badge>
                             {pick.status !== 'pending' && (
@@ -912,12 +912,12 @@ export const BettingDashboard = () => {
                              <Badge className={getConfidenceColor(pick.confidence)}>
                                <span className="text-lg font-bold">{Math.round(pick.confidence)}%</span>
                              </Badge>
-                             <div className="text-sm font-medium text-foreground">
-                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
-                             </div>
-                             <Badge variant="outline">
-                               {pick.odds > 0 ? '+' : ''}{pick.odds}
-                             </Badge>
+                              <div className="text-sm font-normal text-muted-foreground">
+                                +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
+                              </div>
+                              <Badge variant="outline" className="text-muted-foreground font-normal">
+                                {pick.odds > 0 ? '+' : ''}{pick.odds}
+                              </Badge>
                            </div>
                         </div>
                         
