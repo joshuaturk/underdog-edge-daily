@@ -35,14 +35,16 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Try to use production data service first (if Supabase is configured)
-      const liveDataResult = await ProductionDataService.scrapeMLBData();
+      // Check if we have a local API key first
+      const localApiKey = FirecrawlService.getApiKey();
       
-      if (liveDataResult.success && liveDataResult.data) {
-        // Process live data and generate picks
+      if (localApiKey) {
+        // Use local API key for live data
+        console.log('Using local Firecrawl API key for live data');
         setIsUsingLiveData(true);
         
         // For now, still use mock data but we're set up for live data processing
+        // TODO: Implement actual Firecrawl scraping with the local API key
         const games = BettingAnalysisService.mockDailyGames();
         const newPicks: BettingPick[] = [];
         
