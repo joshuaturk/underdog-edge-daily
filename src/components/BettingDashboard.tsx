@@ -18,15 +18,15 @@ import hockeyIcon from '@/assets/hockey-icon.png';
 import footballIcon from '@/assets/football-icon.png';
 import soccerIcon from '@/assets/soccer-icon.png';
 
-// Sports navigation data with custom icons
+// Sports navigation data with consistent Unicode symbols as backup
 const sportsMenu = [
-  { name: 'MLB', customIcon: baseballIcon, active: true },
-  { name: 'NCAA Football', icon: Trophy },
-  { name: 'NCAA Bball', icon: Dribbble },
-  { name: 'NHL', customIcon: hockeyIcon },
-  { name: 'NBA', icon: Dribbble },
-  { name: 'NFL', customIcon: footballIcon },
-  { name: 'Soccer', customIcon: soccerIcon }
+  { name: 'MLB', symbol: '⚾', active: true },
+  { name: 'NCAA Football', symbol: '🏈' },
+  { name: 'NCAA Bball', symbol: '🏀' },
+  { name: 'NHL', symbol: '🏒' },
+  { name: 'NBA', symbol: '🏀' },
+  { name: 'NFL', symbol: '🏈' },
+  { name: 'Soccer', symbol: '⚽' }
 ];
 
 export const BettingDashboard = () => {
@@ -436,15 +436,9 @@ export const BettingDashboard = () => {
                         : "hover:bg-muted"
                     }`}
                   >
-                    {sport.customIcon ? (
-                      <img 
-                        src={sport.customIcon} 
-                        alt={`${sport.name} icon`}
-                        className="w-4 h-4"
-                      />
-                    ) : (
-                      <sport.icon className="w-4 h-4" />
-                    )}
+                    <span className="text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
+                      {sport.symbol}
+                    </span>
                     {sport.name}
                   </Button>
                 );
