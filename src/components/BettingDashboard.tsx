@@ -31,6 +31,15 @@ export const BettingDashboard = () => {
   }, [allPicks]);
 
 
+  // Fixed demo games for consistent testing (July 22, 2025)
+  const getFixedDemoGames = () => [
+    { homeTeam: 'Yankees', awayTeam: 'Red Sox', isHomeUnderdog: false, odds: -150 },
+    { homeTeam: 'Cubs', awayTeam: 'Cardinals', isHomeUnderdog: true, odds: 140 },
+    { homeTeam: 'Dodgers', awayTeam: 'Giants', isHomeUnderdog: false, odds: -180 },
+    { homeTeam: 'Astros', awayTeam: 'Rangers', isHomeUnderdog: false, odds: -120 },
+    { homeTeam: 'Marlins', awayTeam: 'Mets', isHomeUnderdog: true, odds: 160 }
+  ];
+
   const generateDailyPicks = async () => {
     setIsLoading(true);
     
@@ -45,14 +54,35 @@ export const BettingDashboard = () => {
         
         try {
           // Scrape live MLB data from ESPN
+          console.log('Attempting to scrape MLB schedule...');
           const crawlResult = await FirecrawlService.scrapeMLBSchedule();
           
+          console.log('Scrape result:', crawlResult);
+          
           if (crawlResult.success && crawlResult.data) {
-            console.log('Live MLB data scraped:', crawlResult.data);
+            console.log('Live MLB data scraped successfully:', crawlResult.data);
             
-            // For now, use mock data but we know we have live connection
-            // TODO: Parse the scraped data to extract actual games
-            const games = BettingAnalysisService.mockDailyGames();
+            // Try to parse the scraped data for actual games
+            let actualGames = [];
+            if (crawlResult.data.markdown) {
+              try {
+                const parsedGames = FirecrawlService.parseOddsData(crawlResult.data.markdown);
+                if (parsedGames.length > 0) {
+                  actualGames = parsedGames;
+                  console.log('Parsed games from live data:', actualGames);
+                }
+              } catch (parseError) {
+                console.error('Error parsing scraped data:', parseError);
+              }
+            }
+            
+            // Use actual games if found, otherwise fall back to mock data
+            const games = actualGames.length > 0 ? actualGames.map(game => ({
+              homeTeam: game.homeTeam,
+              awayTeam: game.awayTeam,
+              isHomeUnderdog: game.homeOdds > game.awayOdds,
+              odds: game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds
+            })) : BettingAnalysisService.mockDailyGames();
             const newPicks: BettingPick[] = [];
             
             games.forEach(game => {
@@ -80,8 +110,9 @@ export const BettingDashboard = () => {
           }
         } catch (scrapeError) {
           console.error('Error scraping live data:', scrapeError);
-          // Fall back to mock data but still show as live mode
-          const games = BettingAnalysisService.mockDailyGames();
+          // Fall back to fixed demo data (not random) to prevent different games on each refresh
+          setIsUsingLiveData(false);
+          const games = getFixedDemoGames();
           const newPicks: BettingPick[] = [];
           
           games.forEach(game => {
