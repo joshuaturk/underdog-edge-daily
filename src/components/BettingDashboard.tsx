@@ -3,13 +3,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database } from 'lucide-react';
+import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
+         Zap, GraduationCap, School, Snowflake, Dribbble, Trophy } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
 import { FirecrawlService } from '@/services/FirecrawlService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
+
+// Sports navigation data with icons
+const sportsMenu = [
+  { name: 'MLB', icon: Zap, active: true },
+  { name: 'NCAA Football', icon: Trophy },
+  { name: 'NCAA Bball', icon: Dribbble },
+  { name: 'NHL', icon: Snowflake },
+  { name: 'NBA', icon: Dribbble },
+  { name: 'NFL', icon: Target },
+  { name: 'Soccer', icon: Target }
+];
 
 export const BettingDashboard = () => {
   const [dailyPicks, setDailyPicks] = useState<BettingPick[]>([]);
@@ -402,6 +414,32 @@ export const BettingDashboard = () => {
           </div>
         </div>
 
+        {/* Sports Navigation Menu */}
+        <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-center gap-1 flex-wrap">
+              {sportsMenu.map((sport, index) => {
+                const IconComponent = sport.icon;
+                return (
+                  <Button
+                    key={sport.name}
+                    variant={sport.active ? "default" : "ghost"}
+                    size="sm"
+                    className={`flex items-center gap-2 ${
+                      sport.active 
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                        : "hover:bg-muted"
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    {sport.name}
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Results Summary */}
         {results && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -471,38 +509,37 @@ export const BettingDashboard = () => {
         )}
 
         {/* Picks Tabs */}
-        <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-          <Tabs defaultValue="today" className="w-full">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-semibold">MLB Picks</h3>
-                </div>
-                <TabsList className="grid w-auto grid-cols-2">
-                  <TabsTrigger value="today" className="flex items-center gap-2">
-                    Today
-                    <span className="text-xs text-muted-foreground">
-                      {getETDate()}
-                    </span>
-                    <Badge variant="outline" className="ml-1">
-                      {dailyPicks.length}
-                    </Badge>
-                  </TabsTrigger>
-                  <TabsTrigger value="tomorrow" className="flex items-center gap-2">
-                    Tomorrow
-                    <span className="text-xs text-muted-foreground">
-                      {getETDate(1)}
-                    </span>
-                    <Badge variant="outline" className="ml-1">
-                      {tomorrowPicks.length}
-                    </Badge>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-            </CardHeader>
-            
-            <CardContent>
+        <Tabs defaultValue="today" className="w-full">
+          {/* Tabs List Above MLB Picks */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              <h3 className="text-lg font-semibold">MLB Picks</h3>
+            </div>
+            <TabsList className="grid w-auto grid-cols-2">
+              <TabsTrigger value="today" className="flex items-center gap-2">
+                Today
+                <span className="text-xs text-muted-foreground">
+                  {getETDate()}
+                </span>
+                <Badge variant="outline" className="ml-1">
+                  {dailyPicks.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="tomorrow" className="flex items-center gap-2">
+                Tomorrow
+                <span className="text-xs text-muted-foreground">
+                  {getETDate(1)}
+                </span>
+                <Badge variant="outline" className="ml-1">
+                  {tomorrowPicks.length}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+            <CardContent className="p-6">
               <TabsContent value="today" className="mt-0">
                 {dailyPicks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
@@ -614,8 +651,8 @@ export const BettingDashboard = () => {
                 )}
               </TabsContent>
             </CardContent>
-          </Tabs>
-        </Card>
+          </Card>
+        </Tabs>
       </div>
     </div>
   );
