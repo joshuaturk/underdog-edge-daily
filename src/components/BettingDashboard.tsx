@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         GraduationCap, Dribbble, Trophy, ChevronDown, Check } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy, ChevronDown, Check, Info } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -703,43 +704,108 @@ export const BettingDashboard = () => {
 
   // Main component render
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5">
+      <div className="container mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <img 
-              src="/lovable-uploads/db562826-74b8-4870-8f78-da45d663e372.png" 
-              alt="betbud.ai"
-              className="h-12 object-contain"
-            />
-            <p className="text-muted-foreground mt-1">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/db562826-74b8-4870-8f78-da45d663e372.png" 
+                alt="betbud.ai"
+                className="h-8 sm:h-12 object-contain"
+              />
+              <div className="sm:hidden">
+                <p className="text-xs text-muted-foreground">
+                  Your betbud's daily picks
+                </p>
+              </div>
+            </div>
+            
+            {/* Info Button */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <Info className="w-4 h-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-primary" />
+                    BetBud.ai Algorithm Explained
+                  </DialogTitle>
+                  <DialogDescription asChild>
+                    <div className="space-y-4 text-sm">
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">How We Pick Winners</h4>
+                        <p>Our algorithm analyzes MLB games using proven statistical models to identify profitable runline (+1.5) betting opportunities.</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Key Factors</h4>
+                        <ul className="space-y-1 list-disc list-inside">
+                          <li><strong>Historical Performance:</strong> Teams with proven runline coverage rates (60%+ recommended)</li>
+                          <li><strong>Home vs Away:</strong> Road underdogs get +5% bonus due to superior value</li>
+                          <li><strong>Recent Form:</strong> Last 10 games weighted at 30% of decision</li>
+                          <li><strong>Pitcher Analysis:</strong> Starting pitcher matchups and ERA considerations</li>
+                          <li><strong>Minimum Threshold:</strong> Only games with 65%+ confidence recommended</li>
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Top Performing Teams</h4>
+                        <p>Houston (81.2%), Toronto (73.3%), Tampa Bay (69.6%), and San Diego (69.4%) lead our runline coverage metrics.</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Day-of-Week Edge</h4>
+                        <p>Historical data shows Thursday (+3%) and Saturday (+4%) provide additional value due to scheduling patterns.</p>
+                      </div>
+                      
+                      <div className="bg-accent/10 p-3 rounded-lg">
+                        <h4 className="font-semibold text-foreground mb-2">Risk Management</h4>
+                        <p>All picks are calculated based on $10 unit sizes. ROI calculations include the original wager in winning payouts for accurate profit tracking.</p>
+                      </div>
+                    </div>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <div className="hidden sm:block">
+            <p className="text-muted-foreground">
               Your betbud's daily picks
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          
+          <div className="flex items-center gap-2 justify-between sm:justify-end">
             {isUsingLiveData ? (
               <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20">
                 <Globe className="w-3 h-3 mr-1" />
-                Live Data
+                <span className="hidden sm:inline">Live Data</span>
+                <span className="sm:hidden">Live</span>
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
                 <Database className="w-3 h-3 mr-1" />
-                Demo Mode
+                <span className="hidden sm:inline">Demo Mode</span>
+                <span className="sm:hidden">Demo</span>
               </Badge>
             )}
             <ThemeToggle />
-            <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline">
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh Live Data
+            <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline" size="sm">
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 sm:mr-2'}`} />
+              <span className="hidden sm:inline">Refresh Live Data</span>
+              <span className="sm:hidden">Refresh</span>
             </Button>
           </div>
         </div>
 
         {/* Sports Navigation Menu */}
         <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 rounded-full">
-          <CardContent className="p-4">
+          <CardContent className="p-2 sm:p-4">
             <div className="flex items-center justify-center gap-1 flex-wrap">
               {sportsMenu.map((sport, index) => {
                 return (
@@ -747,16 +813,17 @@ export const BettingDashboard = () => {
                     key={sport.name}
                     variant={sport.active ? "default" : "ghost"}
                     size="sm"
-                    className={`flex items-center gap-2 rounded-full ${
+                    className={`flex items-center gap-1 sm:gap-2 rounded-full text-xs sm:text-sm px-2 sm:px-3 ${
                       sport.active 
                         ? "bg-primary text-primary-foreground hover:bg-primary/90" 
                         : "hover:bg-muted"
                     }`}
                   >
-                    <span className="text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
+                    <span className="text-sm sm:text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
                       {sport.symbol}
                     </span>
-                    {sport.name}
+                    <span className="hidden sm:inline">{sport.name}</span>
+                    <span className="sm:hidden">{sport.name.split(' ')[0]}</span>
                   </Button>
                 );
               })}
@@ -766,14 +833,14 @@ export const BettingDashboard = () => {
 
         {/* Results Summary */}
         {results && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
             <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
-                <Target className="h-4 w-4 text-primary" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Win Rate</CardTitle>
+                <Target className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">
+                <div className="text-lg sm:text-2xl font-bold text-primary">
                   {results.winRate.toFixed(1)}%
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -784,11 +851,11 @@ export const BettingDashboard = () => {
 
             <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Profit</CardTitle>
-                <DollarSign className="h-4 w-4 text-profit" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Total Profit</CardTitle>
+                <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-profit" />
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                <div className={`text-lg sm:text-2xl font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
                   {results.totalProfit >= 0 ? '+' : ''}${(results.totalProfit * 10).toFixed(2)}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -840,32 +907,31 @@ export const BettingDashboard = () => {
               <img 
                 src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
                 alt="Underdog Runline Logo"
-                className="object-contain"
-                style={{ width: '300px', height: '300px' }}
+                className="object-contain w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80"
               />
             </div>
-            <TabsList className="grid w-auto grid-cols-3">
-              <TabsTrigger value="today" className="flex items-center gap-2">
-                Today
-                <span className="text-xs text-muted-foreground">
+            <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:mx-auto">
+              <TabsTrigger value="today" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                <span>Today</span>
+                <span className="text-xs text-muted-foreground hidden sm:inline">
                   {getETDate()}
                 </span>
-                <Badge variant="outline" className="ml-1">
+                <Badge variant="outline" className="text-xs">
                   {dailyPicks.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="tomorrow" className="flex items-center gap-2">
-                Tomorrow
-                <span className="text-xs text-muted-foreground">
+              <TabsTrigger value="tomorrow" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                <span>Tomorrow</span>
+                <span className="text-xs text-muted-foreground hidden sm:inline">
                   {getETDate(1)}
                 </span>
-                <Badge variant="outline" className="ml-1">
+                <Badge variant="outline" className="text-xs">
                   {tomorrowPicks.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="results" className="flex items-center gap-2">
-                Results
-                <Badge variant="outline" className="ml-1">
+              <TabsTrigger value="results" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                <span>Results</span>
+                <Badge variant="outline" className="text-xs">
                   {allPicks.length}
                 </Badge>
               </TabsTrigger>
@@ -873,7 +939,7 @@ export const BettingDashboard = () => {
           </div>
 
           <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-6">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-6">
               <TabsContent value="today" className="mt-0">
                 {dailyPicks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
@@ -884,53 +950,53 @@ export const BettingDashboard = () => {
                     {dailyPicks.map((pick) => (
                       <div 
                         key={pick.id}
-                        className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
+                        className="border border-border/50 rounded-lg p-3 sm:p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
                       >
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex-1 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
+                          <div className="flex-1 space-y-2 sm:space-y-3">
                              {/* Away Team */}
-                             <div className="flex items-center gap-3">
+                             <div className="flex items-center gap-2 sm:gap-3">
                                <img 
                                  src={getTeamLogo(pick.awayTeam)} 
                                  alt={`${pick.awayTeam} logo`}
-                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                 className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                                  onError={(e) => {
                                    e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                  }}
                                />
-                               <div className="flex-1">
+                               <div className="flex-1 min-w-0">
                                  <div className="flex items-center gap-2">
-                                   <div className="font-semibold text-base">{pick.awayTeam}</div>
+                                   <div className="font-semibold text-sm sm:text-base truncate">{pick.awayTeam}</div>
                                      {pick.recommendedBet === 'away_runline' && (
-                                       <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                       <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center flex-shrink-0`}>
                                          <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
                                        </div>
                                      )}
                                  </div>
-                                 <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
+                                 <div className="text-xs text-muted-foreground truncate">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
                                </div>
                              </div>
                             
                              {/* Home Team */}
-                             <div className="flex items-center gap-3">
+                             <div className="flex items-center gap-2 sm:gap-3">
                                <img 
                                  src={getTeamLogo(pick.homeTeam)} 
                                  alt={`${pick.homeTeam} logo`}
-                                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                                 className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                                  onError={(e) => {
                                    e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                  }}
                                />
-                                <div className="flex-1">
+                                <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <div className="font-semibold text-base">{pick.homeTeam}</div>
+                                    <div className="font-semibold text-sm sm:text-base truncate">{pick.homeTeam}</div>
                                      {pick.recommendedBet === 'home_runline' && (
-                                        <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center`}>
+                                        <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center flex-shrink-0`}>
                                           <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
                                         </div>
                                      )}
                                   </div>
-                                  <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
+                                  <div className="text-xs text-muted-foreground truncate">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
                                 </div>
                              </div>
                           </div>
