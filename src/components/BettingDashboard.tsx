@@ -622,6 +622,13 @@ export const BettingDashboard = () => {
         <Tabs defaultValue="today" className="w-full">
           {/* Date Selector and Title */}
           <div className="text-center space-y-4 mb-6">
+            <div className="flex justify-center">
+              <img 
+                src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
+                alt="Underdog Runline Logo"
+                className="w-32 h-32 object-contain"
+              />
+            </div>
             <div className="text-xl font-medium">
               Underdog Runline
             </div>
