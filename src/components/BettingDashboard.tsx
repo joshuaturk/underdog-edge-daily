@@ -797,7 +797,7 @@ export const BettingDashboard = () => {
                           
                           <div className="text-right space-y-2 ml-4">
                             <Badge className={getConfidenceColor(pick.confidence)}>
-                              {Math.round(pick.confidence)}% confidence
+                              <span className="text-lg font-bold">{Math.round(pick.confidence)}%</span>
                             </Badge>
                             <div className="text-sm font-medium text-foreground">
                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
@@ -910,7 +910,7 @@ export const BettingDashboard = () => {
                           
                            <div className="text-right space-y-2 ml-4">
                              <Badge className={getConfidenceColor(pick.confidence)}>
-                               {Math.round(pick.confidence)}% confidence
+                               <span className="text-lg font-bold">{Math.round(pick.confidence)}%</span>
                              </Badge>
                              <div className="text-sm font-medium text-foreground">
                                +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
