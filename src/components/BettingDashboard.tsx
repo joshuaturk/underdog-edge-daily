@@ -359,9 +359,14 @@ export const BettingDashboard = () => {
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5 text-primary" />
               Today's Top Picks
-              <Badge variant="outline" className="ml-auto">
-                {dailyPicks.length} qualified
-              </Badge>
+              <div className="flex items-center gap-2 ml-auto">
+                <span className="text-sm text-muted-foreground font-normal">
+                  {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                </span>
+                <Badge variant="outline">
+                  {dailyPicks.length} qualified
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
