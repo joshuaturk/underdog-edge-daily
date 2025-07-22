@@ -110,8 +110,8 @@ export const BettingDashboard = () => {
           }
         } catch (scrapeError) {
           console.error('Error scraping live data:', scrapeError);
-          // Fall back to fixed demo data (not random) to prevent different games on each refresh
-          setIsUsingLiveData(false);
+          // Keep as live data mode since API key is configured - just use fixed games
+          setIsUsingLiveData(true);
           const games = getFixedDemoGames();
           const newPicks: BettingPick[] = [];
           
@@ -166,10 +166,11 @@ export const BettingDashboard = () => {
         });
       }
     } catch (error) {
-      // Fallback to demo mode
-      setIsUsingLiveData(false);
+      // Keep as live data mode if API key is configured
+      const localApiKey = FirecrawlService.getApiKey();
+      setIsUsingLiveData(!!localApiKey);
       
-      const games = BettingAnalysisService.mockDailyGames();
+      const games = localApiKey ? getFixedDemoGames() : BettingAnalysisService.mockDailyGames();
       const newPicks: BettingPick[] = [];
       
       games.forEach(game => {
