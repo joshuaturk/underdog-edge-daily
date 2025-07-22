@@ -244,53 +244,11 @@ export const BettingDashboard = () => {
     }
   }, [allPicks]);
 
-  // Initialize with some demo picks that have live scores for testing
   useEffect(() => {
-    if (dailyPicks.length === 0) {
-      // Only set demo data if no real picks exist
-      const demoPicks: BettingPick[] = [
-        {
-          id: 'demo-1',
-          date: new Date().toISOString().split('T')[0],
-          homeTeam: 'CLE Guardians',
-          awayTeam: 'BAL Orioles',
-          recommendedBet: 'away_runline',
-          confidence: 75,
-          reason: 'BAL Orioles as road underdog - Strong road performance',
-          odds: -144,
-          status: 'pending',
-          homePitcher: 'Joey Cantillo',
-          awayPitcher: 'Trevor Rogers',
-          result: {
-            homeScore: 2,
-            awayScore: 4,
-            scoreDifference: 2
-          }
-        },
-        {
-          id: 'demo-2',
-          date: new Date().toISOString().split('T')[0],
-          homeTeam: 'WAS Nationals',
-          awayTeam: 'CIN Reds',
-          recommendedBet: 'away_runline',
-          confidence: 68,
-          reason: 'CIN Reds as road underdog - Solid runline coverage',
-          odds: 116,
-          status: 'pending',
-          homePitcher: 'Michael Soroka',
-          awayPitcher: 'Nick Lodolo',
-          result: {
-            homeScore: 1,
-            awayScore: 3,
-            scoreDifference: 2
-          }
-        }
-      ];
-      
-      setDailyPicks(demoPicks);
-      setAllPicks(demoPicks);
+    if (allPicks.length > 0) {
+      setResults(BettingAnalysisService.analyzeResults(allPicks));
     }
-  }, [dailyPicks.length]);
+  }, [allPicks]);
 
 
   // Fixed demo games for consistent testing (July 22, 2025)
