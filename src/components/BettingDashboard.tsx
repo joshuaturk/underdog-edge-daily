@@ -524,7 +524,7 @@ export const BettingDashboard = () => {
         </div>
 
         {/* Sports Navigation Menu */}
-        <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+        <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 rounded-full">
           <CardContent className="p-4">
             <div className="flex items-center justify-center gap-1 flex-wrap">
               {sportsMenu.map((sport, index) => {
@@ -533,7 +533,7 @@ export const BettingDashboard = () => {
                     key={sport.name}
                     variant={sport.active ? "default" : "ghost"}
                     size="sm"
-                    className={`flex items-center gap-2 ${
+                    className={`flex items-center gap-2 rounded-full ${
                       sport.active 
                         ? "bg-primary text-primary-foreground hover:bg-primary/90" 
                         : "hover:bg-muted"
@@ -549,6 +549,16 @@ export const BettingDashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Date and Title */}
+        <div className="text-center space-y-2">
+          <div className="text-lg text-muted-foreground">
+            {getETDate()}
+          </div>
+          <div className="text-xl font-medium">
+            Underdog Runline
+          </div>
+        </div>
 
         {/* Results Summary */}
         {results && (
