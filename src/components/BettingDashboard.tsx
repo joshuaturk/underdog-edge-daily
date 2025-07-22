@@ -621,7 +621,7 @@ export const BettingDashboard = () => {
         {/* Picks Tabs */}
         <Tabs defaultValue="today" className="w-full">
           {/* Date Selector and Title */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4 mb-6">
             <div className="text-xl font-medium">
               Underdog Runline
             </div>
