@@ -114,7 +114,11 @@ export class BettingAnalysisService {
 
     const totalProfit = completedPicks.reduce((sum, pick) => sum + (pick.profit || 0), 0);
     const winRate = completedPicks.length > 0 ? (wonPicks.length / completedPicks.length) * 100 : 0;
-    const roi = completedPicks.length > 0 ? (totalProfit / completedPicks.length) * 100 : 0;
+    
+    // Calculate ROI based on $10 bets per game
+    const totalInvested = completedPicks.length * 10; // $10 per bet
+    const totalProfitDollars = totalProfit * 10; // Convert units to dollars (assuming 1 unit = $10)
+    const roi = totalInvested > 0 ? (totalProfitDollars / totalInvested) * 100 : 0;
 
     // Calculate current streak
     let streak: { type: 'win' | 'loss'; count: number } = { type: 'win', count: 0 };

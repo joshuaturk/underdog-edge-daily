@@ -689,10 +689,10 @@ export const BettingDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                  {results.totalProfit >= 0 ? '+' : ''}{results.totalProfit.toFixed(2)}u
+                  {results.totalProfit >= 0 ? '+' : ''}${(results.totalProfit * 10).toFixed(2)}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {results.roi.toFixed(1)}% ROI
+                  {results.roi.toFixed(1)}% ROI on $10 bets
                 </p>
               </CardContent>
             </Card>
@@ -1023,10 +1023,10 @@ export const BettingDashboard = () => {
                       </CardHeader>
                       <CardContent>
                         <div className={`text-2xl font-bold ${results && results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                          {results ? (results.totalProfit >= 0 ? '+' : '') + results.totalProfit.toFixed(2) : '0.00'}u
+                          {results ? (results.totalProfit >= 0 ? '+' : '') + '$' + (results.totalProfit * 10).toFixed(2) : '$0.00'}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {results?.roi.toFixed(1) || '0.0'}% ROI
+                          {results?.roi.toFixed(1) || '0.0'}% ROI on $10 bets
                         </p>
                       </CardContent>
                     </Card>
@@ -1155,7 +1155,7 @@ export const BettingDashboard = () => {
                                 </div>
                                 {pick.profit !== undefined && (
                                   <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                    {pick.profit >= 0 ? '+' : ''}{pick.profit.toFixed(2)}u
+                                    {pick.profit >= 0 ? '+' : ''}${(pick.profit * 10).toFixed(2)}
                                   </div>
                                 )}
                               </div>
