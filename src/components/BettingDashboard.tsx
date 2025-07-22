@@ -164,10 +164,27 @@ export const BettingDashboard = () => {
           const updatedPicks = allPicks.map(pick => {
             // Find matching live game
             const liveGame = liveGames.find(game => {
-              const homeMatch = game.homeTeam.includes(pick.homeTeam.split(' ').pop()!) || 
-                               pick.homeTeam.includes(game.homeTeam.split(' ').pop()!);
-              const awayMatch = game.awayTeam.includes(pick.awayTeam.split(' ').pop()!) || 
-                               pick.awayTeam.includes(game.awayTeam.split(' ').pop()!);
+              // More robust team name matching
+              const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
+              const pickAwayShort = pick.awayTeam.split(' ').pop()?.toLowerCase();
+              const gameHomeShort = game.homeTeam.split(' ').pop()?.toLowerCase();
+              const gameAwayShort = game.awayTeam.split(' ').pop()?.toLowerCase();
+              
+              // Check various team name formats
+              const homeMatch = 
+                pickHomeShort === gameHomeShort ||
+                pick.homeTeam.toLowerCase().includes(game.homeTeam.toLowerCase()) ||
+                game.homeTeam.toLowerCase().includes(pick.homeTeam.toLowerCase()) ||
+                pick.homeTeam.toLowerCase().includes(gameHomeShort || '') ||
+                game.homeTeam.toLowerCase().includes(pickHomeShort || '');
+                
+              const awayMatch = 
+                pickAwayShort === gameAwayShort ||
+                pick.awayTeam.toLowerCase().includes(game.awayTeam.toLowerCase()) ||
+                game.awayTeam.toLowerCase().includes(pick.awayTeam.toLowerCase()) ||
+                pick.awayTeam.toLowerCase().includes(gameAwayShort || '') ||
+                game.awayTeam.toLowerCase().includes(pickAwayShort || '');
+              
               return homeMatch && awayMatch;
             });
             
@@ -244,6 +261,18 @@ export const BettingDashboard = () => {
       return () => clearInterval(interval);
     }
   }, [allPicks]);
+
+  // Generate initial picks on component mount
+  useEffect(() => {
+    const initializePicks = async () => {
+      if (dailyPicks.length === 0) {
+        console.log('No daily picks found, generating initial picks...');
+        await generateDailyPicks();
+      }
+    };
+    
+    initializePicks();
+  }, []);
 
   useEffect(() => {
     if (allPicks.length > 0) {
@@ -799,6 +828,47 @@ export const BettingDashboard = () => {
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 sm:mr-2'}`} />
               <span className="hidden sm:inline">Refresh Live Data</span>
               <span className="sm:hidden">Refresh</span>
+            </Button>
+            <Button 
+              onClick={async () => {
+                console.log('Creating test picks with live games...');
+                const testPicks: BettingPick[] = [
+                  {
+                    id: 'test-live-1',
+                    date: new Date().toISOString().split('T')[0],
+                    homeTeam: 'Cleveland Guardians',
+                    awayTeam: 'Baltimore Orioles',
+                    recommendedBet: 'away_runline',
+                    confidence: 75,
+                    reason: 'Baltimore Orioles as road underdog - Live test',
+                    odds: -144,
+                    status: 'pending',
+                    homePitcher: 'Test Pitcher',
+                    awayPitcher: 'Test Pitcher'
+                  },
+                  {
+                    id: 'test-live-2',
+                    date: new Date().toISOString().split('T')[0],
+                    homeTeam: 'Washington Nationals',
+                    awayTeam: 'Cincinnati Reds',
+                    recommendedBet: 'away_runline',
+                    confidence: 68,
+                    reason: 'Cincinnati Reds as road underdog - Live test',
+                    odds: 116,
+                    status: 'pending',
+                    homePitcher: 'Test Pitcher',
+                    awayPitcher: 'Test Pitcher'
+                  }
+                ];
+                setDailyPicks(testPicks);
+                setAllPicks(testPicks);
+                console.log('Test picks created:', testPicks);
+              }} 
+              variant="outline" 
+              size="sm"
+              className="bg-accent/10"
+            >
+              Test Live
             </Button>
           </div>
         </div>
