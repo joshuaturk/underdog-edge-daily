@@ -815,23 +815,15 @@ export const BettingDashboard = () => {
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
                            <div className="flex items-center gap-3">
-                             <img 
-                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
-                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
-                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                               onError={(e) => {
-                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                               }}
-                             />
-                             <span className="font-medium text-sm">
+                             <span className="font-medium text-sm text-muted-foreground">
                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
                              </span>
-                              <ChevronDown 
-                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
-                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
-                                }`}
-                                onClick={() => toggleBuddyAnalysis(pick.id)}
-                              />
+                             <ChevronDown 
+                               className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
+                                 showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
+                               }`}
+                               onClick={() => toggleBuddyAnalysis(pick.id)}
+                             />
                            </div>
                            
                            {/* Buddy Analysis - Only show when toggled */}
@@ -923,23 +915,15 @@ export const BettingDashboard = () => {
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
                            <div className="flex items-center gap-3">
-                             <img 
-                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
-                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
-                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                               onError={(e) => {
-                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                               }}
-                             />
-                             <span className="font-medium text-sm">
+                             <span className="font-medium text-sm text-muted-foreground">
                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
                              </span>
-                              <ChevronDown 
-                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
-                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
-                                }`}
-                                onClick={() => toggleBuddyAnalysis(pick.id)}
-                              />
+                             <ChevronDown 
+                               className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
+                                 showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
+                               }`}
+                               onClick={() => toggleBuddyAnalysis(pick.id)}
+                             />
                            </div>
                            
                            {/* Buddy Analysis - Only show when toggled */}
