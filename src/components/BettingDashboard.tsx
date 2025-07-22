@@ -242,7 +242,15 @@ export const BettingDashboard = () => {
               }
             });
             
-            setDailyPicks(newPicks.slice(0, 4)); // Only show top 4 picks
+            // Remove duplicates based on team matchup
+            const uniquePicks = newPicks.filter((pick, index, self) => 
+              index === self.findIndex(p => 
+                (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
+                (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
+              )
+            );
+            
+            setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
             setLastUpdate(new Date());
             
             toast({
@@ -290,7 +298,15 @@ export const BettingDashboard = () => {
               }
             });
             
-            setDailyPicks(newPicks.slice(0, 4)); // Only show top 4 picks
+            // Remove duplicates based on team matchup
+            const uniquePicks = newPicks.filter((pick, index, self) => 
+              index === self.findIndex(p => 
+                (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
+                (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
+              )
+            );
+            
+            setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
             setLastUpdate(new Date());
             
             toast({
@@ -369,7 +385,15 @@ export const BettingDashboard = () => {
               }
             });
             
-            setDailyPicks(newPicks);
+            // Remove duplicates based on team matchup
+            const uniquePicks = newPicks.filter((pick, index, self) => 
+              index === self.findIndex(p => 
+                (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
+                (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
+              )
+            );
+            
+            setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
             setLastUpdate(new Date());
             
             toast({
@@ -401,7 +425,15 @@ export const BettingDashboard = () => {
             }
           });
           
-          setDailyPicks(newPicks);
+          // Remove duplicates based on team matchup
+          const uniquePicks = newPicks.filter((pick, index, self) => 
+            index === self.findIndex(p => 
+              (p.homeTeam === pick.homeTeam && p.awayTeam === pick.awayTeam) ||
+              (p.homeTeam === pick.awayTeam && p.awayTeam === pick.homeTeam)
+            )
+          );
+          
+          setDailyPicks(uniquePicks.slice(0, 4)); // Only show top 4 picks
           setLastUpdate(new Date());
           
           toast({
