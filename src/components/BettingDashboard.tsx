@@ -596,7 +596,7 @@ export const BettingDashboard = () => {
               className="h-12 object-contain"
             />
             <p className="text-muted-foreground mt-1">
-              Advanced underdog runline analysis & daily picks
+              Your betbud's daily picks
             </p>
           </div>
           <div className="flex items-center gap-2">
