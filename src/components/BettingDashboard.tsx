@@ -27,15 +27,21 @@ export const BettingDashboard = () => {
     }
   }, []);
 
+  useEffect(() => {
+    generateDailyPicks();
+  }, []);
+
+  useEffect(() => {
+    if (allPicks.length > 0) {
+      setResults(BettingAnalysisService.analyzeResults(allPicks));
+    }
+  }, [allPicks]);
+
   const handleApiKeySet = () => {
     setShowApiSetup(false);
     const hasApiKey = FirecrawlService.getApiKey();
     setIsUsingLiveData(!!hasApiKey);
   };
-
-  if (showApiSetup) {
-    return <ApiKeySetup onApiKeySet={handleApiKeySet} />;
-  }
 
   const generateDailyPicks = () => {
     setIsLoading(true);
@@ -106,15 +112,10 @@ export const BettingDashboard = () => {
     });
   };
 
-  useEffect(() => {
-    generateDailyPicks();
-  }, []);
-
-  useEffect(() => {
-    if (allPicks.length > 0) {
-      setResults(BettingAnalysisService.analyzeResults(allPicks));
-    }
-  }, [allPicks]);
+  // Conditional rendering AFTER all hooks are declared
+  if (showApiSetup) {
+    return <ApiKeySetup onApiKeySet={handleApiKeySet} />;
+  }
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'bg-profit text-profit-foreground';
