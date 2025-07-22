@@ -387,42 +387,6 @@ export const BettingDashboard = () => {
     generateTomorrowPicks();
   }, [isUsingLiveData]);
 
-  const simulateResults = (pick: BettingPick) => {
-    // Simulate game results based on confidence
-    const winProbability = pick.confidence / 100;
-    const won = Math.random() < winProbability;
-    
-    const updatedPick = {
-      ...pick,
-      status: won ? 'won' as const : 'lost' as const,
-      profit: won ? 0.91 : -1, // Standard betting profit/loss
-      result: {
-        homeScore: Math.floor(Math.random() * 10) + 1,
-        awayScore: Math.floor(Math.random() * 10) + 1,
-        scoreDifference: Math.floor(Math.random() * 5) + 1
-      }
-    };
-    
-    const updatedAllPicks = [...allPicks];
-    const existingIndex = updatedAllPicks.findIndex(p => p.id === pick.id);
-    
-    if (existingIndex >= 0) {
-      updatedAllPicks[existingIndex] = updatedPick;
-    } else {
-      updatedAllPicks.push(updatedPick);
-    }
-    
-    setAllPicks(updatedAllPicks);
-    
-    // Update daily picks
-    setDailyPicks(prev => prev.map(p => p.id === pick.id ? updatedPick : p));
-    
-    toast({
-      title: won ? "Pick Won!" : "Pick Lost",
-      description: `${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} runline ${won ? 'covered' : 'failed'}`,
-      variant: won ? "default" : "destructive"
-    });
-  };
 
 
   const getConfidenceColor = (confidence: number) => {
@@ -641,16 +605,6 @@ export const BettingDashboard = () => {
                           {pick.reason}
                         </p>
                         
-                        {pick.status === 'pending' && (
-                          <Button 
-                            onClick={() => simulateResults(pick)}
-                            variant="outline" 
-                            size="sm"
-                            className="hover:bg-primary/10"
-                          >
-                            Simulate Result
-                          </Button>
-                        )}
                         
                         {pick.result && (
                           <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
