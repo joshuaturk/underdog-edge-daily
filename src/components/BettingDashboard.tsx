@@ -550,16 +550,6 @@ export const BettingDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Date and Title */}
-        <div className="text-center space-y-2">
-          <div className="text-lg text-muted-foreground">
-            {getETDate()}
-          </div>
-          <div className="text-xl font-medium">
-            Underdog Runline
-          </div>
-        </div>
-
         {/* Results Summary */}
         {results && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -630,11 +620,10 @@ export const BettingDashboard = () => {
 
         {/* Picks Tabs */}
         <Tabs defaultValue="today" className="w-full">
-          {/* Tabs List Above MLB Picks */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-semibold">Underdog Runline</h3>
+          {/* Date Selector and Title */}
+          <div className="text-center space-y-4">
+            <div className="text-xl font-medium">
+              Underdog Runline
             </div>
             <TabsList className="grid w-auto grid-cols-2">
               <TabsTrigger value="today" className="flex items-center gap-2">
@@ -658,7 +647,7 @@ export const BettingDashboard = () => {
             </TabsList>
           </div>
 
-          <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+          <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-6">
             <CardContent className="p-6">
               <TabsContent value="today" className="mt-0">
                 {dailyPicks.length === 0 ? (
