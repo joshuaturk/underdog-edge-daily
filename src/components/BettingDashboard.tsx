@@ -11,6 +11,7 @@ import { ProductionDataService } from '@/services/ProductionDataService';
 import { SportsAPIService } from '@/services/SportsAPIService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
+import { determineUnderdog } from '@/utils/oddsUtils';
 
 // Import custom sports icons
 import baseballIcon from '@/assets/baseball-icon.png';
@@ -115,13 +116,16 @@ export const BettingDashboard = () => {
             
             // Use the real games data
             const realGames = result.data;
-            const games = realGames.map(game => ({
-              homeTeam: game.homeTeam,
-              awayTeam: game.awayTeam,
-              isHomeUnderdog: game.homeOdds > game.awayOdds,
-              odds: game.runlineOdds || (game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds),
-              source: game.source
-            }));
+            const games = realGames.map(game => {
+              const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+              return {
+                homeTeam: game.homeTeam,
+                awayTeam: game.awayTeam,
+                isHomeUnderdog,
+                odds: game.runlineOdds || underdogOdds,
+                source: game.source
+              };
+            });
             
             const newPicks: BettingPick[] = [];
             
@@ -157,13 +161,16 @@ export const BettingDashboard = () => {
           const espnResult = await SportsAPIService.getMLBGamesFromESPN();
           
           if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
-            const games = espnResult.data.map(game => ({
-              homeTeam: game.homeTeam,
-              awayTeam: game.awayTeam,
-              isHomeUnderdog: game.homeOdds > game.awayOdds,
-              odds: game.runlineOdds || (game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds),
-              source: game.source
-            }));
+            const games = espnResult.data.map(game => {
+              const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+              return {
+                homeTeam: game.homeTeam,
+                awayTeam: game.awayTeam,
+                isHomeUnderdog,
+                odds: game.runlineOdds || underdogOdds,
+                source: game.source
+              };
+            });
             
             const newPicks: BettingPick[] = [];
             
@@ -227,13 +234,16 @@ export const BettingDashboard = () => {
           if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
             setIsUsingLiveData(false);
             
-            const games = espnResult.data.map(game => ({
-              homeTeam: game.homeTeam,
-              awayTeam: game.awayTeam,
-              isHomeUnderdog: game.homeOdds > game.awayOdds,
-              odds: game.runlineOdds || (game.homeOdds > game.awayOdds ? game.homeOdds : game.awayOdds),
-              source: game.source
-            }));
+            const games = espnResult.data.map(game => {
+              const { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
+              return {
+                homeTeam: game.homeTeam,
+                awayTeam: game.awayTeam,
+                isHomeUnderdog,
+                odds: game.runlineOdds || underdogOdds,
+                source: game.source
+              };
+            });
             
             const newPicks: BettingPick[] = [];
             
