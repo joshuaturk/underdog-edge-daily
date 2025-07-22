@@ -779,25 +779,23 @@ export const BettingDashboard = () => {
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
-                           <div className="flex items-center justify-between">
-                             <div className="flex items-center gap-3">
-                               <img 
-                                 src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
-                                 alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
-                                 className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                                 onError={(e) => {
-                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                 }}
-                               />
-                               <span className="font-medium text-sm">
-                                 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                               </span>
-                             </div>
+                           <div className="flex items-center gap-3">
+                             <img 
+                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
+                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
+                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                               onError={(e) => {
+                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                               }}
+                             />
+                             <span className="font-medium text-sm">
+                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                             </span>
                              <Button
                                variant="outline"
                                size="sm"
                                onClick={() => toggleBuddyAnalysis(pick.id)}
-                               className="text-xs"
+                               className="text-xs bg-blue-600 text-white border-blue-600 hover:bg-blue-700 px-2 py-1 h-auto"
                              >
                                Betbud Insight
                              </Button>
@@ -888,25 +886,23 @@ export const BettingDashboard = () => {
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
-                           <div className="flex items-center justify-between">
-                             <div className="flex items-center gap-3">
-                               <img 
-                                 src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
-                                 alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
-                                 className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-                                 onError={(e) => {
-                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                 }}
-                               />
-                               <span className="font-medium text-sm">
-                                 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                               </span>
-                             </div>
+                           <div className="flex items-center gap-3">
+                             <img 
+                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
+                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
+                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                               onError={(e) => {
+                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                               }}
+                             />
+                             <span className="font-medium text-sm">
+                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                             </span>
                              <Button
                                variant="outline"
                                size="sm"
                                onClick={() => toggleBuddyAnalysis(pick.id)}
-                               className="text-xs"
+                               className="text-xs bg-blue-600 text-white border-blue-600 hover:bg-blue-700 px-2 py-1 h-auto"
                              >
                                Betbud Insight
                              </Button>
