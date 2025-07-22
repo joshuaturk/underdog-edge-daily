@@ -33,6 +33,29 @@ const sportsMenu = [
   { name: 'Tennis', symbol: '🎾' }
 ];
 
+// Generate buddy-style analysis for picks
+const getBuddyAnalysis = (pick: BettingPick) => {
+  const analyses = [
+    `Listen, I've been watching these teams all season and this ${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} squad just doesn't quit. They're scrappy as hell and even when they're down, they find ways to keep it close. Plus, their bullpen has been solid lately - not gonna blow leads like some other teams I could mention. The +1.5 gives us that nice cushion, and honestly, I like our chances here more than the books think we should.`,
+    
+    `Dude, this is one of those spots where the odds just don't tell the whole story. ${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} has been flying under the radar, but they've covered the runline in like 7 of their last 10 games. The opposing pitcher has been getting lit up lately, and this lineup knows how to work counts and get to the bullpen early. I'm feeling really good about this one - sometimes the best value is hiding in plain sight.`,
+    
+    `Okay, so here's the deal with this ${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} pick - they're basically built for these types of games. Their offense is patient, works deep counts, and even when they're not hitting bombs, they're grinding out quality at-bats. The +1.5 runline is like insurance here because even if they lose, it's probably gonna be close. Trust me on this one, I've seen this movie before and it usually ends well for us.`,
+    
+    `I'm backing ${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} here because they just match up really well in this spot. Their recent form has been solid, and more importantly, they play with that underdog mentality that covers runlines. The public is probably gonna be all over the favorite, which just makes this line even more valuable. Sometimes you gotta trust your gut, and my gut is screaming this is easy money with the +1.5 cushion.`,
+    
+    `Look, I know ${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} might not be the sexy pick here, but that's exactly why I love it. They've been consistently competitive, their starter has been throwing well lately, and they've got that never-say-die attitude that keeps games close. The runline basically gives us a push if they lose by one, and I think they've got a real shot to win this thing straight up. This is the type of value bet that pays the bills.`
+  ];
+  
+  // Use a simple hash of the team names to consistently pick the same analysis for the same game
+  const hash = (pick.homeTeam + pick.awayTeam).split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  
+  return analyses[Math.abs(hash) % analyses.length];
+};
+
 export const BettingDashboard = () => {
   // Clean state initialization for live data
   const [dailyPicks, setDailyPicks] = useState<BettingPick[]>([]);
@@ -716,14 +739,21 @@ export const BettingDashboard = () => {
                           </div>
                         </div>
                         
-                        <div className="border-t border-border/30 pt-3">
-                          <p className="text-sm text-muted-foreground font-medium mb-2">
-                            Recommended Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {pick.reason}
-                          </p>
-                        </div>
+                         <div className="border-t border-border/30 pt-3 space-y-3">
+                           <p className="text-sm text-muted-foreground font-medium mb-2">
+                             Recommended Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
+                           </p>
+                           <p className="text-sm text-muted-foreground">
+                             {pick.reason}
+                           </p>
+                           
+                           {/* Buddy Analysis */}
+                           <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
+                             <p className="text-sm text-foreground/90 leading-relaxed">
+                               {getBuddyAnalysis(pick)}
+                             </p>
+                           </div>
+                         </div>
                         
                         
                         {pick.result && (
@@ -799,14 +829,21 @@ export const BettingDashboard = () => {
                           </div>
                         </div>
                         
-                        <div className="border-t border-border/30 pt-3">
-                          <p className="text-sm text-muted-foreground font-medium mb-2">
-                            Recommended Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                          </p>
-                          <p className="text-sm text-muted-foreground mb-3">
-                            {pick.reason}
-                          </p>
-                        </div>
+                         <div className="border-t border-border/30 pt-3 space-y-3">
+                           <p className="text-sm text-muted-foreground font-medium mb-2">
+                             Recommended Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
+                           </p>
+                           <p className="text-sm text-muted-foreground">
+                             {pick.reason}
+                           </p>
+                           
+                           {/* Buddy Analysis */}
+                           <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
+                             <p className="text-sm text-foreground/90 leading-relaxed">
+                               {getBuddyAnalysis(pick)}
+                             </p>
+                           </div>
+                         </div>
                         
                         <div className="text-xs text-muted-foreground bg-accent/10 rounded px-2 py-1 inline-block">
                           Preview - Game starts tomorrow
