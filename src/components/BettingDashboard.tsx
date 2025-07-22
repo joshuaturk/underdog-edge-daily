@@ -188,7 +188,7 @@ export const BettingDashboard = () => {
               }
             });
             
-            setDailyPicks(newPicks);
+            setDailyPicks(newPicks.slice(0, 4)); // Only show top 4 picks
             setLastUpdate(new Date());
             
             toast({
@@ -236,7 +236,7 @@ export const BettingDashboard = () => {
               }
             });
             
-            setDailyPicks(newPicks);
+            setDailyPicks(newPicks.slice(0, 4)); // Only show top 4 picks
             setLastUpdate(new Date());
             
             toast({
@@ -264,7 +264,7 @@ export const BettingDashboard = () => {
                }
              });
             
-            setDailyPicks(newPicks);
+            setDailyPicks(newPicks.slice(0, 4)); // Only show top 4 picks
             setLastUpdate(new Date());
             
             toast({
@@ -433,7 +433,7 @@ export const BettingDashboard = () => {
           }
         });
         
-        setTomorrowPicks(newPicks);
+        setTomorrowPicks(newPicks.slice(0, 4)); // Only show top 4 picks
         console.log(`Tomorrow's ESPN analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
       } else {
         // Fallback to fixed games
@@ -458,7 +458,7 @@ export const BettingDashboard = () => {
           }
         });
         
-        setTomorrowPicks(newPicks);
+        setTomorrowPicks(newPicks.slice(0, 4)); // Only show top 4 picks
         console.log(`Tomorrow's demo analysis: ${newPicks.length} picks qualify out of ${games.length} games`);
       }
     } catch (error) {
