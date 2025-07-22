@@ -740,12 +740,19 @@ export const BettingDashboard = () => {
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
-                           <p className="text-sm text-muted-foreground font-medium mb-2">
-                             Recommended Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                           </p>
-                           <p className="text-sm text-muted-foreground">
-                             {pick.reason}
-                           </p>
+                           <div className="flex items-center gap-3">
+                             <img 
+                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
+                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
+                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                               onError={(e) => {
+                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                               }}
+                             />
+                             <span className="font-medium text-sm">
+                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                             </span>
+                           </div>
                            
                            {/* Buddy Analysis */}
                            <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
@@ -830,12 +837,19 @@ export const BettingDashboard = () => {
                         </div>
                         
                          <div className="border-t border-border/30 pt-3 space-y-3">
-                           <p className="text-sm text-muted-foreground font-medium mb-2">
-                             Recommended Bet: {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} +1.5
-                           </p>
-                           <p className="text-sm text-muted-foreground">
-                             {pick.reason}
-                           </p>
+                           <div className="flex items-center gap-3">
+                             <img 
+                               src={getTeamLogo(pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam)} 
+                               alt={`${pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} logo`}
+                               className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                               onError={(e) => {
+                                 e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                               }}
+                             />
+                             <span className="font-medium text-sm">
+                               {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
+                             </span>
+                           </div>
                            
                            {/* Buddy Analysis */}
                            <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
