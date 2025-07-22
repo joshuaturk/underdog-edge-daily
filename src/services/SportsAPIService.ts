@@ -36,6 +36,8 @@ interface OddsAPIResponse {
 export class SportsAPIService {
   private static API_KEY_STORAGE_KEY = 'odds_api_key';
   private static readonly BASE_URL = 'https://api.the-odds-api.com/v4';
+  // Default API key for live data
+  private static readonly DEFAULT_API_KEY = '1fea8e349f56d166ae430f8946fbea6e';
 
   static saveApiKey(apiKey: string): void {
     localStorage.setItem(this.API_KEY_STORAGE_KEY, apiKey);
@@ -43,7 +45,9 @@ export class SportsAPIService {
   }
 
   static getApiKey(): string | null {
-    return localStorage.getItem(this.API_KEY_STORAGE_KEY);
+    // First check localStorage, then fallback to default
+    const stored = localStorage.getItem(this.API_KEY_STORAGE_KEY);
+    return stored || this.DEFAULT_API_KEY;
   }
 
   static async testApiKey(apiKey: string): Promise<boolean> {
@@ -246,11 +250,9 @@ export class SportsAPIService {
   }
 
   private static cleanTeamName(name: string): string {
-    // Remove location prefixes and clean team names
+    // Keep full team names, just remove unnecessary suffixes
     return name
-      .replace(/^(New York|Los Angeles|San Francisco|San Diego|Tampa Bay|Kansas City)\s*/i, '')
       .replace(/\s*(Baseball|MLB|\d+|\(.*\))/gi, '')
-      .trim()
-      .substring(0, 15); // Limit length
+      .trim();
   }
 }

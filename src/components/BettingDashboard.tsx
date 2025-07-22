@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         GraduationCap, Dribbble, Trophy, Settings } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
 import { SportsAPIService } from '@/services/SportsAPIService';
-import { SportsAPISetup } from '@/components/SportsAPISetup';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,8 +38,7 @@ export const BettingDashboard = () => {
   const [results, setResults] = useState<BettingResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const [isUsingLiveData, setIsUsingLiveData] = useState(false);
-  const [showAPISetup, setShowAPISetup] = useState(false);
+  const [isUsingLiveData, setIsUsingLiveData] = useState(true); // Always start with live data
   const { toast } = useToast();
 
   // Helper function to get dates in ET timezone
@@ -441,27 +439,6 @@ export const BettingDashboard = () => {
     }
   };
 
-  // Show API setup if requested
-  if (showAPISetup) {
-    return (
-      <div className="min-h-screen bg-background p-6">
-        <div className="mb-6">
-          <Button 
-            onClick={() => setShowAPISetup(false)} 
-            variant="outline"
-            className="mb-4"
-          >
-            ← Back to Dashboard
-          </Button>
-        </div>
-        <SportsAPISetup onApiKeySet={() => {
-          setShowAPISetup(false);
-          generateDailyPicks(); // Refresh data with new API
-        }} />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
@@ -487,15 +464,6 @@ export const BettingDashboard = () => {
                 Demo Mode
               </Badge>
             )}
-            <Button 
-              onClick={() => setShowAPISetup(true)} 
-              variant="outline" 
-              size="sm"
-              className="shrink-0"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              API Setup
-            </Button>
             <ThemeToggle />
             <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline">
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
