@@ -4,6 +4,98 @@ export class GolfAnalysisService {
   // Based on the user's analysis patterns
   private static readonly MIN_CONFIDENCE_THRESHOLD = 65;
   private static readonly TOP_10_TARGET = 10; // Show top 10 players
+  private static readonly ODDS_API_BASE_URL = 'https://api.the-odds-api.com/v4';
+  private static readonly DEFAULT_API_KEY = '1fea8e349f56d166ae430f8946fbea6e';
+
+  private static getApiKey(): string {
+    // Use same API key as SportsAPIService
+    const stored = localStorage.getItem('odds_api_key');
+    return stored || this.DEFAULT_API_KEY;
+  }
+
+  private static async fetchGolfOdds(): Promise<Array<{ playerName: string; odds: string; bookmaker: string }>> {
+    const apiKey = this.getApiKey();
+    
+    try {
+      console.log('Fetching golf odds from The Odds API...');
+      
+      // Try to fetch golf tournament odds
+      const response = await fetch(
+        `${this.ODDS_API_BASE_URL}/sports/golf_pga_championship/odds/?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american&dateFormat=iso`
+      );
+
+      if (!response.ok) {
+        console.log('Golf championship endpoint failed, trying general golf...');
+        
+        // Try alternative golf endpoint
+        const golfResponse = await fetch(
+          `${this.ODDS_API_BASE_URL}/sports/golf_masters_tournament/odds/?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american&dateFormat=iso`
+        );
+        
+        if (!golfResponse.ok) {
+          console.log('No live golf odds available, using mock odds');
+          return this.getMockGolfOdds();
+        }
+        
+        const golfData = await golfResponse.json();
+        return this.parseGolfOdds(golfData);
+      }
+
+      const data = await response.json();
+      return this.parseGolfOdds(data);
+      
+    } catch (error) {
+      console.error('Error fetching golf odds:', error);
+      return this.getMockGolfOdds();
+    }
+  }
+
+  private static parseGolfOdds(data: any[]): Array<{ playerName: string; odds: string; bookmaker: string }> {
+    const odds: Array<{ playerName: string; odds: string; bookmaker: string }> = [];
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      return this.getMockGolfOdds();
+    }
+
+    data.forEach(tournament => {
+      if (tournament.bookmakers && Array.isArray(tournament.bookmakers)) {
+        tournament.bookmakers.forEach((bookmaker: any) => {
+          // Prefer DraftKings, FanDuel, Bet365, or other major books
+          if (['draftkings', 'fanduel', 'bet365', 'unibet', 'williamhill'].includes(bookmaker.key)) {
+            bookmaker.markets?.forEach((market: any) => {
+              if (market.key === 'outrights' && market.outcomes) {
+                market.outcomes.forEach((outcome: any) => {
+                  odds.push({
+                    playerName: outcome.name,
+                    odds: outcome.price > 0 ? `+${outcome.price}` : `${outcome.price}`,
+                    bookmaker: bookmaker.title
+                  });
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    return odds.length > 0 ? odds : this.getMockGolfOdds();
+  }
+
+  private static getMockGolfOdds(): Array<{ playerName: string; odds: string; bookmaker: string }> {
+    // Mock odds from major sportsbooks for the 3M Open field
+    return [
+      { playerName: "Sam Burns", odds: "+1800", bookmaker: "DraftKings" },
+      { playerName: "Tony Finau", odds: "+2200", bookmaker: "FanDuel" },
+      { playerName: "Max Homa", odds: "+2800", bookmaker: "Bet365" },
+      { playerName: "Chris Gotterup", odds: "+1600", bookmaker: "DraftKings" },
+      { playerName: "Wyndham Clark", odds: "+1400", bookmaker: "FanDuel" },
+      { playerName: "Maverick McNealy", odds: "+3200", bookmaker: "Bet365" },
+      { playerName: "Joel Dahmen", odds: "+4500", bookmaker: "DraftKings" },
+      { playerName: "Adam Hadwin", odds: "+5000", bookmaker: "FanDuel" },
+      { playerName: "Denny McCarthy", odds: "+4200", bookmaker: "Bet365" },
+      { playerName: "Matt Kuchar", odds: "+6000", bookmaker: "DraftKings" }
+    ];
+  }
 
   // Sample tournament data - in production this would come from web scraping
   static getMockTournament(): GolfTournament {
@@ -411,10 +503,13 @@ export class GolfAnalysisService {
     return { score, factors, risks };
   }
 
-  static generateTop10Picks(): GolfAnalysis {
+  static async generateTop10Picks(): Promise<GolfAnalysis> {
     const tournament = this.getMockTournament();
     const players = this.getMockPlayers();
     const allAnalyses: Array<{ player: GolfPlayer; analysis: ReturnType<typeof this.analyzePlayer> }> = [];
+
+    // Fetch real odds for the tournament
+    const liveOdds = await this.fetchGolfOdds();
 
     // Analyze all players
     players.forEach(player => {
@@ -427,10 +522,17 @@ export class GolfAnalysisService {
       .sort((a, b) => b.analysis.score - a.analysis.score)
       .slice(0, 10); // Show top 10 players
 
-    // Create picks with real-world buddy tone descriptions and actual odds for 3M Open
+    // Create picks with real-world buddy tone descriptions and live odds
     const picks: GolfPick[] = qualifiedPlayers.map(({ player, analysis }, index) => {
       const baseConfidence = Math.min(65 + (analysis.score * 5), 85);
       const probability = baseConfidence;
+
+      // Get live odds for this player or use fallback
+      const playerOdds = liveOdds.find(odd => 
+        odd.playerName.toLowerCase().includes(player.name.toLowerCase()) ||
+        player.name.toLowerCase().includes(odd.playerName.toLowerCase().split(' ')[0]) ||
+        player.name.toLowerCase().includes(odd.playerName.toLowerCase().split(' ')[1])
+      );
 
       // Real buddy-tone descriptions based on player for 3M Open with correct odds
       const buddyDescriptions = {
@@ -547,7 +649,7 @@ export class GolfAnalysisService {
         top10Probability: probability,
         keyFactors: analysis.factors,
         riskFactors: analysis.risks,
-        odds: playerDesc?.odds || "+200"
+        odds: playerOdds?.odds || playerDesc?.odds || "+2000"
       };
     });
 

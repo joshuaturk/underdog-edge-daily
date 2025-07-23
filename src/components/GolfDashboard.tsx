@@ -38,7 +38,7 @@ export const GolfDashboard = () => {
   const loadGolfAnalysis = async () => {
     setIsLoading(true);
     try {
-      const analysisData = GolfAnalysisService.generateTop10Picks();
+      const analysisData = await GolfAnalysisService.generateTop10Picks();
       setAnalysis(analysisData);
       setLastUpdate(new Date());
       
