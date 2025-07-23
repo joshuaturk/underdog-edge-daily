@@ -419,7 +419,10 @@ export const BettingDashboard = () => {
         }
       }
       
-      // Debug logging for odds issue
+    } catch (error) {
+      console.error('Error generating daily picks:', error);
+      
+      // Debug logging for odds issue - using fallback picks
       console.log('=== ODDS DEBUG: Using fallback picks ===');
       const todayGames = [
         { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: true, odds: 160, homePitcher: 'Slade Cecconi', awayPitcher: 'Charlie Morton' },
@@ -541,7 +544,7 @@ export const BettingDashboard = () => {
         description: `Today: ${todayPicks.length} picks, Results: 4 completed`,
       });
       
-    } catch (error) {
+      console.error('Original error generating daily picks:', error);
       console.error('Error generating static picks:', error);
       toast({
         title: "Error",
