@@ -309,26 +309,6 @@ export const GolfDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Key Insights */}
-        <Card className="border-blue-200 dark:border-blue-800">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-              <Info className="h-5 w-5" />
-              Key Insights
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {analysis.keyInsights.map((insight, index) => (
-                <div key={index} className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                  <p className="text-sm text-blue-900 dark:text-blue-100">{insight}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Top 10 Picks */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {analysis.picks.map((pick, index) => (
