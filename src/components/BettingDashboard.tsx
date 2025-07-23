@@ -119,6 +119,11 @@ export const BettingDashboard = () => {
     .filter(pick => pick.status !== 'pending' || (pick.status === 'pending' && pick.result))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   
+  console.log('=== RESULTS FILTERING ===');
+  console.log('All picks:', allPicks.length);
+  console.log('Results picks after filtering:', resultsPicks.length);
+  console.log('Results picks:', resultsPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date}`));
+  
   // Get historical picks for Results tab (excluding today's pending picks, sorted by date desc)
   const historicalPicks = allPicks
     .filter(pick => pick.date !== todayDate || pick.status !== 'pending')
@@ -206,6 +211,12 @@ export const BettingDashboard = () => {
           console.log('Live games from ESPN:', liveGames.length);
           
           const updatedPicks = allPicks.map(pick => {
+            // Skip updating static completed games - they're already complete
+            if (pick.id.includes('completed') && pick.status !== 'pending') {
+              console.log(`Skipping static completed game: ${pick.homeTeam} vs ${pick.awayTeam}`);
+              return pick;
+            }
+            
             // Find matching live game with improved team name matching
             const liveGame = liveGames.find(game => {
               const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
@@ -523,7 +534,14 @@ export const BettingDashboard = () => {
       });
 
       // Set all picks - Today picks (pending) + today's completed game + yesterday's completed picks
-      setAllPicks([...todayPicks, todayCompletedGame, ...completedPicks]);
+      const allNewPicks = [...todayPicks, todayCompletedGame, ...completedPicks];
+      console.log('=== SETTING ALL PICKS ===');
+      console.log('Today pending picks:', todayPicks.length);
+      console.log('Today completed game:', todayCompletedGame);
+      console.log('Yesterday completed picks:', completedPicks.length);
+      console.log('Total picks being set:', allNewPicks.length);
+      console.log('All picks:', allNewPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date}`));
+      setAllPicks(allNewPicks);
       setLastUpdate(new Date());
       
         toast({
