@@ -213,20 +213,26 @@ export const BettingDashboard = () => {
           console.log('Live games from ESPN:', liveGames.length);
           
           const updatedPicks = allPicks.map(pick => {
-            // Skip updating static completed games - they're already complete
-            if (pick.id.includes('completed') && pick.status !== 'pending') {
-              console.log(`Skipping static completed game: ${pick.homeTeam} vs ${pick.awayTeam}`);
+            // Skip updating static completed games using specific ID patterns
+            if ((pick.id.includes('completed') || pick.id.includes('final')) && pick.status !== 'pending') {
+              console.log(`Skipping static completed game: ${pick.homeTeam} vs ${pick.awayTeam} (ID: ${pick.id})`);
               return pick;
             }
             
-            // Only update picks from today's date to prevent overwriting yesterday's data
-            if (pick.date !== todayDate) {
-              console.log(`Skipping pick from different date: ${pick.homeTeam} vs ${pick.awayTeam} (${pick.date})`);
+            // Only update picks from today's date that are still pending
+            if (pick.date !== todayDate || pick.status !== 'pending') {
+              console.log(`Skipping pick: ${pick.homeTeam} vs ${pick.awayTeam} (Date: ${pick.date}, Status: ${pick.status})`);
               return pick;
             }
             
-            // Find matching live game with improved team name matching
+            // Find matching live game using unique ESPN game ID when possible
             const liveGame = liveGames.find(game => {
+              // First try to match by ESPN game ID if available
+              if (game.id && pick.id && pick.id.includes(game.id)) {
+                return true;
+              }
+              
+              // Fallback to team name matching for today's pending games only
               const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
               const pickAwayShort = pick.awayTeam.split(' ').pop()?.toLowerCase();
               const gameHomeShort = game.homeTeam.split(' ').pop()?.toLowerCase();
@@ -235,16 +241,12 @@ export const BettingDashboard = () => {
               const homeMatch = 
                 pickHomeShort === gameHomeShort ||
                 pick.homeTeam.toLowerCase().includes(game.homeTeam.toLowerCase()) ||
-                game.homeTeam.toLowerCase().includes(pick.homeTeam.toLowerCase()) ||
-                pick.homeTeam.toLowerCase().includes(gameHomeShort || '') ||
-                game.homeTeam.toLowerCase().includes(pickHomeShort || '');
+                game.homeTeam.toLowerCase().includes(pick.homeTeam.toLowerCase());
                 
               const awayMatch = 
                 pickAwayShort === gameAwayShort ||
                 pick.awayTeam.toLowerCase().includes(game.awayTeam.toLowerCase()) ||
-                game.awayTeam.toLowerCase().includes(pick.awayTeam.toLowerCase()) ||
-                pick.awayTeam.toLowerCase().includes(gameAwayShort || '') ||
-                game.awayTeam.toLowerCase().includes(pickAwayShort || '');
+                game.awayTeam.toLowerCase().includes(pick.awayTeam.toLowerCase());
               
               return homeMatch && awayMatch;
             });
@@ -479,15 +481,15 @@ export const BettingDashboard = () => {
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       const yesterdayDateStr = yesterdayDate.toISOString().split('T')[0];
       
-      // Today's completed game from console logs (Miami vs SD Padres finished 3-2) - FROM YESTERDAY
+      // TODAY's completed game from ESPN logs (Miami vs SD Padres finished 3-2 on July 23rd)
       const todayCompletedGame = {
-        id: `miami-padres-completed-${yesterdayDateStr}`,
-        date: yesterdayDateStr, // Put this game on yesterday's date to prevent live score overwrites
+        id: `miami-padres-final-${todayDate}`, // Unique ID for today's game
+        date: todayDate, // Today's date since this game was played today
         homeTeam: 'Miami Marlins',
-        awayTeam: 'San Diego Padres',
+        awayTeam: 'San Diego Padres', 
         recommendedBet: 'away_runline' as const,
         confidence: 72,
-        reason: 'San Diego Padres road underdog +1.5',
+        reason: 'San Diego Padres road underdog +1.5 - completed today',
         odds: 118,
         status: 'won' as const,
         result: { homeScore: 3, awayScore: 2, scoreDifference: 1 },
@@ -546,10 +548,10 @@ export const BettingDashboard = () => {
       const allNewPicks = [...todayPicks, todayCompletedGame, ...completedPicks];
       console.log('=== SETTING ALL PICKS ===');
       console.log('Today pending picks:', todayPicks.length);
-      console.log('Yesterday completed game (Miami vs SD):', todayCompletedGame.date);
+      console.log('TODAY completed game (Miami vs SD):', `${todayCompletedGame.homeTeam} vs ${todayCompletedGame.awayTeam} - ${todayCompletedGame.date}`);
       console.log('Yesterday completed picks:', completedPicks.length);
       console.log('Total picks being set:', allNewPicks.length);
-      console.log('All picks:', allNewPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date}`));
+      console.log('All picks:', allNewPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
       setAllPicks(allNewPicks);
       setLastUpdate(new Date());
       
