@@ -1025,9 +1025,9 @@ export const BettingDashboard = () => {
                               p.date === pick.date
                             )
                           )
-                          .map((pick) => (
+                          .map((pick, index) => (
                           <div 
-                            key={pick.id}
+                            key={`${pick.homeTeam}-${pick.awayTeam}-${pick.date}-${index}`}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
                               pick.status === 'pending' 
                                 ? 'from-accent/5 to-accent/10 border-accent/20' 
