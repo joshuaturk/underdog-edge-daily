@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { RefreshCw, TrendingUp, Target, Trophy, MapPin, Calendar, DollarSign, Wind, Thermometer, Cloud, Info, ChevronDown } from 'lucide-react';
+import { RefreshCw, TrendingUp, Target, Trophy, MapPin, Calendar, DollarSign, Wind, Thermometer, Cloud, Info, ChevronDown, Clock } from 'lucide-react';
 import { GolfAnalysis, GolfPick } from '@/types/golf';
 import { GolfAnalysisService } from '@/services/GolfAnalysisService';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -163,7 +163,11 @@ export const GolfDashboard = () => {
           <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
             {/* Top/Left Section: Logo and Info */}
             <div className="flex flex-col justify-center items-center space-y-3 lg:space-y-4 px-4 lg:px-0">
-              <div className="text-6xl lg:text-8xl">⛳</div>
+              <img 
+                src="/lovable-uploads/749fb266-2b69-40f1-8720-c5af0940190d.png" 
+                alt="Top 10 Tee-Box"
+                className="h-16 w-16 lg:h-24 lg:w-24 object-contain"
+              />
               <div className="flex items-center justify-center gap-2 px-2">
                 <p className="text-muted-foreground text-center text-xs sm:text-sm lg:text-base leading-relaxed">
                   Golf stat model to identify top 10 finishers
@@ -200,7 +204,7 @@ export const GolfDashboard = () => {
                           
                           <div>
                             <h4 className="font-semibold text-foreground mb-2">Scorecard Model</h4>
-                            <p>Players scoring 4+ points hit Top 10 roughly 65-70% of the time. Points awarded for recent form, strokes gained metrics, course fit, and world ranking.</p>
+                            <p>Points awarded for recent form, strokes gained metrics, course fit, and world ranking.</p>
                           </div>
                         </div>
                       </DialogDescription>
@@ -210,18 +214,49 @@ export const GolfDashboard = () => {
               </div>
             </div>
 
-            {/* Top/Right Section: Performance Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
-              <Card className="bg-gradient-to-br from-profit/10 to-profit/5 border-profit/20">
-                <CardContent className="p-4 lg:p-6 text-center">
-                  <div className="text-xl lg:text-2xl font-bold text-profit mb-1">72%</div>
-                  <p className="text-xs lg:text-sm text-muted-foreground">Top 10 Hit Rate</p>
+            {/* Top/Right Section: Golf Stats Grid */}
+            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                  <CardTitle className="text-xs lg:text-sm font-medium">Win Rate</CardTitle>
+                  <Target className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
+                </CardHeader>
+                <CardContent className="py-3 lg:py-4">
+                  <div className="text-base lg:text-lg font-bold text-primary">72.0%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">18/25 picks</p>
                 </CardContent>
               </Card>
-              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
-                <CardContent className="p-4 lg:p-6 text-center">
-                  <div className="text-xl lg:text-2xl font-bold text-accent mb-1">+24%</div>
-                  <p className="text-xs lg:text-sm text-muted-foreground">ROI This Season</p>
+
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                  <CardTitle className="text-xs lg:text-sm font-medium">Total Winnings</CardTitle>
+                  <DollarSign className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
+                </CardHeader>
+                <CardContent className="py-3 lg:py-4">
+                  <div className="text-base lg:text-lg font-bold text-profit">$186.40</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">Total Wagered: $250.00</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                  <CardTitle className="text-xs lg:text-sm font-medium">Early Cashout</CardTitle>
+                  <Clock className="h-3 w-3 lg:h-4 lg:w-4 text-warning" />
+                </CardHeader>
+                <CardContent className="py-3 lg:py-4">
+                  <div className="text-base lg:text-lg font-bold text-warning">68.0%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">17/25 rounds</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                  <CardTitle className="text-xs lg:text-sm font-medium">ROI</CardTitle>
+                  <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
+                </CardHeader>
+                <CardContent className="py-3 lg:py-4">
+                  <div className="text-base lg:text-lg font-bold text-profit">+24.3%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">Season ROI</p>
                 </CardContent>
               </Card>
             </div>
@@ -417,38 +452,20 @@ export const GolfDashboard = () => {
                         <div className={`text-xl font-bold ${getConfidenceColor(pick.confidence)}`}>
                           {pick.confidence.toFixed(0)}%
                         </div>
-                        <Badge className={`text-xs ${getConfidenceBadge(pick.confidence)}`}>
-                          {pick.scoreCardPoints} pts
+                        <Badge className={`text-xs ${getConfidenceBadge(pick.top10Probability)}`}>
+                          +145 Top 10
                         </Badge>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {pick.reason}
-                      </p>
-                      
-                      {/* Recent Form */}
-                      <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <div className="space-y-1">
-                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Recent Form</p>
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {pick.player.recentForm.top10sLast4Starts}/4 Top 10s
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            Last: {pick.player.recentForm.lastStartResult}
-                          </p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Strokes Gained</p>
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            +{pick.player.recentForm.sgTotalLast3.toFixed(1)} Total
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            +{pick.player.recentForm.sgApproachLast3.toFixed(1)} Approach
-                          </p>
-                        </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                        <p>His recent form shows exceptional consistency with three top-10 finishes in his last four starts, including a runner-up at the Memorial Tournament.</p>
+                        <p>The course setup strongly favors his precision iron play, ranking 3rd in strokes gained approach over the past month.</p>
+                        <p>Weather conditions are expected to be mild with minimal wind, playing perfectly into his controlled ball-striking style.</p>
+                        <p>He has a proven track record at TPC Southwind with two previous top-5 finishes and never missing a cut in five appearances.</p>
+                        <p>His putting has been solid recently, gaining 0.4 strokes per round on the greens over his last three tournaments.</p>
                       </div>
 
                       {/* Key Factors */}
@@ -466,6 +483,10 @@ export const GolfDashboard = () => {
                               <p className="text-xs text-gray-600 dark:text-gray-400">{factor}</p>
                             </div>
                           ))}
+                          <div className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Scorecard Points: {pick.scoreCardPoints}</p>
+                          </div>
                         </CollapsibleContent>
                       </Collapsible>
 
@@ -544,42 +565,6 @@ export const GolfDashboard = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Analysis Summary */}
-        <Card className="border-purple-200 dark:border-purple-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-purple-800 dark:text-purple-200">
-              <Target className="h-5 w-5" />
-              Analysis Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
-                  {analysis.picks.length}
-                </div>
-                <p className="text-sm text-purple-800 dark:text-purple-200">Qualified Players</p>
-              </div>
-              <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
-                  {Math.round(analysis.picks.reduce((sum, pick) => sum + pick.confidence, 0) / analysis.picks.length)}%
-                </div>
-                <p className="text-sm text-green-800 dark:text-green-200">Avg Confidence</p>
-              </div>
-              <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
-                  {analysis.confidence}
-                </div>
-                <p className="text-sm text-blue-800 dark:text-blue-200">Overall Rating</p>
-              </div>
-            </div>
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Last updated: {lastUpdate.toLocaleString()}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
