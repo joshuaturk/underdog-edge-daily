@@ -344,15 +344,15 @@ export const BettingDashboard = () => {
         
         // Analyze each game and create picks for those that qualify
         for (const game of espnResult.data) {
-          // Determine underdog based on odds
-          const isHomeUnderdog = Math.random() > 0.5; // Simplified for now
-          const odds = -110 + Math.floor(Math.random() * 40); // Random odds for now
+          // Use actual runline odds from ESPN API (proper American odds format)
+          const actualOdds = game.runlineOdds || game.awayOdds; // Use runline odds, fallback to away odds
+          const isHomeUnderdog = game.homeOdds > game.awayOdds; // Positive odds = underdog
           
           const pick = BettingAnalysisService.analyzeGame(
             game.homeTeam,
             game.awayTeam,
             isHomeUnderdog,
-            odds,
+            actualOdds, // Use real odds from ESPN
             game.homePitcher || 'TBD',
             game.awayPitcher || 'TBD'
           );
