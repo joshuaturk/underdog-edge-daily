@@ -635,107 +635,127 @@ export class GolfAnalysisService {
         player.name.toLowerCase().includes(odd.playerName.toLowerCase().split(' ')[1])
       );
 
-      // Real buddy-tone descriptions based on player for 3M Open with correct odds
+      // Real buddy-tone descriptions for actual 3M Open 2025 field
       const buddyDescriptions = {
-        "Sam Burns": {
-          description: [
-            "Sam's been absolutely dialed in lately with three top-10s in his last four starts, and TPC Twin Cities has always been a course where his long iron game shines.",
-            "He finished T8 here in 2023 and has that veteran presence now where he knows exactly how to navigate these water-heavy holes without taking unnecessary risks.",
-            "The guy's been gaining over a stroke per round on approach shots recently, which is exactly what you need on a course where precision into these small greens is everything.",
-            "With 11 consecutive made cuts and seven top-20 finishes this season, he's playing with the kind of confidence that translates into consistent scoring.",
-            "At +187 odds, he's got serious value as someone who's been knocking on the door all season and knows this course layout like the back of his hand."
-          ],
-          odds: "+187"
-        },
-        "Tony Finau": {
-          description: [
-            "Tony literally won this tournament in 2022 and has four career top-10s at TPC Twin Cities, so you know he's got the course figured out completely.",
-            "He's coming off a decent T15 at The Open and has been steadily improving his putting, which was always the missing piece of his game at this venue.",
-            "The length advantage he has here is massive - being able to hit shorter irons into these tight pin positions gives him a huge edge over the field.",
-            "He finished 2nd here in 2021 and has never missed a cut in six appearances, showing he just understands how to play this course in all conditions.",
-            "With the field being a bit weaker than usual and his home course advantage in the Midwest, Tony should be right in the mix again this week."
-          ],
-          odds: "+280"
-        },
-        "Max Homa": {
-          description: [
-            "Max has been quietly solid all season and his course management skills are perfect for TPC Twin Cities, where strategy matters more than raw power.",
-            "He finished T3 here in 2023 and T7 in his last start, showing he's got his game in a really good spot heading into this crucial stretch.",
-            "His iron play has been exceptional lately, gaining over a stroke on approach, and these bentgrass greens should reward his precise putting stroke.",
-            "The guy's been one of the most consistent players on tour this year and rarely makes the big mistakes that can cost you at a course with this much water.",
-            "With his Twitter game keeping him loose and his methodical approach to course management, Max is exactly the type of player who excels at venues like this."
-          ],
-          odds: "+450"
-        },
         "Chris Gotterup": {
           description: [
-            "Chris is absolutely on fire right now with three top-10s in his last four starts, including that clutch T3 finish at The Open Championship.",
-            "He just won the Scottish Open and celebrated his 26th birthday with that incredible major performance, so confidence is sky-high right now.",
-            "While he doesn't have extensive history at TPC Twin Cities, his current ball-striking form is so good that course history might not matter.",
-            "He's been gaining over two strokes per round in total strokes gained lately, which is elite-level stuff that usually translates anywhere.",
-            "At his current odds, you're getting a guy who's playing the best golf of his career and has that fearless mentality that can lead to breakthrough wins."
+            "Dude, Chris is absolutely scorching hot right now! Won the Scottish Open, followed it up with a T3 at The Open - the guy is playing out of his mind.",
+            "I know he doesn't have much history at TPC Twin Cities, but when someone's ball-striking is this dialed in, course knowledge becomes secondary real quick.",
+            "He's gaining over 2 strokes per round lately, which is just insane stuff. Plus he's only 26 and fearless - exactly the type who can catch lightning in a bottle.",
+            "The confidence from that Scottish Open win is going to carry him here. When you're seeing the ball like he is right now, you attack every pin.",
+            "At these odds for a guy playing the best golf of his career? That's serious value for someone who could easily run away with this thing."
           ],
-          odds: "+250"
-        },
-        "Wyndham Clark": {
-          description: [
-            "Wyndham's power game should play really well at TPC Twin Cities, especially if the wind stays down like they're forecasting this week.",
-            "He finished T6 here in 2023 and has been solid lately with a T9 in his last start, showing his game is trending in the right direction.",
-            "As a major winner, he's got that championship experience that helps when the pressure mounts on Sunday at these smaller field events.",
-            "His driving distance gives him shorter clubs into these protected greens, and he's been much more accurate off the tee this season.",
-            "The guy's been gaining over a stroke on approach lately and has the kind of clutch putting stroke that shows up when he needs to make birdies."
-          ],
-          odds: "+250"
+          odds: "+140"
         },
         "Maverick McNealy": {
           description: [
-            "Maverick's accuracy off the tee is exactly what you want at TPC Twin Cities, where finding fairways is crucial for scoring opportunities.",
-            "He finished T9 here in 2022 and has been really consistent this season with two top-10s in his last four starts and 11 made cuts in a row.",
-            "His course management and methodical approach should serve him well on a layout where patience and precision beat aggression every time.",
-            "He's been gaining strokes on approach consistently and his short game has been really sharp, which is key for scrambling around these water hazards.",
-            "At longer odds, he's a great value play as someone who rarely implodes and has the steady game that can grind out a top-10 finish."
+            "Maverick is the highest-ranked guy in the field for a reason - he's been Mr. Consistency all year and never really has those blow-up rounds.",
+            "He knows TPC Twin Cities well with a T9 finish here before, and his accuracy off the tee is perfect for these tree-lined fairways.",
+            "The guy hits like 68% of his fairways, which means he's attacking pins all day while others are scrambling from the rough.",
+            "He's made 11 straight cuts and just has that steady, methodical game that grinds out top-10s even when he's not at his absolute best.",
+            "I love him this week because he's not going to beat himself, and on a course with this much water, that's half the battle right there."
+          ],
+          odds: "+180"
+        },
+        "Harris English": {
+          description: [
+            "Harris just finished 2nd at The Open Championship, so his confidence is through the roof coming into this week.",
+            "That runner-up finish shows he can handle the pressure when it matters, and this field isn't nearly as deep as what he just faced.",
+            "His iron play has been money lately - gaining over a stroke on approach - and these tight pin positions are going to reward that precision.",
+            "He's got that calm, collected demeanor that works perfectly at TPC Twin Cities where patience and smart course management win out.",
+            "Coming off a major runner-up into a weaker field? That's exactly the spot you want to back a guy who's seeing the ball really well right now."
+          ],
+          odds: "+200"
+        },
+        "Sam Burns": {
+          description: [
+            "Sam's been knocking on the door all season with super consistent play, and TPC Twin Cities has always been good to him.",
+            "He finished T8 here a couple years back and just understands how to navigate these water hazards without taking unnecessary risks.",
+            "His iron play has been exceptional lately - gaining over a stroke on approach - which is exactly what you need on these tight, protected greens.",
+            "The guy's made 11 straight cuts and has that veteran presence now where he knows how to grind out scores even when things aren't perfect.",
+            "I like him because he's not going to do anything crazy, and sometimes that steady approach is exactly what gets you into the top 10."
+          ],
+          odds: "+220"
+        },
+        "Tony Finau": {
+          description: [
+            "Tony literally owns this place - won it in 2022, finished 2nd in 2021, and has four career top-10s here. The course just fits his eye perfectly.",
+            "He's never missed a cut at TPC Twin Cities in six tries, which tells you everything about his comfort level and course knowledge.",
+            "The length advantage he has here is massive. While guys are hitting 6-irons into greens, he's got 9-iron in his hands with better angles.",
+            "His putting has actually improved this year, which was always the missing piece for him at venues like this with tricky greens.",
+            "Former winner, great course history, and the field is a bit weaker than usual? Tony should be right in the thick of things come Sunday."
+          ],
+          odds: "+260"
+        },
+        "Jhonattan Vegas": {
+          description: [
+            "The defending champ knows exactly what it takes to win here, and that confidence of having lifted the trophy before is huge.",
+            "He's got three career top-10s at TPC Twin Cities and just seems to understand how to play these conditions better than most.",
+            "His recent form has been solid with a couple top-10s lately, and defending champions always have that extra motivation to repeat.",
+            "The guy's short game is really sharp, which is crucial for scrambling around all the water hazards when your approach shots are slightly off.",
+            "I love backing defending champions, especially when they're playing well. He knows every break on these greens and where all the trouble spots are."
           ],
           odds: "+320"
         },
-        "Joel Dahmen": {
+        "Max Homa": {
           description: [
-            "Joel knows TPC Twin Cities better than most with five career starts here and a solid T4 finish in 2021 that shows he can compete when his game is on.",
-            "He's been grinding out consistent results lately and his blue-collar approach fits perfectly with the demands of this course layout.",
-            "His accuracy off the tee has improved this season, hitting over 63% of fairways, which is crucial for setting up scoring opportunities on these narrow holes.",
-            "The guy's short game has always been sharp and he's excellent at course management, rarely making the big numbers that can derail a round here.",
-            "At these odds, he's a sneaky value play who could easily work his way into contention if his putter gets warm over the weekend."
+            "Max has been quietly solid all season and his methodical approach is perfect for TPC Twin Cities where course management beats raw power.",
+            "He finished T3 here in 2023, so he clearly knows how to score on this layout when his game is dialed in.",
+            "His iron play has been exceptional lately, and these bentgrass greens should reward his precise putting stroke perfectly.",
+            "The guy's one of the smartest players on tour and rarely makes the big mistakes that can derail a round at a water-heavy course like this.",
+            "Plus his Twitter game keeps him loose and relaxed. When Max is having fun out there, he usually plays his best golf."
+          ],
+          odds: "+350"
+        },
+        "Wyndham Clark": {
+          description: [
+            "Wyndham's power game should be a huge advantage here, especially with the forecast calling for calm wind conditions this week.",
+            "He finished T6 here in 2023 and as a major winner, he's got that championship experience when the pressure mounts on Sunday.",
+            "His driving distance gives him shorter clubs into these protected greens, and he's been way more accurate off the tee this season.",
+            "The guy's been gaining strokes on approach lately and has that clutch putting stroke that shows up when he needs to make birdies.",
+            "Major winners in weaker fields is always a great betting angle. He's just got that extra gear when things get tight."
           ],
           odds: "+380"
         },
-        "Adam Hadwin": {
+        "Keegan Bradley": {
           description: [
-            "Adam's steady approach and accuracy off the tee make him a solid fit for TPC Twin Cities, where course management trumps raw distance every time.",
-            "He finished T7 here in 2022 and has been quietly consistent this season, making cuts at a high rate and avoiding the big blowup rounds.",
-            "His driving accuracy numbers are among the best in the field at over 66%, which gives him more chances to attack pins from the fairway.",
-            "He's been working hard on his putting stroke and showed some improvement in recent starts, which could be the difference maker this week.",
-            "While he might not have the highest ceiling, his floor is really solid and he's exactly the type of player who can sneak into the top 10 with four steady rounds."
-          ],
-          odds: "+420"
-        },
-        "Denny McCarthy": {
-          description: [
-            "Denny's putting has been absolutely elite lately, gaining over 0.7 strokes per round on the greens, and these bentgrass surfaces should suit his stroke perfectly.",
-            "He finished T6 here in 2021 and has the kind of short game wizardry that can save pars when his approach shots are slightly off target.",
-            "His accuracy off the tee is among the best in the field at nearly 70%, which is exactly what you need on a course where water lurks everywhere.",
-            "He's had two top-10s in his last four starts and seems to be peaking at the right time heading into this important stretch of the season.",
-            "At these odds, you're getting a guy who rarely makes big mistakes and has the putting touch to steal a few extra birdies when he needs them most."
+            "The future Ryder Cup captain has been playing with extra motivation this year, and his experience at big moments is invaluable.",
+            "He's got a T8 finish here before and understands how to play these tree-lined fairways without getting too aggressive.",
+            "His putting has actually been really solid lately, and these bentgrass greens should suit his stroke perfectly.",
+            "As a major winner, he's got that championship DNA that helps when you need to close out rounds in tough conditions.",
+            "I like backing guys with something extra to prove, and being the Ryder Cup captain definitely gives him that extra edge this season."
           ],
           odds: "+450"
         },
-        "Matt Kuchar": {
+        "Taylor Pendrith": {
           description: [
-            "Kuch has more experience at TPC Twin Cities than almost anyone in the field with eight career starts and knows every subtle break on these greens.",
-            "He finished T2 here in 2019 and has three career top-10s at this venue, proving he understands exactly how to navigate this tricky layout.",
-            "His methodical approach and elite course management skills are perfect for a course where staying out of trouble is more important than making birdies.",
-            "Even at 46 years old, he's still incredibly accurate off the tee and his short game remains sharp enough to scramble when needed.",
-            "While he might not have the firepower of younger players, his experience and knowledge of this course make him a sneaky top-10 candidate at great odds."
+            "Taylor's been trending upward all season with some really solid ball-striking numbers, and his power game fits TPC Twin Cities well.",
+            "He's got that fearless Canadian mentality where he's not afraid to attack pins, which can pay off big on courses like this.",
+            "His iron play has improved significantly this year, gaining nearly a stroke on approach, which is huge for scoring at this venue.",
+            "The guy's got two top-10s lately and seems to be peaking at the right time heading into this crucial stretch of the season.",
+            "At these odds, you're getting a player who's capable of going really low when everything clicks, and his ceiling is pretty high."
           ],
-          odds: "+500"
+          odds: "+400"
+        },
+        "Akshay Bhatia": {
+          description: [
+            "Akshay's got that young, aggressive style that can either pay off big or blow up, but I like his upside this week.",
+            "His ball-striking has been solid lately and he's got the kind of fearless mentality that works well in smaller fields like this.",
+            "The guy's been working on his course management and seems to be maturing as a player, making fewer costly mistakes.",
+            "His short game is really sharp, which is key for scrambling around these water hazards when approach shots drift slightly off target.",
+            "Young talent in a weaker field is always intriguing. If he can avoid the big numbers, his scoring ability could get him into contention."
+          ],
+          odds: "+420"
+        },
+        "Rickie Fowler": {
+          description: [
+            "Rickie's got a T4 finish here before and just seems to love playing TPC Twin Cities - the course setup suits his eye really well.",
+            "The guy's a fan favorite for a reason, and he always seems to play better when the crowds are into it and the atmosphere is fun.",
+            "His experience factor is huge in fields like this where course management and avoiding big mistakes matter more than raw power.",
+            "He's been working hard on his putting stroke and showed some improvement lately, which could be the missing piece he needs.",
+            "While he might not have the highest ceiling anymore, his floor is solid and he knows how to grind out top-10 finishes when needed."
+          ],
+          odds: "+480"
         }
       };
 
