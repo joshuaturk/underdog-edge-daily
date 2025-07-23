@@ -13,36 +13,54 @@ export class GolfAnalysisService {
     return stored || this.DEFAULT_API_KEY;
   }
 
-  private static async fetchGolfOdds(): Promise<Array<{ playerName: string; odds: string; bookmaker: string }>> {
+  private static async fetchGolfOdds(): Promise<Array<{ playerName: string; odds: string; bookmaker: string; market: string }>> {
     const apiKey = this.getApiKey();
     
     try {
       console.log('Fetching golf odds from The Odds API...');
       
-      // Try to fetch golf tournament odds
-      const response = await fetch(
-        `${this.ODDS_API_BASE_URL}/sports/golf_pga_championship/odds/?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american&dateFormat=iso`
-      );
-
-      if (!response.ok) {
-        console.log('Golf championship endpoint failed, trying general golf...');
-        
-        // Try alternative golf endpoint
-        const golfResponse = await fetch(
-          `${this.ODDS_API_BASE_URL}/sports/golf_masters_tournament/odds/?apiKey=${apiKey}&regions=us&markets=outrights&oddsFormat=american&dateFormat=iso`
-        );
-        
-        if (!golfResponse.ok) {
-          console.log('No live golf odds available, using mock odds');
-          return this.getMockGolfOdds();
-        }
-        
-        const golfData = await golfResponse.json();
-        return this.parseGolfOdds(golfData);
+      // First, let's check what sports are available
+      const sportsResponse = await fetch(`${this.ODDS_API_BASE_URL}/sports/?apiKey=${apiKey}`);
+      if (sportsResponse.ok) {
+        const sports = await sportsResponse.json();
+        const golfSports = sports.filter((sport: any) => sport.key.includes('golf'));
+        console.log('Available golf sports:', golfSports);
       }
+      
+      // Try to fetch current golf tournament odds with Top 10 markets
+      const golfEndpoints = [
+        'golf_pga_championship',
+        'golf_masters_tournament', 
+        'golf_us_open',
+        'golf_the_open_championship',
+        'golf_pga_tour'
+      ];
+      
+      for (const endpoint of golfEndpoints) {
+        try {
+          // Try multiple market types including Top 10
+          const markets = ['outrights', 'top_5', 'top_10', 'top_20', 'make_cut'];
+          const marketParam = markets.join(',');
+          
+          const response = await fetch(
+            `${this.ODDS_API_BASE_URL}/sports/${endpoint}/odds/?apiKey=${apiKey}&regions=us&markets=${marketParam}&oddsFormat=american&dateFormat=iso`
+          );
 
-      const data = await response.json();
-      return this.parseGolfOdds(data);
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`${endpoint} response:`, data);
+            const parsedOdds = this.parseGolfOdds(data);
+            if (parsedOdds.length > 0) {
+              return parsedOdds;
+            }
+          }
+        } catch (endpointError) {
+          console.log(`Failed to fetch from ${endpoint}:`, endpointError);
+        }
+      }
+      
+      console.log('No live golf odds available, using mock Top 10 odds');
+      return this.getMockGolfOdds();
       
     } catch (error) {
       console.error('Error fetching golf odds:', error);
@@ -50,8 +68,8 @@ export class GolfAnalysisService {
     }
   }
 
-  private static parseGolfOdds(data: any[]): Array<{ playerName: string; odds: string; bookmaker: string }> {
-    const odds: Array<{ playerName: string; odds: string; bookmaker: string }> = [];
+  private static parseGolfOdds(data: any[]): Array<{ playerName: string; odds: string; bookmaker: string; market: string }> {
+    const odds: Array<{ playerName: string; odds: string; bookmaker: string; market: string }> = [];
     
     if (!Array.isArray(data) || data.length === 0) {
       return this.getMockGolfOdds();
@@ -63,12 +81,22 @@ export class GolfAnalysisService {
           // Prefer DraftKings, FanDuel, Bet365, or other major books
           if (['draftkings', 'fanduel', 'bet365', 'unibet', 'williamhill'].includes(bookmaker.key)) {
             bookmaker.markets?.forEach((market: any) => {
-              if (market.key === 'outrights' && market.outcomes) {
+              // Prioritize Top 10 markets over outright winner
+              const marketPriority = {
+                'top_10': 1,
+                'top_5': 2,
+                'top_20': 3,
+                'outrights': 4,
+                'make_cut': 5
+              };
+              
+              if (market.outcomes && Object.keys(marketPriority).includes(market.key)) {
                 market.outcomes.forEach((outcome: any) => {
                   odds.push({
                     playerName: outcome.name,
                     odds: outcome.price > 0 ? `+${outcome.price}` : `${outcome.price}`,
-                    bookmaker: bookmaker.title
+                    bookmaker: bookmaker.title,
+                    market: market.key
                   });
                 });
               }
@@ -78,22 +106,33 @@ export class GolfAnalysisService {
       }
     });
 
-    return odds.length > 0 ? odds : this.getMockGolfOdds();
+    // Sort by market priority (Top 10 first) and remove duplicates
+    const uniqueOdds = odds
+      .sort((a, b) => {
+        const priorityA = { 'top_10': 1, 'top_5': 2, 'top_20': 3, 'outrights': 4, 'make_cut': 5 }[a.market] || 10;
+        const priorityB = { 'top_10': 1, 'top_5': 2, 'top_20': 3, 'outrights': 4, 'make_cut': 5 }[b.market] || 10;
+        return priorityA - priorityB;
+      })
+      .filter((odd, index, self) => 
+        index === self.findIndex(o => o.playerName === odd.playerName)
+      );
+
+    return uniqueOdds.length > 0 ? uniqueOdds : this.getMockGolfOdds();
   }
 
-  private static getMockGolfOdds(): Array<{ playerName: string; odds: string; bookmaker: string }> {
-    // Mock odds from major sportsbooks for the 3M Open field
+  private static getMockGolfOdds(): Array<{ playerName: string; odds: string; bookmaker: string; market: string }> {
+    // Mock Top 10 finish odds from major sportsbooks (typically shorter odds than outright winner)
     return [
-      { playerName: "Sam Burns", odds: "+1800", bookmaker: "DraftKings" },
-      { playerName: "Tony Finau", odds: "+2200", bookmaker: "FanDuel" },
-      { playerName: "Max Homa", odds: "+2800", bookmaker: "Bet365" },
-      { playerName: "Chris Gotterup", odds: "+1600", bookmaker: "DraftKings" },
-      { playerName: "Wyndham Clark", odds: "+1400", bookmaker: "FanDuel" },
-      { playerName: "Maverick McNealy", odds: "+3200", bookmaker: "Bet365" },
-      { playerName: "Joel Dahmen", odds: "+4500", bookmaker: "DraftKings" },
-      { playerName: "Adam Hadwin", odds: "+5000", bookmaker: "FanDuel" },
-      { playerName: "Denny McCarthy", odds: "+4200", bookmaker: "Bet365" },
-      { playerName: "Matt Kuchar", odds: "+6000", bookmaker: "DraftKings" }
+      { playerName: "Sam Burns", odds: "+280", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Tony Finau", odds: "+320", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Max Homa", odds: "+450", bookmaker: "Bet365", market: "top_10" },
+      { playerName: "Chris Gotterup", odds: "+220", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Wyndham Clark", odds: "+200", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Maverick McNealy", odds: "+550", bookmaker: "Bet365", market: "top_10" },
+      { playerName: "Joel Dahmen", odds: "+650", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Adam Hadwin", odds: "+750", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Denny McCarthy", odds: "+600", bookmaker: "Bet365", market: "top_10" },
+      { playerName: "Matt Kuchar", odds: "+850", bookmaker: "DraftKings", market: "top_10" }
     ];
   }
 
