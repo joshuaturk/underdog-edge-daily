@@ -904,7 +904,7 @@ export const BettingDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {allPicks.map((pick, index) => (
+                        {allPicks.filter(pick => pick.status !== 'pending').map((pick, index) => (
                           <div 
                             key={`${pick.homeTeam}-${pick.awayTeam}-${pick.date}-${index}`}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
