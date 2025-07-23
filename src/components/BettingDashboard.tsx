@@ -88,53 +88,7 @@ const getBuddyAnalysis = (pick: BettingPick) => {
 };
 
 export const BettingDashboard = () => {
-  // Fixed picks data for consistent display
-  const todayDate = new Date().toISOString().split('T')[0];
-  const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  
-  const [fixedTodayPicks] = useState<BettingPick[]>(() => {
-    const todayGames = [
-      { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144, homePitcher: 'Joey Cantillo', awayPitcher: 'Brandon Young' },
-      { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
-      { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: true, odds: 115, homePitcher: 'Frankie Montas', awayPitcher: 'Kyle Hendricks' },
-      { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: false, odds: -186, homePitcher: 'Max Scherzer', awayPitcher: 'Cam Schlittler' }
-    ];
-    
-    return todayGames.map(game => {
-      const pick = BettingAnalysisService.analyzeGame(
-        game.homeTeam,
-        game.awayTeam,
-        game.isHomeUnderdog,
-        game.odds,
-        game.homePitcher,
-        game.awayPitcher
-      );
-      return pick ? { ...pick, date: todayDate } : null;
-    }).filter(Boolean) as BettingPick[];
-  });
-
-  const [fixedTomorrowPicks] = useState<BettingPick[]>(() => {
-    const tomorrowGames = [
-      { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 },
-      { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
-      { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
-      { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 }
-    ];
-    
-    return tomorrowGames.map(game => {
-      const pick = BettingAnalysisService.analyzeGame(
-        game.homeTeam,
-        game.awayTeam,
-        game.isHomeUnderdog,
-        game.odds,
-        'TBD',
-        'TBD'
-      );
-      return pick ? { ...pick, date: tomorrowDate } : null;
-    }).filter(Boolean) as BettingPick[];
-  });
-
-  // Live state for tracking results and updates
+  // Simple state - one source of truth
   const [allPicks, setAllPicks] = useState<BettingPick[]>([]);
   const [results, setResults] = useState<BettingResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -142,6 +96,13 @@ export const BettingDashboard = () => {
   const [isUsingLiveData, setIsUsingLiveData] = useState(true);
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
+
+  // Get today's and tomorrow's picks from allPicks
+  const todayDate = new Date().toISOString().split('T')[0];
+  const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  
+  const todayPicks = allPicks.filter(pick => pick.date === todayDate);
+  const tomorrowPicks = allPicks.filter(pick => pick.date === tomorrowDate);
 
   // Helper function to get dates in ET timezone
   const getETDate = (daysOffset: number = 0) => {
@@ -163,12 +124,12 @@ export const BettingDashboard = () => {
     });
   };
 
-  // Initialize allPicks with fixed data on mount
+  // Initialize with today's picks on mount
   useEffect(() => {
     if (allPicks.length === 0) {
-      setAllPicks([...fixedTodayPicks, ...fixedTomorrowPicks]);
+      generateDailyPicks();
     }
-  }, [fixedTodayPicks, fixedTomorrowPicks]);
+  }, []);
 
   // Update picks with live scores
   useEffect(() => {
@@ -277,7 +238,6 @@ export const BettingDashboard = () => {
           if (hasChanges) {
             console.log('Updating picks with live scores');
             setAllPicks(updatedPicks);
-            // No need to update separate daily/tomorrow picks since we use fixed data
           } else {
             console.log('No changes to update');
           }
@@ -298,11 +258,6 @@ export const BettingDashboard = () => {
     }
   }, [allPicks]);
 
-  // Generate initial picks on component mount
-  useEffect(() => {
-    console.log('Component mounted with fixed picks');
-  }, []);
-
   useEffect(() => {
     console.log('allPicks changed, length:', allPicks.length);
     if (allPicks.length > 0) {
@@ -314,155 +269,48 @@ export const BettingDashboard = () => {
     }
   }, [allPicks]);
 
-  // Fixed demo games for consistent testing (July 22, 2025)
-  const getFixedDemoGames = () => [
-    { homeTeam: 'Yankees', awayTeam: 'Red Sox', isHomeUnderdog: false, odds: -150 },
-    { homeTeam: 'Cubs', awayTeam: 'Cardinals', isHomeUnderdog: true, odds: 140 },
-    { homeTeam: 'Dodgers', awayTeam: 'Giants', isHomeUnderdog: false, odds: -180 },
-    { homeTeam: 'Astros', awayTeam: 'Rangers', isHomeUnderdog: false, odds: -120 }
-  ];
-
-  // Fixed demo games for tomorrow (July 23, 2025)
-  const getFixedTomorrowGames = () => [
-    { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 },
-    { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
-    { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
-    { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 },
-    { homeTeam: 'Tigers', awayTeam: 'Twins', isHomeUnderdog: true, odds: 155 }
-  ];
-
   const generateDailyPicks = async () => {
     console.log('=== generateDailyPicks called ===');
     setIsLoading(true);
     
     try {
-      const apiKey = SportsAPIService.getApiKey();
-      console.log('API Key available:', !!apiKey);
-      
-      if (apiKey) {
-        console.log('Using Sports API for live MLB data');
-        setIsUsingLiveData(true);
-        
-        const result = await SportsAPIService.getMLBGames();
-        console.log('Sports API result:', result);
-        
-        if (result.success && result.data && result.data.length > 0) {
-          console.log('Live MLB data fetched successfully, games found:', result.data.length);
-          
-          const newPicks: BettingPick[] = [];
-          
-          result.data.forEach((game, index) => {
-            console.log(`Processing game ${index + 1}:`, game);
-            
-            let { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
-            
-              const pick = BettingAnalysisService.analyzeGame(
-                game.homeTeam,
-                game.awayTeam,
-                isHomeUnderdog,
-                game.runlineOdds || underdogOdds,
-                game.homePitcher || 'TBD',
-                game.awayPitcher || 'TBD'
-              );
-            
-            console.log(`Pick created for ${game.homeTeam} vs ${game.awayTeam}:`, pick);
-            
-            if (pick) {
-              pick.reason += ` (Source: ${game.source})`;
-              newPicks.push(pick);
-            }
-          });
-          
-          console.log('Total picks created:', newPicks.length);
-          
-          if (newPicks.length > 0) {
-            const finalPicks = newPicks.slice(0, 4);
-            console.log('Setting picks in allPicks:', finalPicks);
-            setAllPicks(prev => {
-              const combined = [...prev, ...finalPicks];
-              // Remove duplicates based on homeTeam, awayTeam, and date
-              return combined.filter((pick, index) => 
-                index === combined.findIndex(p => 
-                  p.homeTeam === pick.homeTeam && 
-                  p.awayTeam === pick.awayTeam && 
-                  p.date === pick.date
-                )
-              );
-            });
-            setLastUpdate(new Date());
-            
-            toast({
-              title: "Real MLB Data Retrieved!",
-              description: `Found ${newPicks.length} qualifying picks from live odds`,
-            });
-          } else {
-            throw new Error('No qualifying picks found');
-          }
-        } else {
-          throw new Error('No games found from Sports API');
-        }
-      } else {
-        throw new Error('No API key available');
-      }
-    } catch (error) {
-      console.error('Error generating daily picks:', error);
-      
-      // Fallback to demo data
-      console.log('Using fallback demo data...');
-      setIsUsingLiveData(false);
-      
-      // Use the same games that are already in Results page
-      const demoGames = [
-        { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144 },
-        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118 },
-        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: true, odds: 115 },
-        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: false, odds: -186 }
+      // Create the exact 4 games you specified for today
+      const todayGames = [
+        { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144, homePitcher: 'Joey Cantillo', awayPitcher: 'Brandon Young' },
+        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
+        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: true, odds: 115, homePitcher: 'Frankie Montas', awayPitcher: 'Kyle Hendricks' },
+        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: false, odds: -186, homePitcher: 'Max Scherzer', awayPitcher: 'Cam Schlittler' }
       ];
-      const demoPicks: BettingPick[] = [];
+
+      const todayPicks: BettingPick[] = [];
       
-      demoGames.forEach(game => {
+      todayGames.forEach(game => {
         const pick = BettingAnalysisService.analyzeGame(
           game.homeTeam,
           game.awayTeam,
           game.isHomeUnderdog,
           game.odds,
-          'Demo Pitcher',
-          'Demo Pitcher'
+          game.homePitcher,
+          game.awayPitcher
         );
-        if (pick) demoPicks.push(pick);
+        
+        if (pick) {
+          pick.date = todayDate;
+          todayPicks.push(pick);
+        }
       });
-      
-      console.log('Demo picks created:', demoPicks.length);
-      // Update allPicks with demo data, keeping existing picks
-      setAllPicks(prev => {
-        const today = new Date().toISOString().split('T')[0];
-        const filtered = prev.filter(p => p.date !== today);
-        const combined = [...filtered, ...demoPicks];
-        return combined.filter((pick, index) => 
-          index === combined.findIndex(p => 
-            p.homeTeam === pick.homeTeam && 
-            p.awayTeam === pick.awayTeam && 
-            p.date === pick.date
-          )
-        );
-      });
-      
-      toast({
-        title: "Demo Mode Active",
-        description: `Generated ${demoPicks.length} demo picks`,
-      });
-    } finally {
-      setIsLoading(false);
-      console.log('=== generateDailyPicks completed ===');
-    }
-  };
 
-  const generateTomorrowPicks = async () => {
-    try {
-      const games = getFixedTomorrowGames();
-      const newPicks: BettingPick[] = [];
+      // Create tomorrow's picks
+      const tomorrowGames = [
+        { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 },
+        { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
+        { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
+        { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 }
+      ];
+
+      const tomorrowPicks: BettingPick[] = [];
       
-      games.forEach(game => {
+      tomorrowGames.forEach(game => {
         const pick = BettingAnalysisService.analyzeGame(
           game.homeTeam,
           game.awayTeam,
@@ -473,29 +321,32 @@ export const BettingDashboard = () => {
         );
         
         if (pick) {
-          pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-          newPicks.push(pick);
+          pick.date = tomorrowDate;
+          tomorrowPicks.push(pick);
         }
       });
+
+      // Set all picks at once - this is the single source of truth
+      setAllPicks([...todayPicks, ...tomorrowPicks]);
+      setLastUpdate(new Date());
       
-      setAllPicks(prev => {
-        const combined = [...prev, ...newPicks.slice(0, 4)];
-        return combined.filter((pick, index) => 
-          index === combined.findIndex(p => 
-            p.homeTeam === pick.homeTeam && 
-            p.awayTeam === pick.awayTeam && 
-            p.date === pick.date
-          )
-        );
+      toast({
+        title: "Picks Generated",
+        description: `Today: ${todayPicks.length} picks, Tomorrow: ${tomorrowPicks.length} picks`,
       });
+      
     } catch (error) {
-      console.error('Error generating tomorrow picks:', error);
+      console.error('Error generating picks:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate picks",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+      console.log('=== generateDailyPicks completed ===');
     }
   };
-
-  useEffect(() => {
-    generateTomorrowPicks();
-  }, [isUsingLiveData]);
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'bg-profit text-profit-foreground';
@@ -740,7 +591,7 @@ export const BettingDashboard = () => {
                   {getETDate()}
                 </span>
                 <Badge variant="outline" className="text-xs">
-                  {fixedTodayPicks.length}
+                  {todayPicks.length}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger value="tomorrow" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -749,7 +600,7 @@ export const BettingDashboard = () => {
                   {getETDate(1)}
                 </span>
                 <Badge variant="outline" className="text-xs">
-                  {fixedTomorrowPicks.length}
+                  {tomorrowPicks.length}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger value="results" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -764,13 +615,13 @@ export const BettingDashboard = () => {
           <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-6">
             <CardContent className="p-3 sm:p-6">
               <TabsContent value="today" className="mt-0">
-                {fixedTodayPicks.length === 0 ? (
+                {todayPicks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {fixedTodayPicks.map((pick) => (
+                    {todayPicks.map((pick) => (
                       <div 
                         key={pick.id}
                         className="border border-border/50 rounded-lg p-3 sm:p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
@@ -882,19 +733,19 @@ export const BettingDashboard = () => {
                            </div>
                          )}
                        </div>
-                    ))}
-                  </div>
+                     ))}
+                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="tomorrow" className="mt-0">
-                {fixedTomorrowPicks.length === 0 ? (
+                {tomorrowPicks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     No picks available for tomorrow yet
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {fixedTomorrowPicks.map((pick) => (
+                    {tomorrowPicks.map((pick) => (
                       <div 
                         key={pick.id}
                         className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
@@ -1067,65 +918,65 @@ export const BettingDashboard = () => {
                                    <div className="text-xs text-muted-foreground">
                                      Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
                                    </div>
-                                    {pick.status === 'lost' && pick.result && (
-                                      <div className="text-xs text-warning">
-                                        Cashout available: 7th inning
-                                      </div>
-                                    )}
-                                    {pick.status === 'won' && pick.result && (
-                                      <div className="text-xs text-profit">
-                                        Cashout available: 5th inning
-                                      </div>
-                                    )}
-                                  {pick.status === 'pending' && pick.result && (
-                                    <div className="flex items-center gap-1">
-                                      {/* Live pick status indicator */}
-                                      {(() => {
-                                        const scoreDiff = Math.abs(pick.result.homeScore - pick.result.awayScore);
-                                        const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
-                                        const isWinning = recommendedTeam === 'home' 
-                                          ? (pick.result.homeScore > pick.result.awayScore - 1.5)
-                                          : (pick.result.awayScore > pick.result.homeScore - 1.5);
-                                        
-                                        return isWinning ? (
-                                          <div className="bg-profit rounded-full p-1">
-                                            <Check className="w-3 h-3 text-white" />
-                                          </div>
-                                        ) : (
-                                          <div className="bg-loss rounded-full w-5 h-5 flex items-center justify-center">
-                                            <span className="text-white text-xs font-bold">✗</span>
-                                          </div>
-                                        );
-                                      })()}
-                                      <span className="text-[10px] text-accent font-medium">
-                                        {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              <div className="text-right space-y-1 ml-4">
-                                <Badge className={getStatusColor(pick.status)}>
-                                  {pick.status.toUpperCase()}
-                                </Badge>
-                                <div className="text-sm text-muted-foreground">
-                                  {Math.round(pick.confidence)}% confidence
-                                </div>
-                                {pick.profit !== undefined && (
-                                  <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                    {pick.profit >= 0 ? '+' : ''}${(pick.profit * 10).toFixed(2)}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                       </div>
-                     )}
-                   </div>
-                 </div>
-               </TabsContent>
+                                   {pick.status === 'lost' && pick.result && (
+                                     <div className="text-xs text-warning">
+                                       Cashout available: 7th inning
+                                     </div>
+                                   )}
+                                   {pick.status === 'won' && pick.result && (
+                                     <div className="text-xs text-profit">
+                                       Cashout available: 5th inning
+                                     </div>
+                                   )}
+                                   {pick.status === 'pending' && pick.result && (
+                                     <div className="flex items-center gap-1">
+                                       {/* Live pick status indicator */}
+                                       {(() => {
+                                         const scoreDiff = Math.abs(pick.result.homeScore - pick.result.awayScore);
+                                         const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+                                         const isWinning = recommendedTeam === 'home' 
+                                           ? (pick.result.homeScore > pick.result.awayScore - 1.5)
+                                           : (pick.result.awayScore > pick.result.homeScore - 1.5);
+                                         
+                                         return isWinning ? (
+                                           <div className="bg-profit rounded-full p-1">
+                                             <Check className="w-3 h-3 text-white" />
+                                           </div>
+                                         ) : (
+                                           <div className="bg-loss rounded-full w-5 h-5 flex items-center justify-center">
+                                             <span className="text-white text-xs font-bold">✗</span>
+                                           </div>
+                                         );
+                                       })()}
+                                       <span className="text-[10px] text-accent font-medium">
+                                         {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
+                                       </span>
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                               
+                               <div className="text-right space-y-1 ml-4">
+                                 <Badge className={getStatusColor(pick.status)}>
+                                   {pick.status.toUpperCase()}
+                                 </Badge>
+                                 <div className="text-sm text-muted-foreground">
+                                   {Math.round(pick.confidence)}% confidence
+                                 </div>
+                                 {pick.profit !== undefined && (
+                                   <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                     {pick.profit >= 0 ? '+' : ''}${(pick.profit * 10).toFixed(2)}
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+                           </div>
+                         ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
             </CardContent>
           </Card>
         </Tabs>
