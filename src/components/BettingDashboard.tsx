@@ -429,7 +429,7 @@ export const BettingDashboard = () => {
         };
       });
 
-      // Set all picks at once - this is the single source of truth (STATIC - won't change during day)
+      // Set all picks - Today picks (pending) + completed picks (with results) - but only use completed picks for Results tab
       setAllPicks([...todayPicks, ...completedPicks]);
       setLastUpdate(new Date());
       
@@ -660,12 +660,38 @@ export const BettingDashboard = () => {
                       <Info className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">About Our Runline Model</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Our statistical model analyzes team performance data to identify valuable +1.5 runline betting opportunities. We focus on road underdogs with strong historical cover rates and factor in recent form, pitcher matchups, and situational advantages.
-                      </p>
+                  <PopoverContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
+                    <div className="space-y-4 text-sm">
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">How We Pick Winners</h4>
+                        <p>Our algorithm analyzes MLB games using proven statistical models to identify profitable runline (+1.5) betting opportunities.</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Key Factors</h4>
+                        <ul className="space-y-1 list-disc list-inside">
+                          <li><strong>Historical Performance:</strong> Teams with proven runline coverage rates (60%+ recommended)</li>
+                          <li><strong>Home vs Away:</strong> Road underdogs get +5% bonus due to superior value</li>
+                          <li><strong>Recent Form:</strong> Last 10 games weighted at 30% of decision</li>
+                          <li><strong>Pitcher Analysis:</strong> Starting pitcher matchups and ERA considerations</li>
+                          <li><strong>Minimum Threshold:</strong> Only games with 65%+ confidence recommended</li>
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Top Performing Teams</h4>
+                        <p>Houston (81.2%), Toronto (73.3%), Tampa Bay (69.6%), and San Diego (69.4%) lead our runline coverage metrics.</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Day-of-Week Edge</h4>
+                        <p>Historical data shows Thursday (+3%) and Saturday (+4%) provide additional value due to scheduling patterns.</p>
+                      </div>
+                      
+                      <div className="bg-accent/10 p-3 rounded-lg">
+                        <h4 className="font-semibold text-foreground mb-2">Risk Management</h4>
+                        <p>All picks are calculated based on $10 unit sizes. ROI calculations include the original wager in winning payouts for accurate profit tracking.</p>
+                      </div>
                     </div>
                   </PopoverContent>
                 </Popover>
@@ -753,7 +779,7 @@ export const BettingDashboard = () => {
               <TabsTrigger value="results" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <span>Results</span>
                 <Badge variant="outline" className="text-xs">
-                  {allPicks.length}
+                  {allPicks.filter(pick => pick.status !== 'pending').length}
                 </Badge>
               </TabsTrigger>
             </TabsList>
