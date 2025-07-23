@@ -327,6 +327,8 @@ export const BettingDashboard = () => {
           if (hasChanges) {
             console.log('=== UPDATING PICKS WITH LIVE SCORES ===');
             console.log('Updated picks:', updatedPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
+            
+            // Preserve date-based organization when updating live scores
             setAllPicks(updatedPicks);
           } else {
             console.log('No changes to update');
@@ -544,15 +546,60 @@ export const BettingDashboard = () => {
         };
       });
 
-      // Set all picks - Today picks (pending) + today's completed game + yesterday's completed picks
-      const allNewPicks = [...todayPicks, todayCompletedGame, ...completedPicks];
-      console.log('=== SETTING ALL PICKS ===');
-      console.log('Today pending picks:', todayPicks.length);
-      console.log('TODAY completed game (Miami vs SD):', `${todayCompletedGame.homeTeam} vs ${todayCompletedGame.awayTeam} - ${todayCompletedGame.date}`);
-      console.log('Yesterday completed picks:', completedPicks.length);
-      console.log('Total picks being set:', allNewPicks.length);
-      console.log('All picks:', allNewPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
-      setAllPicks(allNewPicks);
+  // MERGE picks instead of overwriting - preserve historical picks by date
+      const newPicksToAdd = [...todayPicks, todayCompletedGame, ...completedPicks];
+      
+      console.log('=== MERGING PICKS BY DATE ===');
+      console.log('Current allPicks before merge:', allPicks.length);
+      console.log('New picks to merge:', newPicksToAdd.length);
+      
+      // Group existing picks by date
+      const existingPicksByDate = allPicks.reduce((acc, pick) => {
+        if (!acc[pick.date]) acc[pick.date] = [];
+        acc[pick.date].push(pick);
+        return acc;
+      }, {} as Record<string, BettingPick[]>);
+      
+      // Group new picks by date
+      const newPicksByDate = newPicksToAdd.reduce((acc, pick) => {
+        if (!acc[pick.date]) acc[pick.date] = [];
+        acc[pick.date].push(pick);
+        return acc;
+      }, {} as Record<string, BettingPick[]>);
+      
+      // Merge picks: for each date, only add picks that don't already exist (by ID)
+      const mergedPicksByDate = { ...existingPicksByDate };
+      
+      Object.keys(newPicksByDate).forEach(date => {
+        if (!mergedPicksByDate[date]) {
+          // No existing picks for this date, add all new picks
+          mergedPicksByDate[date] = newPicksByDate[date];
+          console.log(`Added ${newPicksByDate[date].length} new picks for date ${date}`);
+        } else {
+          // Merge picks for this date, avoid duplicates by ID
+          const existingIds = new Set(mergedPicksByDate[date].map(p => p.id));
+          const uniqueNewPicks = newPicksByDate[date].filter(p => !existingIds.has(p.id));
+          
+          if (uniqueNewPicks.length > 0) {
+            mergedPicksByDate[date] = [...mergedPicksByDate[date], ...uniqueNewPicks];
+            console.log(`Merged ${uniqueNewPicks.length} unique new picks for date ${date}`);
+          } else {
+            console.log(`No new unique picks to add for date ${date}`);
+          }
+        }
+      });
+      
+      // Convert back to flat array, sorted by date desc
+      const allMergedPicks = Object.keys(mergedPicksByDate)
+        .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+        .flatMap(date => mergedPicksByDate[date]);
+      
+      console.log('Total picks after merge:', allMergedPicks.length);
+      console.log('Merged picks by date:', Object.keys(mergedPicksByDate).map(date => 
+        `${date}: ${mergedPicksByDate[date].length} picks`
+      ));
+      
+      setAllPicks(allMergedPicks);
       setLastUpdate(new Date());
       
         toast({
