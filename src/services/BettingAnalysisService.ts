@@ -120,27 +120,24 @@ export class BettingAnalysisService {
     const totalPayout = totalInvested + (totalProfit * 10);
     const roi = totalInvested > 0 ? ((totalPayout - totalInvested) / totalInvested) * 100 : 0;
 
-    // Calculate early cashout opportunities
-    // For lost picks, check if the underdog was ever within striking distance (losing by 1 or winning)
-    const earlyCashoutOpportunities = lostPicks.filter(pick => {
+    // Calculate early cashout opportunities as percentage
+    // Include both winning picks and losing picks that had cashout opportunities
+    const earlyCashoutOpportunities = completedPicks.filter(pick => {
       if (!pick.result) return false;
       
       const { homeScore, awayScore } = pick.result;
       const scoreDiff = Math.abs(homeScore - awayScore);
       
-      // For runline bets (+1.5), an early cashout opportunity exists if:
-      // - The pick lost (final margin > 1.5)
-      // - But at some point the underdog was likely within 1 run or winning
-      // We simulate this by checking if the final score was close (2-3 runs) 
-      // indicating the game was competitive enough for early cashout
+      // For picks that won, they always had a cashout opportunity
+      if (pick.status === 'won') return true;
       
-      if (pick.recommendedBet === 'home_runline') {
-        // Home underdog lost by more than 1.5 but game was close enough for early opportunity
-        return awayScore > homeScore + 1 && scoreDiff <= 4;
-      } else {
-        // Away underdog lost by more than 1.5 but game was close enough for early opportunity  
-        return homeScore > awayScore + 1 && scoreDiff <= 4;
+      // For picks that lost, check if there was likely a cashout opportunity
+      if (pick.status === 'lost') {
+        // If the final score was close (≤4 runs), there was likely a cashout opportunity
+        return scoreDiff <= 4;
       }
+      
+      return false;
     }).length;
 
     // Calculate current streak

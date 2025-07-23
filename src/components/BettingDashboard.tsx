@@ -332,14 +332,14 @@ export const BettingDashboard = () => {
             
             let { isHomeUnderdog, underdogOdds } = determineUnderdog(game.homeOdds, game.awayOdds);
             
-            const pick = BettingAnalysisService.analyzeGame(
-              game.homeTeam,
-              game.awayTeam,
-              isHomeUnderdog,
-              game.runlineOdds || underdogOdds,
-              'TBD',
-              'TBD'
-            );
+              const pick = BettingAnalysisService.analyzeGame(
+                game.homeTeam,
+                game.awayTeam,
+                isHomeUnderdog,
+                game.runlineOdds || underdogOdds,
+                game.homePitcher || 'TBD',
+                game.awayPitcher || 'TBD'
+              );
             
             console.log(`Pick created for ${game.homeTeam} vs ${game.awayTeam}:`, pick);
             
@@ -396,7 +396,9 @@ export const BettingDashboard = () => {
           game.homeTeam,
           game.awayTeam,
           game.isHomeUnderdog,
-          game.odds
+          game.odds,
+          'Demo Pitcher',
+          'Demo Pitcher'
         );
         if (pick) demoPicks.push(pick);
       });
@@ -436,7 +438,9 @@ export const BettingDashboard = () => {
             game.homeTeam,
             game.awayTeam,
             game.isHomeUnderdog,
-            game.odds
+            game.odds,
+            'TBD',
+            'TBD'
           );
           
           if (pick) {
@@ -660,82 +664,88 @@ export const BettingDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Results Summary */}
-        {results && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-            <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium">Win Rate</CardTitle>
-                <Target className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-primary">
-                  {results.winRate.toFixed(1)}%
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {results.wonPicks}/{results.totalPicks} picks
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium">Total Profit</CardTitle>
-                <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-profit" />
-              </CardHeader>
-              <CardContent>
-                <div className={`text-lg sm:text-2xl font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                  {results.totalProfit >= 0 ? '+' : ''}${(results.totalProfit * 10).toFixed(2)}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {results.roi.toFixed(1)}% ROI on $10 bets
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium">Early Cashout</CardTitle>
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-warning" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-warning">
-                  {results.earlyCashoutOpportunities}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Missed opportunities
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium">Last Update</CardTitle>
-                <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 text-accent" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-lg sm:text-2xl font-bold text-accent">
-                  {getETTime()}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Eastern Time
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {/* Picks Tabs */}
         <Tabs defaultValue="today" className="w-full">
-          {/* Date Selector and Title */}
-          <div className="text-center space-y-4 mb-6">
-            <div className="flex justify-center">
+          {/* Layout: Logo Left, Stats Right */}
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            {/* Left Column: Logo */}
+            <div className="flex justify-center items-center">
               <img 
                 src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
                 alt="Underdog Runline Logo"
-                className="object-contain w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80"
+                className="object-contain w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64"
               />
             </div>
+            
+            {/* Right Column: Stats 2x2 Grid */}
+            {results && (
+              <div className="grid grid-cols-2 gap-3">
+                <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-medium">Win Rate</CardTitle>
+                    <Target className="h-3 w-3 text-primary" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-lg font-bold text-primary">
+                      {results.winRate.toFixed(1)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {results.wonPicks}/{results.totalPicks} picks
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-medium">Total Profit</CardTitle>
+                    <DollarSign className="h-3 w-3 text-profit" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className={`text-lg font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                      {results.totalProfit >= 0 ? '+' : ''}${(results.totalProfit * 10).toFixed(2)}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {results.roi.toFixed(1)}% ROI
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-medium">Early Cashout</CardTitle>
+                    <Clock className="h-3 w-3 text-warning" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-lg font-bold text-warning">
+                      {results.totalPicks > 0 ? ((results.earlyCashoutOpportunities / results.totalPicks) * 100).toFixed(1) : '0.0'}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {results.earlyCashoutOpportunities}/{results.totalPicks} games
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-medium">Last Update</CardTitle>
+                    <RefreshCw className="h-3 w-3 text-accent" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-lg font-bold text-accent">
+                      {getETTime()}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Eastern Time
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+          
+          {/* Date Selector Tabs */}
+          <div className="text-center space-y-4 mb-6">
             <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:mx-auto">
               <TabsTrigger value="today" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <span>Today</span>
@@ -802,7 +812,7 @@ export const BettingDashboard = () => {
                                        </div>
                                      )}
                                  </div>
-                                 <div className="text-xs text-muted-foreground truncate">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
+                                 <div className="text-xs text-muted-foreground truncate">{pick.awayPitcher || 'TBD'}</div>
                                </div>
                              </div>
                             
@@ -828,7 +838,7 @@ export const BettingDashboard = () => {
                                         </div>
                                      )}
                                   </div>
-                                  <div className="text-xs text-muted-foreground truncate">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
+                                  <div className="text-xs text-muted-foreground truncate">{pick.homePitcher || 'TBD'}</div>
                                 </div>
                              </div>
                            </div>
@@ -922,7 +932,7 @@ export const BettingDashboard = () => {
                                        </div>
                                      )}
                                  </div>
-                                 <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'Starting Pitcher TBD'}</div>
+                                 <div className="text-xs text-muted-foreground">{pick.awayPitcher || 'TBD'}</div>
                                </div>
                              </div>
                             
@@ -944,7 +954,7 @@ export const BettingDashboard = () => {
                                         </div>
                                      )}
                                   </div>
-                                  <div className="text-xs text-muted-foreground">{pick.homePitcher || 'Starting Pitcher TBD'}</div>
+                                  <div className="text-xs text-muted-foreground">{pick.homePitcher || 'TBD'}</div>
                                 </div>
                              </div>
                            </div>
@@ -991,50 +1001,6 @@ export const BettingDashboard = () => {
 
               <TabsContent value="results" className="mt-0">
                 <div className="space-y-6">
-                  {/* Win Rate Summary */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Overall Win Rate</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-primary">
-                          {results?.winRate.toFixed(1) || '0.0'}%
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {results?.wonPicks || 0} wins / {results?.totalPicks || 0} total picks
-                        </p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Total Profit</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className={`text-2xl font-bold ${results && results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                          {results ? (results.totalProfit >= 0 ? '+' : '') + '$' + (results.totalProfit * 10).toFixed(2) : '$0.00'}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {results?.roi.toFixed(1) || '0.0'}% ROI on $10 bets
-                        </p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Live Games</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-2xl font-bold text-accent">
-                          {allPicks.filter(p => p.status === 'pending').length}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Active picks being tracked
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
 
                   {/* All Picks with Live Scores */}
                   <div className="space-y-4">
@@ -1106,11 +1072,19 @@ export const BettingDashboard = () => {
                                   </div>
                                 </div>
                                 
-                                {/* Pick Details with Status Indicator */}
-                                <div className="flex items-center gap-3 pt-2 border-t border-border/30">
-                                  <span className="text-sm text-muted-foreground">
-                                    {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
-                                  </span>
+                                 {/* Pick Details with Status Indicator */}
+                                 <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
+                                   <span className="text-sm text-muted-foreground">
+                                     {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
+                                   </span>
+                                   <div className="text-xs text-muted-foreground">
+                                     Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
+                                   </div>
+                                   {pick.status === 'lost' && pick.result && (
+                                     <div className="text-xs text-warning">
+                                       Cashout available: 7th inning
+                                     </div>
+                                   )}
                                   {pick.status === 'pending' && pick.result && (
                                     <div className="flex items-center gap-1">
                                       {/* Live pick status indicator */}
