@@ -550,7 +550,7 @@ export const BettingDashboard = () => {
       });
     } finally {
       setIsLoading(false);
-      console.log('=== generateStaticDailyPicks completed ===');
+      setLastUpdate(new Date());
     }
   };
 
