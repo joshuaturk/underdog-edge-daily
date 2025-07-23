@@ -312,10 +312,6 @@ export class GolfAnalysisService {
     const picks: GolfPick[] = qualifiedPlayers.map(({ player, analysis }, index) => {
       const baseConfidence = Math.min(65 + (analysis.score * 5), 85);
       const probability = baseConfidence;
-      
-      // Generate realistic Bet365 odds for Top 10 finish
-      const bet365Odds = Math.round((100 / probability) * 100 - 100); // Convert to American odds
-      const impliedProbability = 100 / (Math.abs(bet365Odds) / 100 + 1);
 
       return {
         id: `pick-${player.id}`,
@@ -325,11 +321,7 @@ export class GolfAnalysisService {
         reason: `Strong scorecard with ${analysis.score} points. ${analysis.factors.slice(0, 2).join('. ')}.`,
         top10Probability: probability,
         keyFactors: analysis.factors,
-        riskFactors: analysis.risks,
-        odds: {
-          bet365: bet365Odds,
-          impliedProbability: impliedProbability
-        }
+        riskFactors: analysis.risks
       };
     });
 
