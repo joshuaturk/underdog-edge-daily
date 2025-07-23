@@ -36,7 +36,7 @@ export class BettingAnalysisService {
     { name: 'NY Yankees', runlineRate: 58.5, homeRate: 56.2, awayRate: 60.1 }
   ];
 
-  private static readonly MIN_CONFIDENCE_THRESHOLD = 45; // Lowered to ensure all picks generate
+  private static readonly MIN_CONFIDENCE_THRESHOLD = 65; // Only show games 65% or higher
   private static readonly ROAD_DOG_BONUS = 5;
   private static readonly RECENT_FORM_WEIGHT = 0.3;
 

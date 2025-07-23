@@ -549,47 +549,75 @@ export const BettingDashboard = () => {
   };
 
   
+  
   const generateMockHistoricalPicks = (): BettingPick[] => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    // July 22nd completed games (these should NEVER disappear)
+    const july22 = '2025-07-22';
     
-    const dayBefore = new Date();
-    dayBefore.setDate(dayBefore.getDate() - 2);
-    const dayBeforeStr = dayBefore.toISOString().split('T')[0];
-    
-    return [
+    const july22Picks = [
       {
-        id: `mock-1-${yesterdayStr}`,
-        date: yesterdayStr,
-        homeTeam: 'Boston Red Sox',
-        awayTeam: 'Tampa Bay Rays',
-        recommendedBet: 'away_runline',
-        confidence: 75,
-        reason: 'Tampa Bay Rays road underdog +1.5',
-        odds: 125,
-        status: 'won',
+        id: `guardians-orioles-${july22}`,
+        date: july22,
+        homeTeam: 'Cleveland Guardians',
+        awayTeam: 'Baltimore Orioles',
+        recommendedBet: 'away_runline' as const,
+        confidence: 65,
+        reason: 'Baltimore Orioles road underdog +1.5',
+        odds: -144,
+        status: 'won' as const,
         result: { homeScore: 3, awayScore: 5, scoreDifference: 2 },
-        profit: 12.5,
-        homePitcher: 'R. Houck',
-        awayPitcher: 'T. Glasnow'
+        profit: 6.94,
+        homePitcher: 'Joey Cantillo',
+        awayPitcher: 'Brandon Young'
       },
       {
-        id: `mock-2-${yesterdayStr}`,
-        date: yesterdayStr,
-        homeTeam: 'Seattle Mariners',
-        awayTeam: 'Houston Astros',
-        recommendedBet: 'away_runline',
+        id: `marlins-padres-${july22}`,
+        date: july22,
+        homeTeam: 'Miami Marlins',
+        awayTeam: 'San Diego Padres',
+        recommendedBet: 'away_runline' as const,
+        confidence: 72,
+        reason: 'San Diego Padres road underdog +1.5',
+        odds: 118,
+        status: 'won' as const,
+        result: { homeScore: 4, awayScore: 6, scoreDifference: 2 },
+        profit: 11.80,
+        homePitcher: 'Edward Cabrera',
+        awayPitcher: 'Stephen Kolek'
+      },
+      {
+        id: `mets-angels-${july22}`,
+        date: july22,
+        homeTeam: 'NY Mets',
+        awayTeam: 'LA Angels',
+        recommendedBet: 'away_runline' as const,
         confidence: 68,
-        reason: 'Houston Astros road underdog +1.5',
-        odds: 110,
-        status: 'lost',
-        result: { homeScore: 7, awayScore: 2, scoreDifference: 5 },
+        reason: 'LA Angels road underdog +1.5',
+        odds: 115,
+        status: 'lost' as const,
+        result: { homeScore: 7, awayScore: 3, scoreDifference: 4 },
         profit: -10,
-        homePitcher: 'L. Castillo',
-        awayPitcher: 'R. Blanco'
+        homePitcher: 'Frankie Montas',
+        awayPitcher: 'Kyle Hendricks'
+      },
+      {
+        id: `bluejays-yankees-${july22}`,
+        date: july22,
+        homeTeam: 'Toronto Blue Jays',
+        awayTeam: 'NY Yankees',
+        recommendedBet: 'away_runline' as const,
+        confidence: 70,
+        reason: 'NY Yankees road underdog +1.5',
+        odds: -186,
+        status: 'won' as const,
+        result: { homeScore: 2, awayScore: 8, scoreDifference: 6 },
+        profit: 5.38,
+        homePitcher: 'Max Scherzer',
+        awayPitcher: 'Cam Schlittler'
       }
     ];
+    
+    return july22Picks;
   };
 
   const hasMoreResults = allPicks.filter(pick => 
