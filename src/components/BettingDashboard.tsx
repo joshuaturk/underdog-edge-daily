@@ -106,8 +106,18 @@ export const BettingDashboard = () => {
   const todayDate = new Date().toISOString().split('T')[0];
   const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   
-  const todayPicks = allPicks.filter(pick => pick.date === todayDate);
+  // Today picks: only pending games with no live scores (upcoming/scheduled)
+  const todayPicks = allPicks.filter(pick => 
+    pick.date === todayDate && 
+    pick.status === 'pending' && 
+    !pick.result // No live scores yet
+  );
   const tomorrowPicks = allPicks.filter(pick => pick.date === tomorrowDate);
+  
+  // Results picks: all games with results (live with scores, won, lost, push) from any date, sorted by date desc
+  const resultsPicks = allPicks
+    .filter(pick => pick.status !== 'pending' || (pick.status === 'pending' && pick.result))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   
   // Get historical picks for Results tab (excluding today's pending picks, sorted by date desc)
   const historicalPicks = allPicks
@@ -236,8 +246,10 @@ export const BettingDashboard = () => {
                 
                 console.log(`Updated pick with scores: ${liveGame.homeScore}-${liveGame.awayScore}`);
                 
-                // Determine if game is final and update status/profit if needed
-                if (liveGame.status === 'final') {
+                // Update status based on game status - live games should move to Results tab
+                if (liveGame.status === 'live' && pick.status === 'pending') {
+                  updatedPick.status = 'pending'; // Keep as pending but with live scores
+                } else if (liveGame.status === 'final') {
                   const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
                   
                   // Check if runline bet won (+1.5 spread)
@@ -317,8 +329,8 @@ export const BettingDashboard = () => {
   useEffect(() => {
     console.log('allPicks changed, length:', allPicks.length);
     if (allPicks.length > 0) {
-      // Only analyze completed picks for stats (not pending Today picks)
-      const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
+      // Only analyze completed picks for stats (all non-pending picks)
+      const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
       const calculatedResults = BettingAnalysisService.analyzeResults(completedPicks);
       console.log('Calculated results from', completedPicks.length, 'completed picks:', calculatedResults);
       setResults(calculatedResults);
@@ -842,7 +854,7 @@ export const BettingDashboard = () => {
                   </CardHeader>
                   <CardContent className="py-3 lg:py-4">
                     <div className={`text-base lg:text-lg font-bold ${(() => {
-                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
+                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
                         const totalWagered = completedPicks.length * 10; // $10 per pick
                         // Calculate total winnings (wager amount + profit for wins, 0 for losses)
                         const totalWinnings = completedPicks.reduce((sum, pick) => {
@@ -856,7 +868,7 @@ export const BettingDashboard = () => {
                         return roi >= 0 ? 'text-profit' : 'text-destructive';
                       })()}`}>
                       {(() => {
-                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
+                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
                         const totalWagered = completedPicks.length * 10; // $10 per pick
                         // Calculate total winnings (wager amount + profit for wins, 0 for losses)
                         const totalWinnings = completedPicks.reduce((sum, pick) => {
@@ -894,7 +906,7 @@ export const BettingDashboard = () => {
               <TabsTrigger value="results" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
                 <span className="font-medium">Results</span>
                 <Badge variant="outline" className="text-xs h-5 px-1.5">
-                  {allPicks.filter(pick => pick.status !== 'pending').slice(0, 4).length}
+                  {resultsPicks.length}
                 </Badge>
               </TabsTrigger>
             </TabsList>
@@ -1054,7 +1066,7 @@ export const BettingDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {historicalPicks.map((pick, index) => (
+                        {resultsPicks.slice(0, resultsDisplayCount).map((pick, index) => (
                           <div 
                             key={`${pick.homeTeam}-${pick.awayTeam}-${pick.date}-${index}`}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
