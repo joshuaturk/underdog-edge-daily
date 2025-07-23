@@ -217,6 +217,12 @@ export const BettingDashboard = () => {
               return pick;
             }
             
+            // Only update picks from today's date to prevent overwriting yesterday's data
+            if (pick.date !== todayDate) {
+              console.log(`Skipping pick from different date: ${pick.homeTeam} vs ${pick.awayTeam} (${pick.date})`);
+              return pick;
+            }
+            
             // Find matching live game with improved team name matching
             const liveGame = liveGames.find(game => {
               const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
@@ -470,10 +476,10 @@ export const BettingDashboard = () => {
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       const yesterdayDateStr = yesterdayDate.toISOString().split('T')[0];
       
-      // Today's completed game from console logs (Miami vs SD Padres finished 3-2)
+      // Today's completed game from console logs (Miami vs SD Padres finished 3-2) - FROM YESTERDAY
       const todayCompletedGame = {
-        id: `miami-padres-completed-${todayDate}`,
-        date: todayDate,
+        id: `miami-padres-completed-${yesterdayDateStr}`,
+        date: yesterdayDateStr, // Put this game on yesterday's date to prevent live score overwrites
         homeTeam: 'Miami Marlins',
         awayTeam: 'San Diego Padres',
         recommendedBet: 'away_runline' as const,
@@ -537,7 +543,7 @@ export const BettingDashboard = () => {
       const allNewPicks = [...todayPicks, todayCompletedGame, ...completedPicks];
       console.log('=== SETTING ALL PICKS ===');
       console.log('Today pending picks:', todayPicks.length);
-      console.log('Today completed game:', todayCompletedGame);
+      console.log('Yesterday completed game (Miami vs SD):', todayCompletedGame.date);
       console.log('Yesterday completed picks:', completedPicks.length);
       console.log('Total picks being set:', allNewPicks.length);
       console.log('All picks:', allNewPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date}`));
