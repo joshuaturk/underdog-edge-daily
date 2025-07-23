@@ -401,7 +401,13 @@ export const BettingDashboard = () => {
       console.log('Using fallback demo data...');
       setIsUsingLiveData(false);
       
-      const demoGames = getFixedDemoGames();
+      // Create today's demo games with SD Padres vs Miami Marlins
+      const demoGames = [
+        { homeTeam: 'Yankees', awayTeam: 'Red Sox', isHomeUnderdog: false, odds: -150 },
+        { homeTeam: 'Cubs', awayTeam: 'Cardinals', isHomeUnderdog: true, odds: 140 },
+        { homeTeam: 'Dodgers', awayTeam: 'Giants', isHomeUnderdog: false, odds: -180 },
+        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118 }
+      ];
       const demoPicks: BettingPick[] = [];
       
       demoGames.forEach(game => {
