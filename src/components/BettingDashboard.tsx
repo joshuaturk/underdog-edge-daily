@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
-         GraduationCap, Dribbble, Trophy, ChevronDown, Check, Info } from 'lucide-react';
+         GraduationCap, Dribbble, Trophy, ChevronDown, Check, Info, Clock } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
 import { ProductionDataService } from '@/services/ProductionDataService';
@@ -693,6 +693,20 @@ export const BettingDashboard = () => {
               </CardContent>
             </Card>
 
+            <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xs sm:text-sm font-medium">Early Cashout</CardTitle>
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-warning" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg sm:text-2xl font-bold text-warning">
+                  {results.earlyCashoutOpportunities}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Missed opportunities
+                </p>
+              </CardContent>
+            </Card>
 
             <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

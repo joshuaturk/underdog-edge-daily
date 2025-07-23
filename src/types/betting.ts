@@ -47,6 +47,7 @@ export interface BettingResults {
   winRate: number;
   totalProfit: number;
   roi: number;
+  earlyCashoutOpportunities: number;
   streak: {
     type: 'win' | 'loss';
     count: number;

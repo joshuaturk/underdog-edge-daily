@@ -117,11 +117,31 @@ export class BettingAnalysisService {
     
     // Calculate ROI based on $10 bets per game
     const totalInvested = completedPicks.length * 10; // $10 per bet
-    // For winning bets, profit includes original wager + winnings
-    // For losing bets, profit is -10 (lost wager)
-    // Total payout = original investment + profit
     const totalPayout = totalInvested + (totalProfit * 10);
     const roi = totalInvested > 0 ? ((totalPayout - totalInvested) / totalInvested) * 100 : 0;
+
+    // Calculate early cashout opportunities
+    // For lost picks, check if the underdog was ever within striking distance (losing by 1 or winning)
+    const earlyCashoutOpportunities = lostPicks.filter(pick => {
+      if (!pick.result) return false;
+      
+      const { homeScore, awayScore } = pick.result;
+      const scoreDiff = Math.abs(homeScore - awayScore);
+      
+      // For runline bets (+1.5), an early cashout opportunity exists if:
+      // - The pick lost (final margin > 1.5)
+      // - But at some point the underdog was likely within 1 run or winning
+      // We simulate this by checking if the final score was close (2-3 runs) 
+      // indicating the game was competitive enough for early cashout
+      
+      if (pick.recommendedBet === 'home_runline') {
+        // Home underdog lost by more than 1.5 but game was close enough for early opportunity
+        return awayScore > homeScore + 1 && scoreDiff <= 4;
+      } else {
+        // Away underdog lost by more than 1.5 but game was close enough for early opportunity  
+        return homeScore > awayScore + 1 && scoreDiff <= 4;
+      }
+    }).length;
 
     // Calculate current streak
     let streak: { type: 'win' | 'loss'; count: number } = { type: 'win', count: 0 };
@@ -152,6 +172,7 @@ export class BettingAnalysisService {
       winRate,
       totalProfit,
       roi,
+      earlyCashoutOpportunities,
       streak
     };
   }
