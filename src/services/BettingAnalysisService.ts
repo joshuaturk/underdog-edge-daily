@@ -36,7 +36,7 @@ export class BettingAnalysisService {
     { name: 'NY Yankees', runlineRate: 58.5, homeRate: 56.2, awayRate: 60.1 }
   ];
 
-  private static readonly MIN_CONFIDENCE_THRESHOLD = 65;
+  private static readonly MIN_CONFIDENCE_THRESHOLD = 45; // Lowered to ensure all picks generate
   private static readonly ROAD_DOG_BONUS = 5;
   private static readonly RECENT_FORM_WEIGHT = 0.3;
 
@@ -68,6 +68,16 @@ export class BettingAnalysisService {
       confidence = awayStats.awayRate + this.ROAD_DOG_BONUS;
       recommendedBet = 'away_runline';
       reason = `${awayTeam} as road underdog - ${awayStats.runlineRate}% runline cover rate + road dog bonus`;
+    } else if (homeStats) {
+      // Fallback to home team if away stats not found
+      confidence = homeStats.homeRate;
+      recommendedBet = 'home_runline';
+      reason = `${homeTeam} runline bet - ${homeStats.runlineRate}% cover rate`;
+    } else if (awayStats) {
+      // Fallback to away team if home stats not found
+      confidence = awayStats.awayRate + this.ROAD_DOG_BONUS;
+      recommendedBet = 'away_runline';
+      reason = `${awayTeam} road bet - ${awayStats.runlineRate}% cover rate`;
     } else {
       return null;
     }
