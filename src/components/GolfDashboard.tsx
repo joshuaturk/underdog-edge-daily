@@ -222,8 +222,8 @@ export const GolfDashboard = () => {
                   <Target className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
                 </CardHeader>
                 <CardContent className="py-3 lg:py-4">
-                  <div className="text-base lg:text-lg font-bold text-primary">72.0%</div>
-                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">18/25 picks</p>
+                  <div className="text-base lg:text-lg font-bold text-primary">0.0%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">0/0 picks</p>
                 </CardContent>
               </Card>
 
@@ -233,8 +233,8 @@ export const GolfDashboard = () => {
                   <DollarSign className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
                 </CardHeader>
                 <CardContent className="py-3 lg:py-4">
-                  <div className="text-base lg:text-lg font-bold text-profit">$186.40</div>
-                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">Total Wagered: $250.00</p>
+                  <div className="text-base lg:text-lg font-bold text-muted-foreground">$0.00</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">Total Wagered: $0.00</p>
                 </CardContent>
               </Card>
 
@@ -244,8 +244,8 @@ export const GolfDashboard = () => {
                   <Clock className="h-3 w-3 lg:h-4 lg:w-4 text-warning" />
                 </CardHeader>
                 <CardContent className="py-3 lg:py-4">
-                  <div className="text-base lg:text-lg font-bold text-warning">68.0%</div>
-                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">17/25 rounds</p>
+                  <div className="text-base lg:text-lg font-bold text-muted-foreground">0.0%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground leading-tight">0/0 rounds</p>
                 </CardContent>
               </Card>
 
@@ -255,7 +255,7 @@ export const GolfDashboard = () => {
                   <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
                 </CardHeader>
                 <CardContent className="py-3 lg:py-4">
-                  <div className="text-base lg:text-lg font-bold text-profit">+24.3%</div>
+                  <div className="text-base lg:text-lg font-bold text-muted-foreground">0.0%</div>
                   <p className="text-xs lg:text-sm text-muted-foreground leading-tight">Season ROI</p>
                 </CardContent>
               </Card>
@@ -453,7 +453,7 @@ export const GolfDashboard = () => {
                           {pick.confidence.toFixed(0)}%
                         </div>
                         <Badge className={`text-xs ${getConfidenceBadge(pick.top10Probability)}`}>
-                          +145 Top 10
+                          {pick.odds || '+200'} Top 10
                         </Badge>
                       </div>
                     </div>
