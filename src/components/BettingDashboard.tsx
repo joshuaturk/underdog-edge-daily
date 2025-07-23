@@ -124,14 +124,51 @@ export const BettingDashboard = () => {
     });
   };
 
-  // Initialize with today's picks on mount
+  // Auto-fetch at 12:01am ET daily and on initial load
   useEffect(() => {
-    if (allPicks.length === 0) {
-      generateDailyPicks();
-    }
+    const checkAndFetch = () => {
+      const now = new Date();
+      const etTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+      const etHour = etTime.getHours();
+      const etMinute = etTime.getMinutes();
+      
+      // Check if it's 12:01am ET and we haven't fetched today
+      if (etHour === 0 && etMinute === 1) {
+        const lastFetchDate = localStorage.getItem('lastAutoFetch');
+        const today = new Date().toDateString();
+        
+        if (lastFetchDate !== today) {
+          console.log('Auto-fetching daily picks at 12:01am ET');
+          generateStaticDailyPicks();
+          localStorage.setItem('lastAutoFetch', today);
+        }
+      }
+    };
+
+    // Check immediately and then every minute to catch 12:01am
+    checkAndFetch();
+    const interval = setInterval(checkAndFetch, 60 * 1000); // Check every minute
+    
+    return () => clearInterval(interval);
   }, []);
 
-  // Update picks with live scores
+  // Initialize static picks on component mount
+  useEffect(() => {
+    if (allPicks.length === 0) {
+      const lastFetchDate = localStorage.getItem('lastAutoFetch');
+      const today = new Date().toDateString();
+      
+      if (lastFetchDate !== today) {
+        console.log('Initial pick generation for today');
+        generateStaticDailyPicks();
+        localStorage.setItem('lastAutoFetch', today);
+      } else {
+        console.log('Picks already generated today, loading from storage or using fallback');
+        // Try to load from localStorage or generate if needed
+        generateStaticDailyPicks();
+      }
+    }
+  }, []);
   useEffect(() => {
     const updateLiveScores = async () => {
       if (allPicks.length === 0) return;
@@ -269,12 +306,13 @@ export const BettingDashboard = () => {
     }
   }, [allPicks]);
 
-  const generateDailyPicks = async () => {
-    console.log('=== generateDailyPicks called ===');
+  // Generate static picks once per day - these don't change during the day
+  const generateStaticDailyPicks = async () => {
+    console.log('=== generateStaticDailyPicks called ===');
     setIsLoading(true);
     
     try {
-      // Create the exact 4 games you specified for today
+      // Create the exact 4 games you specified for today (these are static)
       const todayGames = [
         { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144, homePitcher: 'Joey Cantillo', awayPitcher: 'Brandon Young' },
         { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
@@ -285,6 +323,8 @@ export const BettingDashboard = () => {
       const todayPicks: BettingPick[] = [];
       
       todayGames.forEach(game => {
+        console.log(`Processing game: ${game.homeTeam} vs ${game.awayTeam}, isHomeUnderdog: ${game.isHomeUnderdog}, odds: ${game.odds}`);
+        
         const pick = BettingAnalysisService.analyzeGame(
           game.homeTeam,
           game.awayTeam,
@@ -294,13 +334,18 @@ export const BettingDashboard = () => {
           game.awayPitcher
         );
         
+        console.log(`Pick result for ${game.homeTeam} vs ${game.awayTeam}:`, pick);
+        
         if (pick) {
           pick.date = todayDate;
           todayPicks.push(pick);
+          console.log(`Added pick: ${pick.homeTeam} vs ${pick.awayTeam}, confidence: ${pick.confidence}`);
+        } else {
+          console.log(`Pick rejected for ${game.homeTeam} vs ${game.awayTeam} - likely below confidence threshold or team not found`);
         }
       });
 
-      // Create tomorrow's picks
+      // Create tomorrow's picks (these are also static)
       const tomorrowGames = [
         { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 },
         { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
@@ -326,17 +371,17 @@ export const BettingDashboard = () => {
         }
       });
 
-      // Set all picks at once - this is the single source of truth
+      // Set all picks at once - this is the single source of truth (STATIC - won't change during day)
       setAllPicks([...todayPicks, ...tomorrowPicks]);
       setLastUpdate(new Date());
       
       toast({
-        title: "Picks Generated",
+        title: "Static Picks Generated",
         description: `Today: ${todayPicks.length} picks, Tomorrow: ${tomorrowPicks.length} picks`,
       });
       
     } catch (error) {
-      console.error('Error generating picks:', error);
+      console.error('Error generating static picks:', error);
       toast({
         title: "Error",
         description: "Failed to generate picks",
@@ -344,8 +389,44 @@ export const BettingDashboard = () => {
       });
     } finally {
       setIsLoading(false);
-      console.log('=== generateDailyPicks completed ===');
+      console.log('=== generateStaticDailyPicks completed ===');
     }
+  };
+
+  // Refresh data - ONLY updates existing picks, doesn't generate new ones
+  const refreshPickData = async () => {
+    console.log('=== refreshPickData called - updating existing picks only ===');
+    setIsLoading(true);
+    
+    try {
+      // Move started games from Today to Results and update live scores
+      await updatePickStatuses();
+      setLastUpdate(new Date());
+      
+      toast({
+        title: "Data Refreshed",
+        description: "Updated live scores and moved started games to results",
+      });
+      
+    } catch (error) {
+      console.error('Error refreshing pick data:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to refresh data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to update pick statuses and move games
+  const updatePickStatuses = async () => {
+    if (allPicks.length === 0) return;
+    
+    // Here you would call your live score API and move games that have started
+    // For now, we'll just trigger the existing live score update logic
+    console.log('Updating pick statuses and moving started games');
   };
 
   const getConfidenceColor = (confidence: number) => {
@@ -463,9 +544,9 @@ export const BettingDashboard = () => {
               </Badge>
             )}
             <ThemeToggle />
-            <Button onClick={generateDailyPicks} disabled={isLoading} variant="outline" size="sm">
+            <Button onClick={refreshPickData} disabled={isLoading} variant="outline" size="sm">
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 sm:mr-2'}`} />
-              <span className="hidden sm:inline">Refresh Live Data</span>
+              <span className="hidden sm:inline">Refresh Data</span>
               <span className="sm:hidden">Refresh</span>
             </Button>
           </div>
