@@ -525,38 +525,38 @@ export const BettingDashboard = () => {
   // Main component render
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5">
-      <div className="container mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-          <div className="flex items-center gap-3">
+      <div className="container mx-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+        {/* Header - Mobile optimized */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 lg:gap-6">
+          <div className="flex items-center gap-3 justify-center lg:justify-start">
             <div className="flex items-center gap-2">
               <img 
                 src="/lovable-uploads/db562826-74b8-4870-8f78-da45d663e372.png" 
                 alt="betbud.ai"
-                className="h-8 sm:h-12 object-contain"
+                className="h-10 lg:h-12 object-contain"
               />
             </div>
           </div>
           
-          <div className="flex items-center gap-2 justify-between sm:justify-end">
+          <div className="flex items-center gap-2 justify-center lg:justify-end flex-wrap">
             {isUsingLiveData ? (
-              <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20">
+              <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20 px-3 py-1.5">
                 <Globe className="w-3 h-3 mr-1" />
-                <span className="hidden sm:inline">Live Data</span>
-                <span className="sm:hidden">Live</span>
+                <span className="hidden lg:inline">Live Data</span>
+                <span className="lg:hidden">Live</span>
               </Badge>
             ) : (
-              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
+              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 px-3 py-1.5">
                 <Database className="w-3 h-3 mr-1" />
-                <span className="hidden sm:inline">Demo Mode</span>
-                <span className="sm:hidden">Demo</span>
+                <span className="hidden lg:inline">Demo Mode</span>
+                <span className="lg:hidden">Demo</span>
               </Badge>
             )}
             <ThemeToggle />
-            <Button onClick={refreshPickData} disabled={isLoading} variant="outline" size="sm">
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 sm:mr-2'}`} />
-              <span className="hidden sm:inline">Refresh Data</span>
-              <span className="sm:hidden">Refresh</span>
+            <Button onClick={refreshPickData} disabled={isLoading} variant="outline" size="sm" className="px-3 py-2 h-9">
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 lg:mr-2'}`} />
+              <span className="hidden lg:inline">Refresh Data</span>
+              <span className="lg:hidden">Refresh</span>
             </Button>
           </div>
         </div>
@@ -592,22 +592,22 @@ export const BettingDashboard = () => {
 
         {/* Picks Tabs */}
         <Tabs defaultValue="today" className="w-full">
-          {/* Layout: Logo Left, Stats Right */}
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            {/* Left Column: Logo and Info */}
-            <div className="flex flex-col justify-center items-center space-y-2">
+          {/* Layout: Mobile-first responsive design */}
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
+            {/* Top/Left Section: Logo and Info */}
+            <div className="flex flex-col justify-center items-center space-y-3 lg:space-y-4 px-4 lg:px-0">
               <img 
                 src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
                 alt="Underdog Runline Logo"
-                className="object-contain w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64"
+                className="object-contain w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64"
               />
-              <div className="flex items-center justify-center gap-2">
-                <p className="text-muted-foreground text-center text-sm">
+              <div className="flex items-center justify-center gap-2 px-2">
+                <p className="text-muted-foreground text-center text-xs sm:text-sm lg:text-base leading-relaxed">
                   MLB stat model to identify valuable runlines (+1.5)
                 </p>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 flex-shrink-0">
                       <Info className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
@@ -657,61 +657,61 @@ export const BettingDashboard = () => {
               </div>
             </div>
             
-            {/* Right Column: Stats 2x2 Grid */}
+            {/* Bottom/Right Section: Stats Grid - Mobile optimized */}
             {results && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 lg:gap-4 px-4 lg:px-0">
                 <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium">Win Rate</CardTitle>
-                    <Target className="h-3 w-3 text-primary" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                    <CardTitle className="text-xs lg:text-sm font-medium">Win Rate</CardTitle>
+                    <Target className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-lg font-bold text-primary">
+                  <CardContent className="py-3 lg:py-4">
+                    <div className="text-base lg:text-lg font-bold text-primary">
                       {results.winRate.toFixed(1)}%
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
                       {results.wonPicks}/{results.totalPicks} picks
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium">Total Winnings</CardTitle>
-                    <DollarSign className="h-3 w-3 text-profit" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                    <CardTitle className="text-xs lg:text-sm font-medium">Total Winnings</CardTitle>
+                    <DollarSign className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
                   </CardHeader>
-                  <CardContent>
-                    <div className={`text-lg font-bold ${((results.totalPicks * 10) + results.totalProfit) >= 0 ? 'text-profit' : 'text-loss'}`}>
+                  <CardContent className="py-3 lg:py-4">
+                    <div className={`text-base lg:text-lg font-bold ${((results.totalPicks * 10) + results.totalProfit) >= 0 ? 'text-profit' : 'text-loss'}`}>
                       ${((results.totalPicks * 10) + results.totalProfit).toFixed(2)}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
                       Total Wagered: ${(results.totalPicks * 10).toFixed(2)}
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium">Early Cashout</CardTitle>
-                    <Clock className="h-3 w-3 text-warning" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                    <CardTitle className="text-xs lg:text-sm font-medium">Early Cashout</CardTitle>
+                    <Clock className="h-3 w-3 lg:h-4 lg:w-4 text-warning" />
                   </CardHeader>
-                  <CardContent>
-                    <div className="text-lg font-bold text-warning">
+                  <CardContent className="py-3 lg:py-4">
+                    <div className="text-base lg:text-lg font-bold text-warning">
                       {results.totalPicks > 0 ? ((results.earlyCashoutOpportunities / results.totalPicks) * 100).toFixed(1) : '0.0'}%
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
                       {results.earlyCashoutOpportunities}/{results.totalPicks} games
                     </p>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium">ROI</CardTitle>
-                    <TrendingUp className="h-3 w-3 text-profit" />
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 lg:pb-3">
+                    <CardTitle className="text-xs lg:text-sm font-medium">ROI</CardTitle>
+                    <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
                   </CardHeader>
-                  <CardContent>
-                    <div className={`text-lg font-bold ${(() => {
+                  <CardContent className="py-3 lg:py-4">
+                    <div className={`text-base lg:text-lg font-bold ${(() => {
                         const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
                         const totalWagered = completedPicks.length * 10; // $10 per pick
                         // Calculate total winnings (wager amount + profit for wins, 0 for losses)
@@ -740,7 +740,7 @@ export const BettingDashboard = () => {
                         return `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
                       })()}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs lg:text-sm text-muted-foreground leading-tight">
                       Return on Investment
                     </p>
                   </CardContent>
@@ -749,113 +749,122 @@ export const BettingDashboard = () => {
             )}
           </div>
           
-          {/* Date Selector Tabs */}
-          <div className="text-center space-y-4 mb-6">
-            <TabsList className="grid w-full sm:w-auto grid-cols-2 sm:mx-auto">
-              <TabsTrigger value="today" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                <span>Today</span>
-                <span className="text-xs text-muted-foreground hidden sm:inline">
+          {/* Date Selector Tabs - Mobile optimized */}
+          <div className="text-center space-y-4 mb-4 lg:mb-6 px-4 lg:px-0">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-12 lg:h-10">
+              <TabsTrigger value="today" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
+                <span className="font-medium">Today</span>
+                <span className="text-xs text-muted-foreground hidden lg:inline">
                   {getETDate()}
                 </span>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs h-5 px-1.5">
                   {todayPicks.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="results" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                <span>Results</span>
-                <Badge variant="outline" className="text-xs">
+              <TabsTrigger value="results" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
+                <span className="font-medium">Results</span>
+                <Badge variant="outline" className="text-xs h-5 px-1.5">
                   {allPicks.filter(pick => pick.status !== 'pending').slice(0, 4).length}
                 </Badge>
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-6">
-            <CardContent className="p-3 sm:p-6">
+          <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-4 lg:mt-6 mx-4 lg:mx-0">
+            <CardContent className="p-4 lg:p-6">
               <TabsContent value="today" className="mt-0">
                 {todayPicks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
+                  <div className="text-center py-8 lg:py-12 text-muted-foreground">
+                    <div className="text-base lg:text-lg mb-2">
+                      {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
+                    </div>
+                    {!isLoading && (
+                      <div className="text-sm">Check back later for updated picks</div>
+                    )}
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 lg:space-y-6">
                     {todayPicks.map((pick) => (
                       <div 
                         key={pick.id}
-                        className="border border-border/50 rounded-lg p-3 sm:p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
+                        className="border border-border/50 rounded-lg p-4 lg:p-6 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
                       >
-                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 gap-3">
-                          <div className="flex-1 space-y-2 sm:space-y-3">
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-4 lg:mb-6 gap-4 lg:gap-6">
+                          <div className="flex-1 space-y-3 lg:space-y-4">
                              {/* Away Team */}
-                             <div className="flex items-center gap-2 sm:gap-3">
+                             <div className="flex items-center gap-3 lg:gap-4">
                                <img 
                                  src={getTeamLogo(pick.awayTeam)} 
                                  alt={`${pick.awayTeam} logo`}
-                                 className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
+                                 className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover flex-shrink-0"
                                  onError={(e) => {
                                    e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                  }}
                                />
                                <div className="flex-1 min-w-0">
-                                 <div className="flex items-center gap-2">
-                                   <div className="font-semibold text-sm sm:text-base truncate">{pick.awayTeam}</div>
+                                 <div className="flex items-center gap-2 lg:gap-3">
+                                   <div className="font-semibold text-base lg:text-lg truncate">{pick.awayTeam}</div>
                                    {pick.result && (
-                                     <span className="text-lg font-bold">{pick.result.awayScore}</span>
+                                     <span className="text-xl lg:text-2xl font-bold">{pick.result.awayScore}</span>
                                    )}
                                      {pick.recommendedBet === 'away_runline' && (
-                                       <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center flex-shrink-0`}>
-                                         <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
+                                       <div className={`${getCircleColor(pick.confidence)} rounded-full p-1.5 lg:p-2 flex items-center justify-center flex-shrink-0`}>
+                                         <Check className={`w-3 h-3 lg:w-4 lg:h-4 ${getCheckmarkColor(pick.confidence)}`} />
                                        </div>
                                      )}
                                  </div>
-                                 <div className="text-xs text-muted-foreground truncate">{pick.awayPitcher || 'TBD'}</div>
+                                 <div className="text-sm lg:text-base text-muted-foreground truncate">{pick.awayPitcher || 'TBD'}</div>
                                </div>
                              </div>
                             
                              {/* Home Team */}
-                             <div className="flex items-center gap-2 sm:gap-3">
-                               <img 
-                                 src={getTeamLogo(pick.homeTeam)} 
-                                 alt={`${pick.homeTeam} logo`}
-                                 className="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
-                                 onError={(e) => {
-                                   e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
-                                 }}
-                               />
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <div className="font-semibold text-sm sm:text-base truncate">{pick.homeTeam}</div>
-                                    {pick.result && (
-                                      <span className="text-lg font-bold">{pick.result.homeScore}</span>
-                                    )}
-                                     {pick.recommendedBet === 'home_runline' && (
-                                        <div className={`${getCircleColor(pick.confidence)} rounded-full p-1 flex items-center justify-center flex-shrink-0`}>
-                                          <Check className={`w-3 h-3 ${getCheckmarkColor(pick.confidence)}`} />
-                                        </div>
+                              <div className="flex items-center gap-3 lg:gap-4">
+                                <img 
+                                  src={getTeamLogo(pick.homeTeam)} 
+                                  alt={`${pick.homeTeam} logo`}
+                                  className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover flex-shrink-0"
+                                  onError={(e) => {
+                                    e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
+                                  }}
+                                />
+                                 <div className="flex-1 min-w-0">
+                                   <div className="flex items-center gap-2 lg:gap-3">
+                                     <div className="font-semibold text-base lg:text-lg truncate">{pick.homeTeam}</div>
+                                     {pick.result && (
+                                       <span className="text-xl lg:text-2xl font-bold">{pick.result.homeScore}</span>
                                      )}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground truncate">{pick.homePitcher || 'TBD'}</div>
+                                      {pick.recommendedBet === 'home_runline' && (
+                                         <div className={`${getCircleColor(pick.confidence)} rounded-full p-1.5 lg:p-2 flex items-center justify-center flex-shrink-0`}>
+                                           <Check className={`w-3 h-3 lg:w-4 lg:h-4 ${getCheckmarkColor(pick.confidence)}`} />
+                                         </div>
+                                      )}
+                                   </div>
+                                   <div className="text-sm lg:text-base text-muted-foreground truncate">{pick.homePitcher || 'TBD'}</div>
+                                 </div>
+                              </div>
+                            </div>
+                            
+                            <div className="lg:text-right space-y-3 lg:space-y-2 lg:ml-6 mt-4 lg:mt-0 flex flex-col lg:block">
+                              <div className="flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-2">
+                                <Badge className={`${getConfidenceColor(pick.confidence)} px-3 py-2 lg:px-2 lg:py-1`}>
+                                  <span className="text-lg lg:text-base font-bold">{Math.round(pick.confidence)}%</span>
+                                </Badge>
+                                <div className="text-base lg:text-sm font-medium text-muted-foreground">
+                                  +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
                                 </div>
-                             </div>
-                           </div>
-                           
-                           <div className="text-right space-y-2 ml-4">
-                             <Badge className={getConfidenceColor(pick.confidence)}>
-                               <span className="text-base font-bold">{Math.round(pick.confidence)}%</span>
-                             </Badge>
-                             <div className="text-sm font-normal text-muted-foreground">
-                               +1.5 {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam}
-                             </div>
-                             <Badge variant="outline" className="text-muted-foreground font-normal">
-                               {pick.odds > 0 ? '+' : ''}{pick.odds}
-                             </Badge>
-                             {pick.status !== 'pending' && (
-                               <Badge className={getStatusColor(pick.status)}>
-                                 {pick.status.toUpperCase()}
-                               </Badge>
-                             )}
-                           </div>
-                         </div>
+                              </div>
+                              <div className="flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-2">
+                                <Badge variant="outline" className="text-muted-foreground font-medium px-3 py-1.5 lg:px-2 lg:py-1">
+                                  {pick.odds > 0 ? '+' : ''}{pick.odds}
+                                </Badge>
+                                {pick.status !== 'pending' && (
+                                  <Badge className={`${getStatusColor(pick.status)} px-3 py-1.5 lg:px-2 lg:py-1`}>
+                                    {pick.status.toUpperCase()}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                          
                           <div className="border-t border-border/30 pt-3 space-y-3">
                             <div className="flex items-center gap-3">
