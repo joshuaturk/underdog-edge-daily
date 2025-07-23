@@ -424,16 +424,23 @@ export const BettingDashboard = () => {
       
       console.log('Demo picks created:', demoPicks.length);
       setDailyPicks(demoPicks);
+      // Don't overwrite allPicks - just add today's picks if they don't exist
       setAllPicks(prev => {
-        const combined = [...prev, ...demoPicks];
-        // Remove duplicates based on homeTeam, awayTeam, and date
-        return combined.filter((pick, index) => 
-          index === combined.findIndex(p => 
-            p.homeTeam === pick.homeTeam && 
-            p.awayTeam === pick.awayTeam && 
-            p.date === pick.date
-          )
-        );
+        const today = new Date().toISOString().split('T')[0];
+        const existingTodayPicks = prev.filter(p => p.date === today);
+        
+        if (existingTodayPicks.length === 0) {
+          // Only add if no today picks exist
+          const combined = [...prev, ...demoPicks];
+          return combined.filter((pick, index) => 
+            index === combined.findIndex(p => 
+              p.homeTeam === pick.homeTeam && 
+              p.awayTeam === pick.awayTeam && 
+              p.date === pick.date
+            )
+          );
+        }
+        return prev; // Keep existing picks if today's picks already exist
       });
       
       toast({
@@ -757,13 +764,17 @@ export const BettingDashboard = () => {
           <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-6">
             <CardContent className="p-3 sm:p-6">
               <TabsContent value="today" className="mt-0">
-                {dailyPicks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {dailyPicks.map((pick) => (
+                {(() => {
+                  const today = new Date().toISOString().split('T')[0];
+                  const todayPicks = allPicks.filter(pick => pick.date === today);
+                  
+                  return todayPicks.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {todayPicks.map((pick) => (
                       <div 
                         key={pick.id}
                         className="border border-border/50 rounded-lg p-3 sm:p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
@@ -875,9 +886,10 @@ export const BettingDashboard = () => {
                            </div>
                          )}
                        </div>
-                     ))}
-                   </div>
-                )}
+                      ))}
+                    </div>
+                  );
+                })()}
               </TabsContent>
 
               <TabsContent value="tomorrow" className="mt-0">
