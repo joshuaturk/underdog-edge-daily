@@ -166,7 +166,7 @@ export const GolfDashboard = () => {
               <img 
                 src="/lovable-uploads/749fb266-2b69-40f1-8720-c5af0940190d.png" 
                 alt="Top 10 Tee-Box"
-                className="w-[300px] h-[300px] object-contain"
+                className="w-64 h-64 object-contain"
               />
               <div className="flex items-center justify-center gap-2 px-2">
                 <p className="text-muted-foreground text-center text-xs sm:text-sm lg:text-base leading-relaxed">

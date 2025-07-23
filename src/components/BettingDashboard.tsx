@@ -729,7 +729,7 @@ export const BettingDashboard = () => {
               <img 
                 src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
                 alt="Underdog Runline Logo"
-                className="object-contain w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64"
+                className="w-64 h-64 object-contain"
               />
               <div className="flex items-center justify-center gap-2 px-2">
                 <p className="text-muted-foreground text-center text-xs sm:text-sm lg:text-base leading-relaxed">
