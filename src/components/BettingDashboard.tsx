@@ -16,6 +16,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { determineUnderdog } from '@/utils/oddsUtils';
 import { getTeamLogo } from '@/utils/teamLogos';
+import { BuddyInsights } from '@/components/BuddyInsights';
 
 // Import custom sports icons
 import baseballIcon from '@/assets/baseball-icon.png';
@@ -36,58 +37,7 @@ const sportsMenu = [
   { name: 'Tennis', symbol: '🎾', path: '#' }
 ];
 
-// Generate buddy-style analysis for picks with real stats
-const getBuddyAnalysis = (pick: BettingPick) => {
-  const teamName = pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam;
-  
-  // Real MLB team statistics and insights (based on typical team performance patterns)
-  const teamStats = {
-    'Cincinnati Reds': { record: '47-53', runlineRecord: '52-48', bullpenERA: '4.12', recentForm: '6-4 L10' },
-    'Washington Nationals': { record: '40-60', runlineRecord: '48-52', bullpenERA: '5.25', recentForm: '4-6 L10' },
-    'New York Yankees': { record: '68-32', runlineRecord: '55-45', bullpenERA: '3.45', recentForm: '7-3 L10' },
-    'Los Angeles Dodgers': { record: '65-35', runlineRecord: '58-42', bullpenERA: '3.21', recentForm: '8-2 L10' },
-    'Atlanta Braves': { record: '58-42', runlineRecord: '54-46', bullpenERA: '3.78', recentForm: '6-4 L10' },
-    'Philadelphia Phillies': { record: '62-38', runlineRecord: '56-44', bullpenERA: '3.55', recentForm: '7-3 L10' },
-    'San Diego Padres': { record: '55-45', runlineRecord: '52-48', bullpenERA: '3.89', recentForm: '5-5 L10' },
-    'Milwaukee Brewers': { record: '56-44', runlineRecord: '53-47', bullpenERA: '3.67', recentForm: '6-4 L10' },
-    'Minnesota Twins': { record: '52-48', runlineRecord: '51-49', bullpenERA: '4.01', recentForm: '5-5 L10' },
-    'Houston Astros': { record: '54-46', runlineRecord: '50-50', bullpenERA: '3.95', recentForm: '7-3 L10' },
-    'Seattle Mariners': { record: '51-49', runlineRecord: '49-51', bullpenERA: '4.15', recentForm: '4-6 L10' },
-    'Boston Red Sox': { record: '49-51', runlineRecord: '48-52', bullpenERA: '4.28', recentForm: '5-5 L10' },
-    'Baltimore Orioles': { record: '60-40', runlineRecord: '54-46', bullpenERA: '3.72', recentForm: '6-4 L10' },
-    'Tampa Bay Rays': { record: '45-55', runlineRecord: '47-53', bullpenERA: '4.33', recentForm: '4-6 L10' },
-    'Toronto Blue Jays': { record: '44-56', runlineRecord: '46-54', bullpenERA: '4.45', recentForm: '3-7 L10' },
-    'Detroit Tigers': { record: '48-52', runlineRecord: '49-51', bullpenERA: '4.18', recentForm: '6-4 L10' },
-    'Cleveland Guardians': { record: '57-43', runlineRecord: '53-47', bullpenERA: '3.84', recentForm: '7-3 L10' },
-    'Kansas City Royals': { record: '53-47', runlineRecord: '51-49', bullpenERA: '3.97', recentForm: '6-4 L10' },
-    'Chicago White Sox': { record: '27-73', runlineRecord: '42-58', bullpenERA: '5.12', recentForm: '2-8 L10' },
-    'Texas Rangers': { record: '46-54', runlineRecord: '47-53', bullpenERA: '4.25', recentForm: '4-6 L10' },
-    'Los Angeles Angels': { record: '41-59', runlineRecord: '44-56', bullpenERA: '4.67', recentForm: '3-7 L10' },
-    'Oakland Athletics': { record: '39-61', runlineRecord: '43-57', bullpenERA: '4.89', recentForm: '4-6 L10' }
-  };
-
-  const stats = teamStats[teamName] || { record: '50-50', runlineRecord: '50-50', bullpenERA: '4.00', recentForm: '5-5 L10' };
-  
-  const analyses = [
-    `Listen, I've been tracking ${teamName} all season and their runline record is actually ${stats.runlineRecord} - that's solid coverage. They're ${stats.recentForm} in their last 10, which shows they're competitive every night. Their bullpen ERA of ${stats.bullpenERA} means they can hold leads or keep games close when trailing. The +1.5 gives us that nice cushion, and honestly, this line feels like easy money.`,
-    
-    `Dude, ${teamName} is flying under the radar but check this out - they're ${stats.runlineRecord} on the runline this year, which is way better than their actual record of ${stats.record}. They've been ${stats.recentForm} lately, showing they know how to stay competitive. Plus their bullpen has been solid with a ${stats.bullpenERA} ERA. Sometimes the best value is hiding in plain sight, and this +1.5 line is one of those spots.`,
-    
-    `Okay, so here's the deal with ${teamName} - their ${stats.record} record doesn't tell the whole story. They're actually ${stats.runlineRecord} against the runline, which means they cover way more than they win outright. They're ${stats.recentForm} in recent games, grinding out competitive contests. With a bullpen ERA of ${stats.bullpenERA}, they keep games close even when trailing. This +1.5 is basically insurance money.`,
-    
-    `I'm backing ${teamName} here because the numbers don't lie - ${stats.runlineRecord} on the runline speaks volumes. They're ${stats.recentForm} recently, showing they compete every single game. Their ${stats.bullpenERA} bullpen ERA means they don't blow games late, which is crucial for runline bets. The public sees their ${stats.record} record and fades them, but smart money knows they cover consistently.`,
-    
-    `Look, ${teamName} might be ${stats.record} overall, but they're ${stats.runlineRecord} against the spread - that's the stat that matters for us. Going ${stats.recentForm} in their last 10 shows they're playing competitive baseball. With their bullpen posting a ${stats.bullpenERA} ERA, they keep games within reach. This runline bet is all about getting paid when they lose by one or win outright, and both scenarios are very much in play here.`
-  ];
-  
-  // Use a simple hash of the team names to consistently pick the same analysis for the same game
-  const hash = (pick.homeTeam + pick.awayTeam).split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-  
-  return analyses[Math.abs(hash) % analyses.length];
-};
+// Sports navigation data with consistent Unicode symbols as backup
 
 export const BettingDashboard = () => {
   // Simple state - one source of truth
@@ -1111,28 +1061,11 @@ export const BettingDashboard = () => {
                             </div>
                           </div>
                          
-                          <div className="border-t border-border/30 pt-3 space-y-3">
-                            <div className="flex items-center gap-3">
-                              <span className="font-medium text-sm text-muted-foreground">
-                                {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog - {pick.confidence.toFixed(1)}% runline cover rate
-                              </span>
-                              <ChevronDown 
-                                className={`w-4 h-4 cursor-pointer text-muted-foreground hover:text-foreground transition-transform duration-200 ${
-                                  showBuddyAnalysis[pick.id] ? 'rotate-180' : ''
-                                }`}
-                                onClick={() => toggleBuddyAnalysis(pick.id)}
-                              />
-                            </div>
-                            
-                            {/* Buddy Analysis - Only show when toggled */}
-                            {showBuddyAnalysis[pick.id] && (
-                              <div className="bg-accent/5 rounded-lg p-3 border-l-4 border-primary/30">
-                                <p className="text-sm text-foreground/90 leading-relaxed">
-                                  {getBuddyAnalysis(pick)}
-                                </p>
-                              </div>
-                            )}
-                          </div>
+                          <BuddyInsights 
+                            pick={pick} 
+                            showAnalysis={showBuddyAnalysis[pick.id]}
+                            onToggle={() => toggleBuddyAnalysis(pick.id)}
+                          />
                          
                          {pick.result && (
                            <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
@@ -1282,8 +1215,14 @@ export const BettingDashboard = () => {
                                      {pick.profit >= 0 ? `$${(10 + pick.profit).toFixed(2)}` : `-$10.00`}
                                    </div>
                                  )}
-                               </div>
-                             </div>
+                                </div>
+                              </div>
+                              
+                              <BuddyInsights 
+                                pick={pick} 
+                                showAnalysis={showBuddyAnalysis[pick.id]}
+                                onToggle={() => toggleBuddyAnalysis(pick.id)}
+                              />
                            </div>
                          ))}
                         
