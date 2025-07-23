@@ -1110,12 +1110,12 @@ export const BettingDashboard = () => {
                                             <Check className="w-3 h-3 text-white" />
                                           </div>
                                         ) : (
-                                          <div className="bg-loss rounded-full p-1">
-                                            <span className="w-3 h-3 text-white text-xs">✗</span>
+                                          <div className="bg-loss rounded-full w-5 h-5 flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold">✗</span>
                                           </div>
                                         );
                                       })()}
-                                      <span className="text-xs text-accent font-medium">
+                                      <span className="text-[10px] text-accent font-medium">
                                         {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
                                       </span>
                                     </div>
