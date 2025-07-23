@@ -707,15 +707,22 @@ export const BettingDashboard = () => {
 
                 <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium">Last Update</CardTitle>
-                    <RefreshCw className="h-3 w-3 text-accent" />
+                    <CardTitle className="text-xs font-medium">ROI</CardTitle>
+                    <TrendingUp className="h-3 w-3 text-profit" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-lg font-bold text-accent">
-                      {getETTime()}
+                    <div className="text-lg font-bold text-profit">
+                      {(() => {
+                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
+                        const totalWagered = 40; // $10 per pick × 4 picks
+                        const totalProfit = completedPicks.reduce((sum, pick) => sum + (pick.profit || 0), 0);
+                        const netProfit = totalProfit - totalWagered;
+                        const roi = totalWagered > 0 ? (netProfit / totalWagered) * 100 : 0;
+                        return `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
+                      })()}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Eastern Time
+                      Return on Investment
                     </p>
                   </CardContent>
                 </Card>
