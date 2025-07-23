@@ -14,6 +14,7 @@ import { ProductionDataService } from '@/services/ProductionDataService';
 import { SportsAPIService, MLBGame } from '@/services/SportsAPIService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
+import { MLBStatsService, TeamStatistics } from '@/services/MLBStatsService';
 import { determineUnderdog } from '@/utils/oddsUtils';
 import { getTeamLogo } from '@/utils/teamLogos';
 
@@ -36,57 +37,64 @@ const sportsMenu = [
   { name: 'Tennis', symbol: '🎾', path: '#' }
 ];
 
-// Generate buddy-style analysis for picks with real stats
-const getBuddyAnalysis = (pick: BettingPick) => {
-  const teamName = pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam;
-  
-  // Real MLB team statistics and insights (based on typical team performance patterns)
-  const teamStats = {
-    'Cincinnati Reds': { record: '47-53', runlineRecord: '52-48', bullpenERA: '4.12', recentForm: '6-4 L10' },
-    'Washington Nationals': { record: '40-60', runlineRecord: '48-52', bullpenERA: '5.25', recentForm: '4-6 L10' },
-    'New York Yankees': { record: '68-32', runlineRecord: '55-45', bullpenERA: '3.45', recentForm: '7-3 L10' },
-    'Los Angeles Dodgers': { record: '65-35', runlineRecord: '58-42', bullpenERA: '3.21', recentForm: '8-2 L10' },
-    'Atlanta Braves': { record: '58-42', runlineRecord: '54-46', bullpenERA: '3.78', recentForm: '6-4 L10' },
-    'Philadelphia Phillies': { record: '62-38', runlineRecord: '56-44', bullpenERA: '3.55', recentForm: '7-3 L10' },
-    'San Diego Padres': { record: '55-45', runlineRecord: '52-48', bullpenERA: '3.89', recentForm: '5-5 L10' },
-    'Milwaukee Brewers': { record: '56-44', runlineRecord: '53-47', bullpenERA: '3.67', recentForm: '6-4 L10' },
-    'Minnesota Twins': { record: '52-48', runlineRecord: '51-49', bullpenERA: '4.01', recentForm: '5-5 L10' },
-    'Houston Astros': { record: '54-46', runlineRecord: '50-50', bullpenERA: '3.95', recentForm: '7-3 L10' },
-    'Seattle Mariners': { record: '51-49', runlineRecord: '49-51', bullpenERA: '4.15', recentForm: '4-6 L10' },
-    'Boston Red Sox': { record: '49-51', runlineRecord: '48-52', bullpenERA: '4.28', recentForm: '5-5 L10' },
-    'Baltimore Orioles': { record: '60-40', runlineRecord: '54-46', bullpenERA: '3.72', recentForm: '6-4 L10' },
-    'Tampa Bay Rays': { record: '45-55', runlineRecord: '47-53', bullpenERA: '4.33', recentForm: '4-6 L10' },
-    'Toronto Blue Jays': { record: '44-56', runlineRecord: '46-54', bullpenERA: '4.45', recentForm: '3-7 L10' },
-    'Detroit Tigers': { record: '48-52', runlineRecord: '49-51', bullpenERA: '4.18', recentForm: '6-4 L10' },
-    'Cleveland Guardians': { record: '57-43', runlineRecord: '53-47', bullpenERA: '3.84', recentForm: '7-3 L10' },
-    'Kansas City Royals': { record: '53-47', runlineRecord: '51-49', bullpenERA: '3.97', recentForm: '6-4 L10' },
-    'Chicago White Sox': { record: '27-73', runlineRecord: '42-58', bullpenERA: '5.12', recentForm: '2-8 L10' },
-    'Texas Rangers': { record: '46-54', runlineRecord: '47-53', bullpenERA: '4.25', recentForm: '4-6 L10' },
-    'Los Angeles Angels': { record: '41-59', runlineRecord: '44-56', bullpenERA: '4.67', recentForm: '3-7 L10' },
-    'Oakland Athletics': { record: '39-61', runlineRecord: '43-57', bullpenERA: '4.89', recentForm: '4-6 L10' }
-  };
+// Cache for real analysis to avoid repeated API calls
+const analysisCache = new Map<string, string>();
 
-  const stats = teamStats[teamName] || { record: '50-50', runlineRecord: '50-50', bullpenERA: '4.00', recentForm: '5-5 L10' };
+// Generate buddy-style analysis for picks with REAL MLB stats
+const generateRealAnalysis = async (pick: BettingPick): Promise<string> => {
+  const teamName = pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam;
+  const opponentName = pick.recommendedBet === 'home_runline' ? pick.awayTeam : pick.homeTeam;
+  const isHome = pick.recommendedBet === 'home_runline';
+  const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
   
-  const analyses = [
-    `Listen, I've been tracking ${teamName} all season and their runline record is actually ${stats.runlineRecord} - that's solid coverage. They're ${stats.recentForm} in their last 10, which shows they're competitive every night. Their bullpen ERA of ${stats.bullpenERA} means they can hold leads or keep games close when trailing. The +1.5 gives us that nice cushion, and honestly, this line feels like easy money.`,
-    
-    `Dude, ${teamName} is flying under the radar but check this out - they're ${stats.runlineRecord} on the runline this year, which is way better than their actual record of ${stats.record}. They've been ${stats.recentForm} lately, showing they know how to stay competitive. Plus their bullpen has been solid with a ${stats.bullpenERA} ERA. Sometimes the best value is hiding in plain sight, and this +1.5 line is one of those spots.`,
-    
-    `Okay, so here's the deal with ${teamName} - their ${stats.record} record doesn't tell the whole story. They're actually ${stats.runlineRecord} against the runline, which means they cover way more than they win outright. They're ${stats.recentForm} in recent games, grinding out competitive contests. With a bullpen ERA of ${stats.bullpenERA}, they keep games close even when trailing. This +1.5 is basically insurance money.`,
-    
-    `I'm backing ${teamName} here because the numbers don't lie - ${stats.runlineRecord} on the runline speaks volumes. They're ${stats.recentForm} recently, showing they compete every single game. Their ${stats.bullpenERA} bullpen ERA means they don't blow games late, which is crucial for runline bets. The public sees their ${stats.record} record and fades them, but smart money knows they cover consistently.`,
-    
-    `Look, ${teamName} might be ${stats.record} overall, but they're ${stats.runlineRecord} against the spread - that's the stat that matters for us. Going ${stats.recentForm} in their last 10 shows they're playing competitive baseball. With their bullpen posting a ${stats.bullpenERA} ERA, they keep games within reach. This runline bet is all about getting paid when they lose by one or win outright, and both scenarios are very much in play here.`
-  ];
+  // Check cache first
+  if (analysisCache.has(cacheKey)) {
+    return analysisCache.get(cacheKey)!;
+  }
   
-  // Use a simple hash of the team names to consistently pick the same analysis for the same game
-  const hash = (pick.homeTeam + pick.awayTeam).split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
-    return a & a;
-  }, 0);
+  try {
+    // Fetch real stats for both teams
+    const [teamStats, opponentStats] = await Promise.all([
+      MLBStatsService.getTeamStats(teamName),
+      MLBStatsService.getTeamStats(opponentName)
+    ]);
+
+    if (teamStats) {
+      // Generate analysis with real stats
+      const baseAnalysis = MLBStatsService.generateAdvancedAnalysis(teamStats, opponentStats, isHome);
+      
+      // Add buddy-style flavor to the real analysis
+      const buddyIntros = [
+        "Listen up, buddy - here's the real deal:",
+        "Alright, I've done my homework on this one:",
+        "Check this out - the numbers don't lie:",
+        "Here's why this pick is solid gold:",
+        "Trust me on this one - I've analyzed the data:"
+      ];
+      
+      const introIndex = Math.abs((pick.homeTeam + pick.awayTeam).split('').reduce((a, b) => {
+        a = ((a << 5) - a) + b.charCodeAt(0);
+        return a & a;
+      }, 0)) % buddyIntros.length;
+      
+      const fullAnalysis = `${buddyIntros[introIndex]} ${baseAnalysis}`;
+      analysisCache.set(cacheKey, fullAnalysis);
+      return fullAnalysis;
+    }
+  } catch (error) {
+    console.error('Error fetching real stats:', error);
+  }
   
-  return analyses[Math.abs(hash) % analyses.length];
+  // Fallback to basic analysis if API fails
+  const fallback = `${teamName} has been competitive all season and the +1.5 runline gives us excellent insurance. They've shown they can keep games close even against tough opponents, making this a solid value play.`;
+  analysisCache.set(cacheKey, fallback);
+  return fallback;
+};
+
+// Sync function to get analysis (will be "Loading..." initially, then update)
+const getBuddyAnalysis = (pick: BettingPick): string => {
+  const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
+  return analysisCache.get(cacheKey) || "Loading real-time analysis...";
 };
 
 export const BettingDashboard = () => {
@@ -95,6 +103,7 @@ export const BettingDashboard = () => {
   const [results, setResults] = useState<BettingResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [realAnalysisLoaded, setRealAnalysisLoaded] = useState<Set<string>>(new Set());
   
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
   const [resultsDisplayCount, setResultsDisplayCount] = useState(10); // For pagination
@@ -325,6 +334,45 @@ export const BettingDashboard = () => {
       return () => clearInterval(interval);
     }
   }, [allPicks]);
+
+  // Preload real analysis for all picks
+  useEffect(() => {
+    const loadRealAnalysis = async () => {
+      const allPicksToAnalyze = allPicks.filter(pick => {
+        const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
+        return !realAnalysisLoaded.has(cacheKey);
+      });
+
+      if (allPicksToAnalyze.length > 0) {
+        console.log('Loading real analysis for', allPicksToAnalyze.length, 'picks');
+        
+        // Load analysis for all picks in parallel
+        const analysisPromises = allPicksToAnalyze.map(async (pick) => {
+          const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
+          try {
+            await generateRealAnalysis(pick);
+            return cacheKey;
+          } catch (error) {
+            console.error('Error loading analysis for pick:', pick, error);
+            return null;
+          }
+        });
+
+        const loadedKeys = await Promise.all(analysisPromises);
+        const validKeys = loadedKeys.filter(Boolean) as string[];
+        
+        if (validKeys.length > 0) {
+          setRealAnalysisLoaded(prev => new Set([...prev, ...validKeys]));
+          // Force re-render to show updated analysis
+          setLastUpdate(new Date());
+        }
+      }
+    };
+
+    if (allPicks.length > 0) {
+      loadRealAnalysis();
+    }
+  }, [allPicks.length]); // Only run when pick count changes
 
   useEffect(() => {
     console.log('allPicks changed, length:', allPicks.length);
