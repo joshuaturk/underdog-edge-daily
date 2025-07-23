@@ -121,18 +121,20 @@ export class GolfAnalysisService {
   }
 
   private static getMockGolfOdds(): Array<{ playerName: string; odds: string; bookmaker: string; market: string }> {
-    // Mock Top 10 finish odds from major sportsbooks (typically shorter odds than outright winner)
+    // Mock Top 10 finish odds from major sportsbooks for actual 3M Open 2025 field
     return [
-      { playerName: "Sam Burns", odds: "+280", bookmaker: "DraftKings", market: "top_10" },
-      { playerName: "Tony Finau", odds: "+320", bookmaker: "FanDuel", market: "top_10" },
-      { playerName: "Max Homa", odds: "+450", bookmaker: "Bet365", market: "top_10" },
-      { playerName: "Chris Gotterup", odds: "+220", bookmaker: "DraftKings", market: "top_10" },
-      { playerName: "Wyndham Clark", odds: "+200", bookmaker: "FanDuel", market: "top_10" },
-      { playerName: "Maverick McNealy", odds: "+550", bookmaker: "Bet365", market: "top_10" },
-      { playerName: "Joel Dahmen", odds: "+650", bookmaker: "DraftKings", market: "top_10" },
-      { playerName: "Adam Hadwin", odds: "+750", bookmaker: "FanDuel", market: "top_10" },
-      { playerName: "Denny McCarthy", odds: "+600", bookmaker: "Bet365", market: "top_10" },
-      { playerName: "Matt Kuchar", odds: "+850", bookmaker: "DraftKings", market: "top_10" }
+      { playerName: "Chris Gotterup", odds: "+140", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Maverick McNealy", odds: "+180", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Sam Burns", odds: "+220", bookmaker: "Bet365", market: "top_10" },
+      { playerName: "Harris English", odds: "+200", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Tony Finau", odds: "+260", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Max Homa", odds: "+350", bookmaker: "Bet365", market: "top_10" },
+      { playerName: "Jhonattan Vegas", odds: "+320", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Wyndham Clark", odds: "+380", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Keegan Bradley", odds: "+450", bookmaker: "Bet365", market: "top_10" },
+      { playerName: "Taylor Pendrith", odds: "+400", bookmaker: "DraftKings", market: "top_10" },
+      { playerName: "Akshay Bhatia", odds: "+420", bookmaker: "FanDuel", market: "top_10" },
+      { playerName: "Rickie Fowler", odds: "+480", bookmaker: "Bet365", market: "top_10" }
     ];
   }
 
@@ -168,171 +170,51 @@ export class GolfAnalysisService {
     };
   }
 
-  // Mock player data with realistic stats for 3M Open
+  // Mock player data with realistic stats for actual 3M Open 2025 field participants
   static getMockPlayers(): GolfPlayer[] {
     return [
       {
         id: "1",
-        name: "Sam Burns",
-        owgr: 22,
-        fedexCupRank: 22,
-        recentForm: {
-          top10sLast4Starts: 3,
-          sgTotalLast3: 1.9,
-          sgApproachLast3: 1.3,
-          sgAroundGreenLast3: 0.5,
-          sgPuttingLast3: 0.1,
-          sgOffTeeLastMonth: 1.0,
-          lastStartResult: "T12"
-        },
-        courseHistory: {
-          pastTop10s: 1,
-          bestFinish: "T8",
-          timesPlayed: 3
-        },
-        seasonStats: {
-          drivingDistance: 305,
-          drivingAccuracy: 61.2,
-          sgApproach: 1.2,
-          sgAroundGreen: 0.4,
-          sgPutting: 0.2,
-          sgOffTee: 0.8,
-          sgTotal: 2.6
-        },
-        specialties: ["long iron specialist", "wind player"]
-      },
-      {
-        id: "2", 
-        name: "Tony Finau",
-        owgr: 28,
-        fedexCupRank: 31,
-        recentForm: {
-          top10sLast4Starts: 2,
-          sgTotalLast3: 1.4,
-          sgApproachLast3: 0.8,
-          sgAroundGreenLast3: 0.6,
-          sgPuttingLast3: 0.2,
-          sgOffTeeLastMonth: 1.2,
-          lastStartResult: "T15"
-        },
-        courseHistory: {
-          pastTop10s: 4,
-          bestFinish: "1st",
-          timesPlayed: 6
-        },
-        seasonStats: {
-          drivingDistance: 315,
-          drivingAccuracy: 59.1,
-          sgApproach: 0.9,
-          sgAroundGreen: 0.5,
-          sgPutting: 0.1,
-          sgOffTee: 1.1,
-          sgTotal: 2.6
-        },
-        specialties: ["power player", "TPC Twin Cities expert"]
-      },
-      {
-        id: "3",
-        name: "Max Homa", 
-        owgr: 18,
-        fedexCupRank: 26,
-        recentForm: {
-          top10sLast4Starts: 2,
-          sgTotalLast3: 1.6,
-          sgApproachLast3: 1.1,
-          sgAroundGreenLast3: 0.3,
-          sgPuttingLast3: 0.4,
-          sgOffTeeLastMonth: 0.8,
-          lastStartResult: "T7"
-        },
-        courseHistory: {
-          pastTop10s: 2,
-          bestFinish: "T3",
-          timesPlayed: 4
-        },
-        seasonStats: {
-          drivingDistance: 292,
-          drivingAccuracy: 65.8,
-          sgApproach: 1.0,
-          sgAroundGreen: 0.3,
-          sgPutting: 0.3,
-          sgOffTee: 0.5,
-          sgTotal: 2.1
-        },
-        specialties: ["iron play specialist", "course management"]
-      },
-      {
-        id: "4",
         name: "Chris Gotterup",
-        owgr: 35,
+        owgr: 25,
         fedexCupRank: 18,
         recentForm: {
           top10sLast4Starts: 3,
-          sgTotalLast3: 2.2,
-          sgApproachLast3: 1.4,
+          sgTotalLast3: 2.4,
+          sgApproachLast3: 1.6,
           sgAroundGreenLast3: 0.4,
           sgPuttingLast3: 0.6,
-          sgOffTeeLastMonth: 0.9,
+          sgOffTeeLastMonth: 1.1,
           lastStartResult: "T3"
         },
         courseHistory: {
           pastTop10s: 0,
-          bestFinish: "T18",
-          timesPlayed: 2
+          bestFinish: "T35",
+          timesPlayed: 1
         },
         seasonStats: {
-          drivingDistance: 308,
-          drivingAccuracy: 62.4,
-          sgApproach: 1.3,
+          drivingDistance: 312,
+          drivingAccuracy: 63.2,
+          sgApproach: 1.4,
           sgAroundGreen: 0.3,
-          sgPutting: 0.4,
-          sgOffTee: 0.7,
-          sgTotal: 2.7
+          sgPutting: 0.5,
+          sgOffTee: 0.8,
+          sgTotal: 3.0
         },
-        specialties: ["rising star", "momentum player"]
+        specialties: ["rising star", "momentum player", "scottish open winner"]
       },
       {
-        id: "5",
-        name: "Wyndham Clark",
-        owgr: 12,
-        fedexCupRank: 15,
-        recentForm: {
-          top10sLast4Starts: 2,
-          sgTotalLast3: 1.8,
-          sgApproachLast3: 1.0,
-          sgAroundGreenLast3: 0.3,
-          sgPuttingLast3: 0.3,
-          sgOffTeeLastMonth: 1.1,
-          lastStartResult: "T9"
-        },
-        courseHistory: {
-          pastTop10s: 1,
-          bestFinish: "T6",
-          timesPlayed: 3
-        },
-        seasonStats: {
-          drivingDistance: 318,
-          drivingAccuracy: 58.7,
-          sgApproach: 1.1,
-          sgAroundGreen: 0.2,
-          sgPutting: 0.2,
-          sgOffTee: 1.0,
-          sgTotal: 2.5
-        },
-        specialties: ["power player", "major winner"]
-      },
-      {
-        id: "6",
+        id: "2",
         name: "Maverick McNealy",
-        owgr: 45,
+        owgr: 17,
         fedexCupRank: 28,
         recentForm: {
           top10sLast4Starts: 2,
-          sgTotalLast3: 1.3,
-          sgApproachLast3: 0.9,
-          sgAroundGreenLast3: 0.5,
-          sgPuttingLast3: 0.1,
-          sgOffTeeLastMonth: 0.6,
+          sgTotalLast3: 1.8,
+          sgApproachLast3: 1.2,
+          sgAroundGreenLast3: 0.4,
+          sgPuttingLast3: 0.3,
+          sgOffTeeLastMonth: 0.7,
           lastStartResult: "T11"
         },
         courseHistory: {
@@ -341,89 +223,119 @@ export class GolfAnalysisService {
           timesPlayed: 3
         },
         seasonStats: {
-          drivingDistance: 295,
-          drivingAccuracy: 68.3,
-          sgApproach: 0.8,
+          drivingDistance: 297,
+          drivingAccuracy: 68.1,
+          sgApproach: 1.1,
           sgAroundGreen: 0.4,
-          sgPutting: 0.0,
-          sgOffTee: 0.3,
-          sgTotal: 1.5
+          sgPutting: 0.2,
+          sgOffTee: 0.4,
+          sgTotal: 2.1
         },
-        specialties: ["accuracy specialist", "consistent player"]
+        specialties: ["accuracy specialist", "consistent player", "course veteran"]
       },
       {
-        id: "7",
-        name: "Joel Dahmen",
-        owgr: 52,
-        fedexCupRank: 45,
+        id: "3",
+        name: "Sam Burns",
+        owgr: 22,
+        fedexCupRank: 24,
         recentForm: {
-          top10sLast4Starts: 1,
-          sgTotalLast3: 1.1,
-          sgApproachLast3: 0.7,
-          sgAroundGreenLast3: 0.2,
-          sgPuttingLast3: 0.3,
-          sgOffTeeLastMonth: 0.5,
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.6,
+          sgApproachLast3: 1.1,
+          sgAroundGreenLast3: 0.3,
+          sgPuttingLast3: 0.2,
+          sgOffTeeLastMonth: 0.9,
           lastStartResult: "T18"
         },
         courseHistory: {
-          pastTop10s: 2,
-          bestFinish: "T4",
-          timesPlayed: 5
+          pastTop10s: 1,
+          bestFinish: "T8",
+          timesPlayed: 3
         },
         seasonStats: {
-          drivingDistance: 298,
-          drivingAccuracy: 63.2,
-          sgApproach: 0.6,
-          sgAroundGreen: 0.2,
+          drivingDistance: 305,
+          drivingAccuracy: 61.8,
+          sgApproach: 1.0,
+          sgAroundGreen: 0.3,
           sgPutting: 0.1,
-          sgOffTee: 0.4,
-          sgTotal: 1.3
+          sgOffTee: 0.7,
+          sgTotal: 2.1
         },
-        specialties: ["course veteran", "clutch performer"]
+        specialties: ["long iron specialist", "wind player"]
       },
       {
-        id: "8",
-        name: "Adam Hadwin",
-        owgr: 48,
-        fedexCupRank: 52,
+        id: "4", 
+        name: "Tony Finau",
+        owgr: 28,
+        fedexCupRank: 31,
         recentForm: {
           top10sLast4Starts: 1,
-          sgTotalLast3: 0.9,
-          sgApproachLast3: 0.5,
-          sgAroundGreenLast3: 0.3,
-          sgPuttingLast3: 0.2,
-          sgOffTeeLastMonth: 0.4,
+          sgTotalLast3: 1.2,
+          sgApproachLast3: 0.7,
+          sgAroundGreenLast3: 0.4,
+          sgPuttingLast3: 0.1,
+          sgOffTeeLastMonth: 1.0,
           lastStartResult: "T25"
         },
         courseHistory: {
-          pastTop10s: 1,
-          bestFinish: "T7",
+          pastTop10s: 4,
+          bestFinish: "1st",
+          timesPlayed: 6
+        },
+        seasonStats: {
+          drivingDistance: 315,
+          drivingAccuracy: 59.4,
+          sgApproach: 0.8,
+          sgAroundGreen: 0.4,
+          sgPutting: 0.0,
+          sgOffTee: 1.0,
+          sgTotal: 2.2
+        },
+        specialties: ["power player", "TPC Twin Cities expert", "former winner"]
+      },
+      {
+        id: "5",
+        name: "Max Homa", 
+        owgr: 35,
+        fedexCupRank: 42,
+        recentForm: {
+          top10sLast4Starts: 1,
+          sgTotalLast3: 1.3,
+          sgApproachLast3: 0.9,
+          sgAroundGreenLast3: 0.2,
+          sgPuttingLast3: 0.3,
+          sgOffTeeLastMonth: 0.6,
+          lastStartResult: "T22"
+        },
+        courseHistory: {
+          pastTop10s: 2,
+          bestFinish: "T3",
           timesPlayed: 4
         },
         seasonStats: {
-          drivingDistance: 290,
-          drivingAccuracy: 66.1,
-          sgApproach: 0.5,
+          drivingDistance: 292,
+          drivingAccuracy: 65.2,
+          sgApproach: 0.8,
           sgAroundGreen: 0.2,
-          sgPutting: 0.1,
-          sgOffTee: 0.2,
-          sgTotal: 1.0
+          sgPutting: 0.2,
+          sgOffTee: 0.4,
+          sgTotal: 1.6
         },
-        specialties: ["steady performer", "accurate driver"]
+        specialties: ["iron play specialist", "course management", "social media presence"]
       },
       {
-        id: "9",
-        name: "Denny McCarthy",
-        owgr: 58,
-        fedexCupRank: 41,
+        id: "6",
+        name: "Wyndham Clark",
+        owgr: 31,
+        fedexCupRank: 35,
         recentForm: {
-          top10sLast4Starts: 2,
-          sgTotalLast3: 1.2,
+          top10sLast4Starts: 1,
+          sgTotalLast3: 1.1,
           sgApproachLast3: 0.6,
-          sgAroundGreenLast3: 0.1,
-          sgPuttingLast3: 0.7,
-          sgOffTeeLastMonth: 0.3,
-          lastStartResult: "T14"
+          sgAroundGreenLast3: 0.2,
+          sgPuttingLast3: 0.2,
+          sgOffTeeLastMonth: 0.8,
+          lastStartResult: "T28"
         },
         courseHistory: {
           pastTop10s: 1,
@@ -431,45 +343,195 @@ export class GolfAnalysisService {
           timesPlayed: 3
         },
         seasonStats: {
-          drivingDistance: 285,
-          drivingAccuracy: 69.4,
-          sgApproach: 0.4,
+          drivingDistance: 318,
+          drivingAccuracy: 58.9,
+          sgApproach: 0.7,
           sgAroundGreen: 0.1,
-          sgPutting: 0.6,
-          sgOffTee: 0.1,
-          sgTotal: 1.2
+          sgPutting: 0.1,
+          sgOffTee: 0.9,
+          sgTotal: 1.8
         },
-        specialties: ["putting specialist", "short game expert"]
+        specialties: ["power player", "major winner", "clutch performer"]
       },
       {
-        id: "10",
-        name: "Matt Kuchar",
-        owgr: 71,
-        fedexCupRank: 68,
+        id: "7",
+        name: "Jhonattan Vegas",
+        owgr: 48,
+        fedexCupRank: 38,
         recentForm: {
-          top10sLast4Starts: 1,
-          sgTotalLast3: 0.8,
-          sgApproachLast3: 0.4,
-          sgAroundGreenLast3: 0.2,
-          sgPuttingLast3: 0.3,
-          sgOffTeeLastMonth: 0.2,
-          lastStartResult: "T22"
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.5,
+          sgApproachLast3: 0.8,
+          sgAroundGreenLast3: 0.3,
+          sgPuttingLast3: 0.5,
+          sgOffTeeLastMonth: 0.6,
+          lastStartResult: "T14"
         },
         courseHistory: {
           pastTop10s: 3,
-          bestFinish: "T2",
-          timesPlayed: 8
+          bestFinish: "1st",
+          timesPlayed: 5
         },
         seasonStats: {
-          drivingDistance: 282,
-          drivingAccuracy: 71.8,
-          sgApproach: 0.3,
+          drivingDistance: 298,
+          drivingAccuracy: 64.7,
+          sgApproach: 0.7,
+          sgAroundGreen: 0.3,
+          sgPutting: 0.4,
+          sgOffTee: 0.5,
+          sgTotal: 1.9
+        },
+        specialties: ["defending champion", "course expert", "clutch performer"]
+      },
+      {
+        id: "8",
+        name: "Rickie Fowler",
+        owgr: 42,
+        fedexCupRank: 55,
+        recentForm: {
+          top10sLast4Starts: 1,
+          sgTotalLast3: 0.9,
+          sgApproachLast3: 0.5,
+          sgAroundGreenLast3: 0.2,
+          sgPuttingLast3: 0.3,
+          sgOffTeeLastMonth: 0.4,
+          lastStartResult: "T31"
+        },
+        courseHistory: {
+          pastTop10s: 2,
+          bestFinish: "T4",
+          timesPlayed: 5
+        },
+        seasonStats: {
+          drivingDistance: 296,
+          drivingAccuracy: 62.1,
+          sgApproach: 0.4,
           sgAroundGreen: 0.2,
           sgPutting: 0.2,
-          sgOffTee: 0.0,
-          sgTotal: 0.7
+          sgOffTee: 0.3,
+          sgTotal: 1.1
         },
-        specialties: ["course veteran", "experience factor"]
+        specialties: ["fan favorite", "experience factor", "course history"]
+      },
+      {
+        id: "9",
+        name: "Harris English",
+        owgr: 29,
+        fedexCupRank: 22,
+        recentForm: {
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.7,
+          sgApproachLast3: 1.0,
+          sgAroundGreenLast3: 0.3,
+          sgPuttingLast3: 0.4,
+          sgOffTeeLastMonth: 0.7,
+          lastStartResult: "2nd"
+        },
+        courseHistory: {
+          pastTop10s: 1,
+          bestFinish: "T7",
+          timesPlayed: 4
+        },
+        seasonStats: {
+          drivingDistance: 301,
+          drivingAccuracy: 63.5,
+          sgApproach: 0.9,
+          sgAroundGreen: 0.3,
+          sgPutting: 0.3,
+          sgOffTee: 0.6,
+          sgTotal: 2.1
+        },
+        specialties: ["recent runner-up", "momentum player", "major contender"]
+      },
+      {
+        id: "10",
+        name: "Keegan Bradley",
+        owgr: 39,
+        fedexCupRank: 47,
+        recentForm: {
+          top10sLast4Starts: 1,
+          sgTotalLast3: 1.0,
+          sgApproachLast3: 0.6,
+          sgAroundGreenLast3: 0.2,
+          sgPuttingLast3: 0.3,
+          sgOffTeeLastMonth: 0.5,
+          lastStartResult: "T19"
+        },
+        courseHistory: {
+          pastTop10s: 1,
+          bestFinish: "T8",
+          timesPlayed: 3
+        },
+        seasonStats: {
+          drivingDistance: 303,
+          drivingAccuracy: 61.9,
+          sgApproach: 0.5,
+          sgAroundGreen: 0.2,
+          sgPutting: 0.2,
+          sgOffTee: 0.4,
+          sgTotal: 1.3
+        },
+        specialties: ["ryder cup captain", "major winner", "veteran presence"]
+      },
+      {
+        id: "11",
+        name: "Taylor Pendrith",
+        owgr: 44,
+        fedexCupRank: 51,
+        recentForm: {
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.4,
+          sgApproachLast3: 0.8,
+          sgAroundGreenLast3: 0.3,
+          sgPuttingLast3: 0.4,
+          sgOffTeeLastMonth: 0.8,
+          lastStartResult: "T12"
+        },
+        courseHistory: {
+          pastTop10s: 0,
+          bestFinish: "T23",
+          timesPlayed: 2
+        },
+        seasonStats: {
+          drivingDistance: 314,
+          drivingAccuracy: 59.8,
+          sgApproach: 0.7,
+          sgAroundGreen: 0.3,
+          sgPutting: 0.3,
+          sgOffTee: 0.7,
+          sgTotal: 2.0
+        },
+        specialties: ["power player", "canadian standout", "trending upward"]
+      },
+      {
+        id: "12",
+        name: "Akshay Bhatia",
+        owgr: 33,
+        fedexCupRank: 29,
+        recentForm: {
+          top10sLast4Starts: 1,
+          sgTotalLast3: 1.2,
+          sgApproachLast3: 0.7,
+          sgAroundGreenLast3: 0.2,
+          sgPuttingLast3: 0.4,
+          sgOffTeeLastMonth: 0.6,
+          lastStartResult: "T17"
+        },
+        courseHistory: {
+          pastTop10s: 0,
+          bestFinish: "T27",
+          timesPlayed: 2
+        },
+        seasonStats: {
+          drivingDistance: 306,
+          drivingAccuracy: 60.4,
+          sgApproach: 0.6,
+          sgAroundGreen: 0.2,
+          sgPutting: 0.3,
+          sgOffTee: 0.5,
+          sgTotal: 1.6
+        },
+        specialties: ["young talent", "rising star", "aggressive style"]
       }
     ];
   }
