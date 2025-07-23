@@ -329,10 +329,15 @@ export const BettingDashboard = () => {
   useEffect(() => {
     console.log('allPicks changed, length:', allPicks.length);
     if (allPicks.length > 0) {
-      // Only analyze completed picks for stats (all non-pending picks)
-      const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
-      const calculatedResults = BettingAnalysisService.analyzeResults(completedPicks);
-      console.log('Calculated results from', completedPicks.length, 'completed picks:', calculatedResults);
+      // Only analyze completed picks for stats (picks with results OR non-pending status)
+      const completedPicksForStats = allPicks.filter(pick => 
+        pick.status !== 'pending' || (pick.status === 'pending' && pick.result)
+      );
+      console.log('Using completed picks for stats:', completedPicksForStats.length, 'picks');
+      console.log('Completed picks:', completedPicksForStats.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date}`));
+      
+      const calculatedResults = BettingAnalysisService.analyzeResults(completedPicksForStats);
+      console.log('Calculated results from', completedPicksForStats.length, 'completed picks:', calculatedResults);
       setResults(calculatedResults);
     } else {
       console.log('No picks to analyze');
@@ -545,13 +550,13 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Move started games from Today to Results and update live scores
-      await updatePickStatuses();
+      // Don't regenerate picks, just update live scores for existing picks
+      console.log('Current picks before refresh:', allPicks.length);
       setLastUpdate(new Date());
       
       toast({
         title: "Data Refreshed",
-        description: "Updated live scores and moved started games to results",
+        description: "Updated live scores",
       });
       
     } catch (error) {
