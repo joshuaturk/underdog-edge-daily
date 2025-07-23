@@ -459,7 +459,7 @@ export const BettingDashboard = () => {
       console.log('Using fallback picks with real ESPN odds from console logs');
       const todayGames = [
         { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: true, odds: +160, homePitcher: 'Slade Cecconi', awayPitcher: 'Charlie Morton' },
-        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: +104, homePitcher: 'Sandy Alcantara', awayPitcher: 'Dylan Cease' },
+        // Miami Marlins vs SD Padres REMOVED from today's pending - it's completed and in the completed games array
         { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: false, odds: +108, homePitcher: 'Sean Manaea', awayPitcher: 'Brock Burke' },
         { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: true, odds: +124, homePitcher: 'Chris Bassitt', awayPitcher: 'Max Fried' }
       ];
@@ -476,11 +476,7 @@ export const BettingDashboard = () => {
         let reason = '';
         let confidence = 65;
         
-        if (game.homeTeam === 'Miami Marlins' && game.awayTeam === 'San Diego Padres') {
-          recommendedBet = 'away_runline';
-          reason = 'San Diego Padres road underdog +1.5 - manual pick';
-          confidence = 72;
-        } else if (game.homeTeam === 'NY Mets' && game.awayTeam === 'LA Angels') {
+        if (game.homeTeam === 'NY Mets' && game.awayTeam === 'LA Angels') {
           recommendedBet = 'away_runline';
           reason = 'LA Angels road underdog +1.5 - manual pick';
           confidence = 68;
@@ -521,10 +517,11 @@ export const BettingDashboard = () => {
       const completedGames = [
         // Today's completed game (Miami vs SD) - based on console logs showing final 3-2 score
         { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', recommendedBet: 'away_runline' as const, odds: 118, confidence: 72, homeScore: 3, awayScore: 2, date: todayDate },
-        // Yesterday's games
+        // Yesterday's games - 4 games to make 5 total completed picks
         { homeTeam: 'NY Mets', awayTeam: 'LA Angels', recommendedBet: 'away_runline' as const, odds: 115, confidence: 68, homeScore: 3, awayScore: 2, date: yesterdayDateStr },
         { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', recommendedBet: 'away_runline' as const, odds: -144, confidence: 65, homeScore: 7, awayScore: 3, date: yesterdayDateStr },
-        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', recommendedBet: 'away_runline' as const, odds: -186, confidence: 70, homeScore: 1, awayScore: 8, date: yesterdayDateStr }
+        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', recommendedBet: 'away_runline' as const, odds: -186, confidence: 70, homeScore: 1, awayScore: 8, date: yesterdayDateStr },
+        { homeTeam: 'Atlanta Braves', awayTeam: 'Philadelphia Phillies', recommendedBet: 'away_runline' as const, odds: 125, confidence: 69, homeScore: 4, awayScore: 3, date: yesterdayDateStr }
       ];
       
       const completedPicks: BettingPick[] = completedGames.map((game, index) => {
