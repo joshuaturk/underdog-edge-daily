@@ -88,15 +88,59 @@ const getBuddyAnalysis = (pick: BettingPick) => {
 };
 
 export const BettingDashboard = () => {
-  // Clean state initialization for live data
-  const [dailyPicks, setDailyPicks] = useState<BettingPick[]>([]);
-  const [tomorrowPicks, setTomorrowPicks] = useState<BettingPick[]>([]);
+  // Fixed picks data for consistent display
+  const todayDate = new Date().toISOString().split('T')[0];
+  const tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  
+  const [fixedTodayPicks] = useState<BettingPick[]>(() => {
+    const todayGames = [
+      { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144, homePitcher: 'Joey Cantillo', awayPitcher: 'Brandon Young' },
+      { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
+      { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: true, odds: 115, homePitcher: 'Frankie Montas', awayPitcher: 'Kyle Hendricks' },
+      { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: false, odds: -186, homePitcher: 'Max Scherzer', awayPitcher: 'Cam Schlittler' }
+    ];
+    
+    return todayGames.map(game => {
+      const pick = BettingAnalysisService.analyzeGame(
+        game.homeTeam,
+        game.awayTeam,
+        game.isHomeUnderdog,
+        game.odds,
+        game.homePitcher,
+        game.awayPitcher
+      );
+      return pick ? { ...pick, date: todayDate } : null;
+    }).filter(Boolean) as BettingPick[];
+  });
+
+  const [fixedTomorrowPicks] = useState<BettingPick[]>(() => {
+    const tomorrowGames = [
+      { homeTeam: 'Blue Jays', awayTeam: 'Yankees', isHomeUnderdog: false, odds: -135 },
+      { homeTeam: 'Phillies', awayTeam: 'Braves', isHomeUnderdog: false, odds: -165 },
+      { homeTeam: 'Padres', awayTeam: 'Rockies', isHomeUnderdog: false, odds: -140 },
+      { homeTeam: 'Angels', awayTeam: 'Mariners', isHomeUnderdog: true, odds: 125 }
+    ];
+    
+    return tomorrowGames.map(game => {
+      const pick = BettingAnalysisService.analyzeGame(
+        game.homeTeam,
+        game.awayTeam,
+        game.isHomeUnderdog,
+        game.odds,
+        'TBD',
+        'TBD'
+      );
+      return pick ? { ...pick, date: tomorrowDate } : null;
+    }).filter(Boolean) as BettingPick[];
+  });
+
+  // Live state for tracking results and updates
   const [allPicks, setAllPicks] = useState<BettingPick[]>([]);
   const [results, setResults] = useState<BettingResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const [isUsingLiveData, setIsUsingLiveData] = useState(true); // Always start with live data
-  const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({}); // Track which games show analysis
+  const [isUsingLiveData, setIsUsingLiveData] = useState(true);
+  const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
   // Helper function to get dates in ET timezone
@@ -119,31 +163,12 @@ export const BettingDashboard = () => {
     });
   };
 
-  // Auto-fetch at 7am ET daily
+  // Initialize allPicks with fixed data on mount
   useEffect(() => {
-    const checkAndFetch = () => {
-      const now = new Date();
-      const etHour = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"})).getHours();
-      
-      // Check if it's 7am ET and we haven't fetched today
-      if (etHour === 7) {
-        const lastFetchDate = localStorage.getItem('lastAutoFetch');
-        const today = new Date().toDateString();
-        
-        if (lastFetchDate !== today) {
-          console.log('Auto-fetching daily data at 7am ET');
-          generateDailyPicks();
-          localStorage.setItem('lastAutoFetch', today);
-        }
-      }
-    };
-
-    // Check immediately and then every hour
-    checkAndFetch();
-    const interval = setInterval(checkAndFetch, 60 * 60 * 1000); // Check every hour
-    
-    return () => clearInterval(interval);
-  }, []);
+    if (allPicks.length === 0) {
+      setAllPicks([...fixedTodayPicks, ...fixedTomorrowPicks]);
+    }
+  }, [fixedTodayPicks, fixedTomorrowPicks]);
 
   // Update picks with live scores
   useEffect(() => {
@@ -252,8 +277,7 @@ export const BettingDashboard = () => {
           if (hasChanges) {
             console.log('Updating picks with live scores');
             setAllPicks(updatedPicks);
-            setDailyPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
-            setTomorrowPicks(prev => prev.map(pick => updatedPicks.find(up => up.id === pick.id) || pick));
+            // No need to update separate daily/tomorrow picks since we use fixed data
           } else {
             console.log('No changes to update');
           }
@@ -276,20 +300,7 @@ export const BettingDashboard = () => {
 
   // Generate initial picks on component mount
   useEffect(() => {
-    const initializePicks = async () => {
-      console.log('Component mounted, checking for picks...');
-      console.log('Current dailyPicks length:', dailyPicks.length);
-      console.log('Current allPicks length:', allPicks.length);
-      
-      if (dailyPicks.length === 0) {
-        console.log('No daily picks found, generating initial picks...');
-        await generateDailyPicks();
-      } else {
-        console.log('Daily picks already exist:', dailyPicks);
-      }
-    };
-    
-    initializePicks();
+    console.log('Component mounted with fixed picks');
   }, []);
 
   useEffect(() => {
@@ -366,8 +377,7 @@ export const BettingDashboard = () => {
           
           if (newPicks.length > 0) {
             const finalPicks = newPicks.slice(0, 4);
-            console.log('Setting daily picks:', finalPicks);
-            setDailyPicks(finalPicks);
+            console.log('Setting picks in allPicks:', finalPicks);
             setAllPicks(prev => {
               const combined = [...prev, ...finalPicks];
               // Remove duplicates based on homeTeam, awayTeam, and date
@@ -423,24 +433,18 @@ export const BettingDashboard = () => {
       });
       
       console.log('Demo picks created:', demoPicks.length);
-      setDailyPicks(demoPicks);
-      // Don't overwrite allPicks - just add today's picks if they don't exist
+      // Update allPicks with demo data, keeping existing picks
       setAllPicks(prev => {
         const today = new Date().toISOString().split('T')[0];
-        const existingTodayPicks = prev.filter(p => p.date === today);
-        
-        if (existingTodayPicks.length === 0) {
-          // Only add if no today picks exist
-          const combined = [...prev, ...demoPicks];
-          return combined.filter((pick, index) => 
-            index === combined.findIndex(p => 
-              p.homeTeam === pick.homeTeam && 
-              p.awayTeam === pick.awayTeam && 
-              p.date === pick.date
-            )
-          );
-        }
-        return prev; // Keep existing picks if today's picks already exist
+        const filtered = prev.filter(p => p.date !== today);
+        const combined = [...filtered, ...demoPicks];
+        return combined.filter((pick, index) => 
+          index === combined.findIndex(p => 
+            p.homeTeam === pick.homeTeam && 
+            p.awayTeam === pick.awayTeam && 
+            p.date === pick.date
+          )
+        );
       });
       
       toast({
@@ -474,9 +478,6 @@ export const BettingDashboard = () => {
         }
       });
       
-      setTomorrowPicks(newPicks.slice(0, 4));
-      
-      // Add tomorrow picks to allPicks as well
       setAllPicks(prev => {
         const combined = [...prev, ...newPicks.slice(0, 4)];
         return combined.filter((pick, index) => 
@@ -489,7 +490,6 @@ export const BettingDashboard = () => {
       });
     } catch (error) {
       console.error('Error generating tomorrow picks:', error);
-      setTomorrowPicks([]);
     }
   };
 
@@ -740,7 +740,7 @@ export const BettingDashboard = () => {
                   {getETDate()}
                 </span>
                 <Badge variant="outline" className="text-xs">
-                  {dailyPicks.length}
+                  {fixedTodayPicks.length}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger value="tomorrow" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -749,7 +749,7 @@ export const BettingDashboard = () => {
                   {getETDate(1)}
                 </span>
                 <Badge variant="outline" className="text-xs">
-                  {tomorrowPicks.length}
+                  {fixedTomorrowPicks.length}
                 </Badge>
               </TabsTrigger>
               <TabsTrigger value="results" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
@@ -764,17 +764,13 @@ export const BettingDashboard = () => {
           <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 mt-6">
             <CardContent className="p-3 sm:p-6">
               <TabsContent value="today" className="mt-0">
-                {(() => {
-                  const today = new Date().toISOString().split('T')[0];
-                  const todayPicks = allPicks.filter(pick => pick.date === today);
-                  
-                  return todayPicks.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {todayPicks.map((pick) => (
+                {fixedTodayPicks.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {isLoading ? "Analyzing games..." : "No qualifying picks found for today"}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {fixedTodayPicks.map((pick) => (
                       <div 
                         key={pick.id}
                         className="border border-border/50 rounded-lg p-3 sm:p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
@@ -886,20 +882,19 @@ export const BettingDashboard = () => {
                            </div>
                          )}
                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="tomorrow" className="mt-0">
-                {tomorrowPicks.length === 0 ? (
+                {fixedTomorrowPicks.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     No picks available for tomorrow yet
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {tomorrowPicks.map((pick) => (
+                    {fixedTomorrowPicks.map((pick) => (
                       <div 
                         key={pick.id}
                         className="border border-border/50 rounded-lg p-4 bg-gradient-to-r from-card to-card/50 hover:from-card/80 hover:to-card/60 transition-all duration-300"
