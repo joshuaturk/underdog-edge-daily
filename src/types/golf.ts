@@ -38,6 +38,10 @@ export interface GolfPick {
   top10Probability: number;
   keyFactors: string[];
   riskFactors: string[];
+  odds: {
+    bet365: number;
+    impliedProbability: number;
+  };
 }
 
 export interface GolfTournament {
