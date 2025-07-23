@@ -673,24 +673,6 @@ export const BettingDashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium">Current Streak</CardTitle>
-                {results.streak.type === 'win' ? (
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-profit" />
-                ) : (
-                  <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-loss" />
-                )}
-              </CardHeader>
-              <CardContent>
-                <div className={`text-lg sm:text-2xl font-bold ${results.streak.type === 'win' ? 'text-profit' : 'text-loss'}`}>
-                  {results.streak.count}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {results.streak.type === 'win' ? 'wins' : 'losses'} in a row
-                </p>
-              </CardContent>
-            </Card>
 
             <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -1035,7 +1017,15 @@ export const BettingDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {allPicks.map((pick) => (
+                        {allPicks
+                          .filter((pick, index, self) => 
+                            index === self.findIndex(p => 
+                              p.homeTeam === pick.homeTeam && 
+                              p.awayTeam === pick.awayTeam && 
+                              p.date === pick.date
+                            )
+                          )
+                          .map((pick) => (
                           <div 
                             key={pick.id}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
