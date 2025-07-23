@@ -158,257 +158,391 @@ export const GolfDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Tournament Info */}
-        <Card className="border-green-200 dark:border-green-800">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
-              <Trophy className="h-5 w-5" />
-              {analysis.tournament.name}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full p-0 ml-2">
-                    <Info className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <Info className="w-5 h-5 text-primary" />
-                      Key Tournament Insights
-                    </DialogTitle>
-                    <DialogDescription asChild>
-                      <div className="space-y-4 text-sm">
-                        <div>
-                          <h4 className="font-semibold text-foreground mb-2">Tournament Analysis</h4>
-                          <div className="space-y-2">
-                            {analysis.keyInsights.map((insight, index) => (
-                              <div key={index} className="flex items-start gap-2 p-2 bg-muted/50 rounded-lg">
-                                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                                <p className="text-sm">{insight}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h4 className="font-semibold text-foreground mb-2">Course Characteristics</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div className="space-y-1">
-                              <p className="text-xs font-medium text-muted-foreground">Layout</p>
-                              <p className="text-sm">{analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}</p>
-                              <p className="text-sm">{analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined course' : 'Open layout'}</p>
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
-                              <p className="text-sm">{analysis.tournament.courseCharacteristics.greens} greens</p>
-                              <p className="text-sm">{analysis.tournament.courseCharacteristics.rough} rough</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-semibold text-foreground mb-2">Weather Impact</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <div className="p-2 bg-muted/30 rounded">
-                              <p className="text-xs font-medium text-muted-foreground">Wind</p>
-                              <p className="text-sm">{analysis.tournament.weatherForecast.wind}</p>
-                            </div>
-                            <div className="p-2 bg-muted/30 rounded">
-                              <p className="text-xs font-medium text-muted-foreground">Temperature</p>
-                              <p className="text-sm">{analysis.tournament.weatherForecast.temperature}</p>
-                            </div>
-                            <div className="p-2 bg-muted/30 rounded">
-                              <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
-                              <p className="text-sm">{analysis.tournament.weatherForecast.precipitation}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 className="font-semibold text-foreground mb-2">Selection Criteria</h4>
-                          <ul className="space-y-1 list-disc list-inside text-sm">
-                            <li>Recent form with 2+ top 10s in last 4 starts (60% success rate)</li>
-                            <li>Strokes gained approach &gt; +0.8 per round (critical for this course type)</li>
-                            <li>Strong wind players favored due to forecast conditions</li>
-                            <li>OWGR top 50 players get priority in {analysis.tournament.fieldStrength.toLowerCase()} field</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
-                  <MapPin className="h-4 w-4" />
-                  Course Info
-                </div>
-                <p className="font-semibold text-gray-900 dark:text-white">{analysis.tournament.course}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{analysis.tournament.location}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  {analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}
+        {/* Golf Analysis Tabs */}
+        <Tabs defaultValue="next-event" className="w-full">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
+            {/* Top/Left Section: Logo and Info */}
+            <div className="flex flex-col justify-center items-center space-y-3 lg:space-y-4 px-4 lg:px-0">
+              <div className="text-6xl lg:text-8xl">⛳</div>
+              <div className="flex items-center justify-center gap-2 px-2">
+                <p className="text-muted-foreground text-center text-xs sm:text-sm lg:text-base leading-relaxed">
+                  Golf stat model to identify top 10 finishers
                 </p>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
-                  <Calendar className="h-4 w-4" />
-                  Tournament Details
-                </div>
-                <p className="text-sm text-gray-900 dark:text-white">{analysis.tournament.dates}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{analysis.tournament.purse}</p>
-                <Badge className={`text-xs ${
-                  analysis.tournament.fieldStrength === 'Elite' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                  analysis.tournament.fieldStrength === 'Strong' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
-                  'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                }`}>
-                  {analysis.tournament.fieldStrength} Field
-                </Badge>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
-                  <Wind className="h-4 w-4" />
-                  Course Character
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {analysis.tournament.courseCharacteristics.greens} greens
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {analysis.tournament.courseCharacteristics.rough} rough
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined' : 'Open layout'}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
-                  <Cloud className="h-4 w-4" />
-                  Weather Forecast
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Wind: {analysis.tournament.weatherForecast.wind}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Temp: {analysis.tournament.weatherForecast.temperature}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Rain: {analysis.tournament.weatherForecast.precipitation}
-                  </p>
-                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 flex-shrink-0">
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Target className="w-5 h-5 text-primary" />
+                        BetBud.ai Golf Algorithm
+                      </DialogTitle>
+                      <DialogDescription asChild>
+                        <div className="space-y-4 text-sm">
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">How We Pick Winners</h4>
+                            <p>Our algorithm analyzes golf tournaments using proven statistical models to identify players with the highest probability of finishing in the top 10.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Key Factors</h4>
+                            <ul className="space-y-1 list-disc list-inside">
+                              <li><strong>Recent Form:</strong> 2+ Top 10s in last 4 starts (60% success rate)</li>
+                              <li><strong>Strokes Gained:</strong> Approach play &gt; +0.8 per round critical</li>
+                              <li><strong>Course History:</strong> Past performance at venue heavily weighted</li>
+                              <li><strong>World Ranking:</strong> OWGR Top 50 players prioritized</li>
+                              <li><strong>Weather Adaptation:</strong> Wind specialists favored in tough conditions</li>
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Scorecard Model</h4>
+                            <p>Players scoring 4+ points hit Top 10 roughly 65-70% of the time. Points awarded for recent form, strokes gained metrics, course fit, and world ranking.</p>
+                          </div>
+                        </div>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Top 10 Picks */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {analysis.picks.map((pick, index) => (
-            <Card key={pick.id} className="border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+            {/* Top/Right Section: Performance Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4">
+              <Card className="bg-gradient-to-br from-profit/10 to-profit/5 border-profit/20">
+                <CardContent className="p-4 lg:p-6 text-center">
+                  <div className="text-xl lg:text-2xl font-bold text-profit mb-1">72%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground">Top 10 Hit Rate</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+                <CardContent className="p-4 lg:p-6 text-center">
+                  <div className="text-xl lg:text-2xl font-bold text-accent mb-1">+24%</div>
+                  <p className="text-xs lg:text-sm text-muted-foreground">ROI This Season</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Tabs List */}
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="next-event" className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Next Event</span>
+              <span className="sm:hidden">Next</span>
+            </TabsTrigger>
+            <TabsTrigger value="results" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Results</span>
+              <span className="sm:hidden">Results</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Next Event Tab */}
+          <TabsContent value="next-event" className="space-y-6">
+            {/* Tournament Info */}
+            <Card className="border-green-200 dark:border-green-800">
               <CardHeader className="pb-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
-                      #{index + 1} {pick.player.name}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        OWGR #{pick.player.owgr}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        FedEx #{pick.player.fedexCupRank}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className={`text-xl font-bold ${getConfidenceColor(pick.confidence)}`}>
-                      {pick.confidence.toFixed(0)}%
-                    </div>
-                    <Badge className={`text-xs ${getConfidenceBadge(pick.confidence)}`}>
-                      {pick.scoreCardPoints} pts
-                    </Badge>
-                  </div>
-                </div>
+                <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
+                  <Trophy className="h-5 w-5" />
+                  {analysis.tournament.name}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full p-0 ml-2">
+                        <Info className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Info className="w-5 h-5 text-primary" />
+                          Key Tournament Insights
+                        </DialogTitle>
+                        <DialogDescription asChild>
+                          <div className="space-y-4 text-sm">
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-2">Tournament Analysis</h4>
+                              <div className="space-y-2">
+                                {analysis.keyInsights.map((insight, index) => (
+                                  <div key={index} className="flex items-start gap-2 p-2 bg-muted/50 rounded-lg">
+                                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                    <p className="text-sm">{insight}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-2">Course Characteristics</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                  <p className="text-xs font-medium text-muted-foreground">Layout</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined course' : 'Open layout'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.greens} greens</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.rough} rough</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-2">Weather Impact</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <div className="p-2 bg-muted/30 rounded">
+                                  <p className="text-xs font-medium text-muted-foreground">Wind</p>
+                                  <p className="text-sm">{analysis.tournament.weatherForecast.wind}</p>
+                                </div>
+                                <div className="p-2 bg-muted/30 rounded">
+                                  <p className="text-xs font-medium text-muted-foreground">Temperature</p>
+                                  <p className="text-sm">{analysis.tournament.weatherForecast.temperature}</p>
+                                </div>
+                                <div className="p-2 bg-muted/30 rounded">
+                                  <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
+                                  <p className="text-sm">{analysis.tournament.weatherForecast.precipitation}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <h4 className="font-semibold text-foreground mb-2">Selection Criteria</h4>
+                              <ul className="space-y-1 list-disc list-inside text-sm">
+                                <li>Recent form with 2+ top 10s in last 4 starts (60% success rate)</li>
+                                <li>Strokes gained approach &gt; +0.8 per round (critical for this course type)</li>
+                                <li>Strong wind players favored due to forecast conditions</li>
+                                <li>OWGR top 50 players get priority in {analysis.tournament.fieldStrength.toLowerCase()} field</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {pick.reason}
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                      <MapPin className="h-4 w-4" />
+                      Course Info
+                    </div>
+                    <p className="font-semibold text-gray-900 dark:text-white">{analysis.tournament.course}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{analysis.tournament.location}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                      {analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}
+                    </p>
+                  </div>
                   
-                  {/* Recent Form */}
-                  <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Recent Form</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        {pick.player.recentForm.top10sLast4Starts}/4 Top 10s
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Last: {pick.player.recentForm.lastStartResult}
-                      </p>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                      <Calendar className="h-4 w-4" />
+                      Tournament Details
+                    </div>
+                    <p className="text-sm text-gray-900 dark:text-white">{analysis.tournament.dates}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{analysis.tournament.purse}</p>
+                    <Badge className={`text-xs ${
+                      analysis.tournament.fieldStrength === 'Elite' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                      analysis.tournament.fieldStrength === 'Strong' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                      'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+                    }`}>
+                      {analysis.tournament.fieldStrength} Field
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                      <Wind className="h-4 w-4" />
+                      Course Character
                     </div>
                     <div className="space-y-1">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Strokes Gained</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        +{pick.player.recentForm.sgTotalLast3.toFixed(1)} Total
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {analysis.tournament.courseCharacteristics.greens} greens
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        +{pick.player.recentForm.sgApproachLast3.toFixed(1)} Approach
+                        {analysis.tournament.courseCharacteristics.rough} rough
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined' : 'Open layout'}
                       </p>
                     </div>
                   </div>
-
-                  {/* Key Factors */}
-                  <Collapsible>
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                        <span className="text-sm font-medium">Key Factors ({pick.keyFactors.length})</span>
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-2 mt-2">
-                      {pick.keyFactors.map((factor, factorIndex) => (
-                        <div key={factorIndex} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                          <p className="text-xs text-gray-600 dark:text-gray-400">{factor}</p>
-                        </div>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-
-                  {pick.riskFactors.length > 0 && (
-                    <Collapsible>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                          <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                            Risk Factors ({pick.riskFactors.length})
-                          </span>
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="space-y-2 mt-2">
-                        {pick.riskFactors.map((risk, riskIndex) => (
-                          <div key={riskIndex} className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                            <p className="text-xs text-orange-600 dark:text-orange-400">{risk}</p>
-                          </div>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  )}
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
+                      <Cloud className="h-4 w-4" />
+                      Weather Forecast
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Wind: {analysis.tournament.weatherForecast.wind}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Temp: {analysis.tournament.weatherForecast.temperature}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Rain: {analysis.tournament.weatherForecast.precipitation}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+
+            {/* Top 10 Picks */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {analysis.picks.map((pick, index) => (
+                <Card key={pick.id} className="border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
+                          #{index + 1} {pick.player.name}
+                        </CardTitle>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            OWGR #{pick.player.owgr}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            FedEx #{pick.player.fedexCupRank}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-xl font-bold ${getConfidenceColor(pick.confidence)}`}>
+                          {pick.confidence.toFixed(0)}%
+                        </div>
+                        <Badge className={`text-xs ${getConfidenceBadge(pick.confidence)}`}>
+                          {pick.scoreCardPoints} pts
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {pick.reason}
+                      </p>
+                      
+                      {/* Recent Form */}
+                      <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Recent Form</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {pick.player.recentForm.top10sLast4Starts}/4 Top 10s
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            Last: {pick.player.recentForm.lastStartResult}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Strokes Gained</p>
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                            +{pick.player.recentForm.sgTotalLast3.toFixed(1)} Total
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            +{pick.player.recentForm.sgApproachLast3.toFixed(1)} Approach
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Key Factors */}
+                      <Collapsible>
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
+                            <span className="text-sm font-medium">Key Factors ({pick.keyFactors.length})</span>
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-2 mt-2">
+                          {pick.keyFactors.map((factor, factorIndex) => (
+                            <div key={factorIndex} className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                              <p className="text-xs text-gray-600 dark:text-gray-400">{factor}</p>
+                            </div>
+                          ))}
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {pick.riskFactors.length > 0 && (
+                        <Collapsible>
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
+                              <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                                Risk Factors ({pick.riskFactors.length})
+                              </span>
+                              <ChevronDown className="h-4 w-4" />
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="space-y-2 mt-2">
+                            {pick.riskFactors.map((risk, riskIndex) => (
+                              <div key={riskIndex} className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                                <p className="text-xs text-orange-600 dark:text-orange-400">{risk}</p>
+                              </div>
+                            ))}
+                          </CollapsibleContent>
+                        </Collapsible>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Results Tab */}
+          <TabsContent value="results" className="space-y-6">
+            <Card className="border-purple-200 dark:border-purple-800">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-purple-800 dark:text-purple-200">
+                  <Target className="h-5 w-5" />
+                  Golf Picks Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🏌️‍♂️</div>
+                  <h3 className="text-xl font-semibold mb-2">Results Coming Soon</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Live tournament tracking will appear here once our picks are active in the next PGA Tour event.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                    <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                          Live Leaderboard
+                        </div>
+                        <p className="text-sm text-green-800 dark:text-green-200">Track our picks in real-time</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                          Round Updates
+                        </div>
+                        <p className="text-sm text-blue-800 dark:text-blue-200">Daily score updates</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                          Final Results
+                        </div>
+                        <p className="text-sm text-purple-800 dark:text-purple-200">Top 10 hit rates</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Analysis Summary */}
         <Card className="border-purple-200 dark:border-purple-800">
