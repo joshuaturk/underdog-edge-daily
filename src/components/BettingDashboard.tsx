@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,15 +25,15 @@ import soccerIcon from '@/assets/soccer-icon.png';
 
 // Sports navigation data with consistent Unicode symbols as backup
 const sportsMenu = [
-  { name: 'MLB', symbol: '⚾', active: true },
-  { name: 'NCAA Football', symbol: '🏈' },
-  { name: 'NCAA Bball', symbol: '🏀' },
-  { name: 'NHL', symbol: '🏒' },
-  { name: 'NBA', symbol: '🏀' },
-  { name: 'NFL', symbol: '🏈' },
-  { name: 'Soccer', symbol: '⚽' },
-  { name: 'Golf', symbol: '⛳' },
-  { name: 'Tennis', symbol: '🎾' }
+  { name: 'MLB', symbol: '⚾', active: true, path: '/' },
+  { name: 'NCAA Football', symbol: '🏈', path: '#' },
+  { name: 'NCAA Bball', symbol: '🏀', path: '#' },
+  { name: 'NHL', symbol: '🏒', path: '#' },
+  { name: 'NBA', symbol: '🏀', path: '#' },
+  { name: 'NFL', symbol: '🏈', path: '#' },
+  { name: 'Soccer', symbol: '⚽', path: '#' },
+  { name: 'Golf', symbol: '⛳', path: '/golf' },
+  { name: 'Tennis', symbol: '🎾', path: '#' }
 ];
 
 // Generate buddy-style analysis for picks with real stats
@@ -96,6 +97,8 @@ export const BettingDashboard = () => {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [isUsingLiveData, setIsUsingLiveData] = useState(true);
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   // Get today's and tomorrow's picks from allPicks
@@ -566,16 +569,23 @@ export const BettingDashboard = () => {
           <CardContent className="p-2 sm:p-4">
             <div className="flex items-center justify-center gap-1 flex-wrap">
               {sportsMenu.map((sport, index) => {
+                const isActive = location.pathname === sport.path;
                 return (
                   <Button
                     key={sport.name}
-                    variant={sport.active ? "default" : "ghost"}
+                    variant={isActive ? "default" : "ghost"}
                     size="sm"
                     className={`flex items-center gap-1 sm:gap-2 rounded-full text-xs sm:text-sm px-2 sm:px-3 ${
-                      sport.active 
+                      isActive 
                         ? "bg-primary text-primary-foreground hover:bg-primary/90" 
                         : "hover:bg-muted"
                     }`}
+                    onClick={() => {
+                      if (sport.path !== '#') {
+                        navigate(sport.path);
+                      }
+                    }}
+                    disabled={sport.path === '#'}
                   >
                     <span className="text-sm sm:text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
                       {sport.symbol}
