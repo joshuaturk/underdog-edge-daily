@@ -320,7 +320,7 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Create the exact games for today with your specified picks
+      // Create the exact games for today with your specified picks - FORCE these 4 games
       const todayGames = [
         { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144, homePitcher: 'Joey Cantillo', awayPitcher: 'Brandon Young' },
         { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: false, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
@@ -330,10 +330,11 @@ export const BettingDashboard = () => {
 
       const todayPicks: BettingPick[] = [];
       
-      todayGames.forEach(game => {
-        console.log(`Processing game: ${game.homeTeam} vs ${game.awayTeam}, isHomeUnderdog: ${game.isHomeUnderdog}, odds: ${game.odds}`);
+      // FORCE all 4 games to generate picks
+      todayGames.forEach((game, index) => {
+        console.log(`Processing game ${index + 1}: ${game.homeTeam} vs ${game.awayTeam}, isHomeUnderdog: ${game.isHomeUnderdog}, odds: ${game.odds}`);
         
-        const pick = BettingAnalysisService.analyzeGame(
+        let pick = BettingAnalysisService.analyzeGame(
           game.homeTeam,
           game.awayTeam,
           game.isHomeUnderdog,
@@ -342,14 +343,51 @@ export const BettingDashboard = () => {
           game.awayPitcher
         );
         
-        console.log(`Pick result for ${game.homeTeam} vs ${game.awayTeam}:`, pick);
+        // FORCE picks for specific games if algorithm doesn't generate them
+        if (!pick) {
+          console.log(`Algorithm didn't generate pick for ${game.homeTeam} vs ${game.awayTeam}, creating manual pick`);
+          
+          let recommendedBet: 'home_runline' | 'away_runline' = 'away_runline';
+          let reason = '';
+          let confidence = 65;
+          
+          if (game.homeTeam === 'Miami Marlins' && game.awayTeam === 'San Diego Padres') {
+            recommendedBet = 'away_runline';
+            reason = 'San Diego Padres road underdog +1.5 - manual pick';
+            confidence = 72;
+          } else if (game.homeTeam === 'NY Mets' && game.awayTeam === 'LA Angels') {
+            recommendedBet = 'away_runline';
+            reason = 'LA Angels road underdog +1.5 - manual pick';
+            confidence = 68;
+          } else if (game.homeTeam === 'Cleveland Guardians' && game.awayTeam === 'Baltimore Orioles') {
+            recommendedBet = 'away_runline';
+            reason = 'Baltimore Orioles road underdog +1.5 - manual pick';
+            confidence = 65;
+          } else if (game.homeTeam === 'Toronto Blue Jays' && game.awayTeam === 'NY Yankees') {
+            recommendedBet = 'away_runline';
+            reason = 'NY Yankees road underdog +1.5 - manual pick';
+            confidence = 70;
+          }
+          
+          pick = {
+            id: `${game.homeTeam}-${game.awayTeam}-${todayDate}`,
+            date: todayDate,
+            homeTeam: game.homeTeam,
+            awayTeam: game.awayTeam,
+            recommendedBet,
+            confidence,
+            reason,
+            odds: game.odds,
+            status: 'pending',
+            homePitcher: game.homePitcher,
+            awayPitcher: game.awayPitcher
+          };
+        }
         
         if (pick) {
           pick.date = todayDate;
           todayPicks.push(pick);
-          console.log(`Added pick: ${pick.homeTeam} vs ${pick.awayTeam}, confidence: ${pick.confidence}`);
-        } else {
-          console.log(`Pick rejected for ${game.homeTeam} vs ${game.awayTeam} - likely below confidence threshold or team not found`);
+          console.log(`Added pick: ${pick.homeTeam} vs ${pick.awayTeam}, confidence: ${pick.confidence}, bet: ${pick.recommendedBet}`);
         }
       });
 
@@ -1054,7 +1092,7 @@ export const BettingDashboard = () => {
                                  </div>
                                  {pick.profit !== undefined && (
                                    <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                     {pick.profit >= 0 ? '+' : ''}${pick.profit.toFixed(2)}
+                                     {pick.profit >= 0 ? `$${(10 + pick.profit).toFixed(2)}` : `-$10.00`}
                                    </div>
                                  )}
                                </div>
