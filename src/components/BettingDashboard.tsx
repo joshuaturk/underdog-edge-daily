@@ -215,7 +215,21 @@ export const BettingDashboard = () => {
                   }
                   
                   updatedPick.status = isWin ? 'won' : 'lost';
-                  updatedPick.profit = isWin ? 1 : -1;
+                  
+                  // Calculate profit based on actual odds
+                  if (isWin) {
+                    const odds = pick.odds;
+                    if (odds > 0) {
+                      // Positive odds: +118 means $100 bet wins $118
+                      updatedPick.profit = (odds / 100);
+                    } else {
+                      // Negative odds: -150 means need to bet $150 to win $100
+                      updatedPick.profit = (100 / Math.abs(odds));
+                    }
+                  } else {
+                    updatedPick.profit = -1; // Lost the $10 bet
+                  }
+                  
                   console.log(`Game final: ${pick.recommendedBet} ${isWin ? 'WON' : 'LOST'}`);
                 }
                 
@@ -294,8 +308,7 @@ export const BettingDashboard = () => {
     { homeTeam: 'Yankees', awayTeam: 'Red Sox', isHomeUnderdog: false, odds: -150 },
     { homeTeam: 'Cubs', awayTeam: 'Cardinals', isHomeUnderdog: true, odds: 140 },
     { homeTeam: 'Dodgers', awayTeam: 'Giants', isHomeUnderdog: false, odds: -180 },
-    { homeTeam: 'Astros', awayTeam: 'Rangers', isHomeUnderdog: false, odds: -120 },
-    { homeTeam: 'Marlins', awayTeam: 'Mets', isHomeUnderdog: true, odds: 160 }
+    { homeTeam: 'Astros', awayTeam: 'Rangers', isHomeUnderdog: false, odds: -120 }
   ];
 
   // Fixed demo games for tomorrow (July 23, 2025)
@@ -429,28 +442,38 @@ export const BettingDashboard = () => {
 
   const generateTomorrowPicks = async () => {
     try {
-      if (isUsingLiveData) {
-        const games = getFixedTomorrowGames();
-        const newPicks: BettingPick[] = [];
+      const games = getFixedTomorrowGames();
+      const newPicks: BettingPick[] = [];
+      
+      games.forEach(game => {
+        const pick = BettingAnalysisService.analyzeGame(
+          game.homeTeam,
+          game.awayTeam,
+          game.isHomeUnderdog,
+          game.odds,
+          'TBD',
+          'TBD'
+        );
         
-        games.forEach(game => {
-          const pick = BettingAnalysisService.analyzeGame(
-            game.homeTeam,
-            game.awayTeam,
-            game.isHomeUnderdog,
-            game.odds,
-            'TBD',
-            'TBD'
-          );
-          
-          if (pick) {
-            pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-            newPicks.push(pick);
-          }
-        });
-        
-        setTomorrowPicks(newPicks.slice(0, 4));
-      }
+        if (pick) {
+          pick.date = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          newPicks.push(pick);
+        }
+      });
+      
+      setTomorrowPicks(newPicks.slice(0, 4));
+      
+      // Add tomorrow picks to allPicks as well
+      setAllPicks(prev => {
+        const combined = [...prev, ...newPicks.slice(0, 4)];
+        return combined.filter((pick, index) => 
+          index === combined.findIndex(p => 
+            p.homeTeam === pick.homeTeam && 
+            p.awayTeam === pick.awayTeam && 
+            p.date === pick.date
+          )
+        );
+      });
     } catch (error) {
       console.error('Error generating tomorrow picks:', error);
       setTomorrowPicks([]);
@@ -507,11 +530,6 @@ export const BettingDashboard = () => {
                 alt="betbud.ai"
                 className="h-8 sm:h-12 object-contain"
               />
-              <div className="sm:hidden">
-                <p className="text-xs text-muted-foreground">
-                  Your betbud's daily picks
-                </p>
-              </div>
             </div>
             
             {/* Info Button */}
@@ -566,12 +584,6 @@ export const BettingDashboard = () => {
             </Dialog>
           </div>
           
-          <div className="hidden sm:block">
-            <p className="text-muted-foreground">
-              Your betbud's daily picks
-            </p>
-          </div>
-          
           <div className="flex items-center gap-2 justify-between sm:justify-end">
             {isUsingLiveData ? (
               <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20">
@@ -591,47 +603,6 @@ export const BettingDashboard = () => {
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 sm:mr-2'}`} />
               <span className="hidden sm:inline">Refresh Live Data</span>
               <span className="sm:hidden">Refresh</span>
-            </Button>
-            <Button 
-              onClick={async () => {
-                console.log('Creating test picks with live games...');
-                const testPicks: BettingPick[] = [
-                  {
-                    id: 'test-live-1',
-                    date: new Date().toISOString().split('T')[0],
-                    homeTeam: 'Cleveland Guardians',
-                    awayTeam: 'Baltimore Orioles',
-                    recommendedBet: 'away_runline',
-                    confidence: 75,
-                    reason: 'Baltimore Orioles as road underdog - Live test',
-                    odds: -144,
-                    status: 'pending',
-                    homePitcher: 'Test Pitcher',
-                    awayPitcher: 'Test Pitcher'
-                  },
-                  {
-                    id: 'test-live-2',
-                    date: new Date().toISOString().split('T')[0],
-                    homeTeam: 'Washington Nationals',
-                    awayTeam: 'Cincinnati Reds',
-                    recommendedBet: 'away_runline',
-                    confidence: 68,
-                    reason: 'Cincinnati Reds as road underdog - Live test',
-                    odds: 116,
-                    status: 'pending',
-                    homePitcher: 'Test Pitcher',
-                    awayPitcher: 'Test Pitcher'
-                  }
-                ];
-                setDailyPicks(testPicks);
-                setAllPicks(testPicks); // Replace entirely for test picks
-                console.log('Test picks created:', testPicks);
-              }} 
-              variant="outline" 
-              size="sm"
-              className="bg-accent/10"
-            >
-              Test Live
             </Button>
           </div>
         </div>
@@ -669,13 +640,16 @@ export const BettingDashboard = () => {
         <Tabs defaultValue="today" className="w-full">
           {/* Layout: Logo Left, Stats Right */}
           <div className="grid grid-cols-2 gap-6 mb-6">
-            {/* Left Column: Logo */}
-            <div className="flex justify-center items-center">
+            {/* Left Column: Logo and Info */}
+            <div className="flex flex-col justify-center items-center space-y-2">
               <img 
                 src="/lovable-uploads/fd8d77d5-1820-48f2-a72f-1c9cc4865e2a.png" 
                 alt="Underdog Runline Logo"
                 className="object-contain w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64"
               />
+              <p className="text-muted-foreground text-center text-sm">
+                Your betbud's daily picks
+              </p>
             </div>
             
             {/* Right Column: Stats 2x2 Grid */}
@@ -1051,7 +1025,7 @@ export const BettingDashboard = () => {
                                       {pick.status === 'pending' && pick.result && (
                                         <div className="flex items-center gap-2">
                                           <span className="text-sm text-accent font-medium px-2 py-1 bg-accent/10 rounded">LIVE</span>
-                                          <span className="text-xs text-muted-foreground">T3</span>
+                                          <span className="text-xs text-muted-foreground">Top 7</span>
                                         </div>
                                       )}
                                     </div>
@@ -1080,11 +1054,16 @@ export const BettingDashboard = () => {
                                    <div className="text-xs text-muted-foreground">
                                      Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
                                    </div>
-                                   {pick.status === 'lost' && pick.result && (
-                                     <div className="text-xs text-warning">
-                                       Cashout available: 7th inning
-                                     </div>
-                                   )}
+                                    {pick.status === 'lost' && pick.result && (
+                                      <div className="text-xs text-warning">
+                                        Cashout available: 7th inning
+                                      </div>
+                                    )}
+                                    {pick.status === 'won' && pick.result && (
+                                      <div className="text-xs text-profit">
+                                        Cashout available: 5th inning
+                                      </div>
+                                    )}
                                   {pick.status === 'pending' && pick.result && (
                                     <div className="flex items-center gap-1">
                                       {/* Live pick status indicator */}
