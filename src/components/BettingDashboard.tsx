@@ -128,12 +128,17 @@ export const BettingDashboard = () => {
   const resultsPicks = allPicks
     .filter(pick => pick.status !== 'pending' || (pick.status === 'pending' && pick.result))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  
-  // Get historical picks for Results tab (excluding today's pending picks, sorted by date desc)
-  const historicalPicks = allPicks
-    .filter(pick => pick.date !== todayDate || pick.status !== 'pending')
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, resultsDisplayCount);
+
+  // For stats calculation: use the same logic as Results picks (all completed games)
+  const completedPicksForStats = resultsPicks.filter(pick => pick.status !== 'pending');
+
+  // Debug logging to track game movement
+  console.log('=== PICK DISTRIBUTION ===');
+  console.log('Total picks:', allPicks.length);
+  console.log('Today picks (pending, no scores):', todayPicks.length);
+  console.log('Results picks (with scores or completed):', resultsPicks.length);
+  console.log('Completed picks for stats:', completedPicksForStats.length);
+  console.log('========================');
 
   // Helper function to get dates in ET timezone
   const getETDate = (daysOffset: number = 0) => {
@@ -378,8 +383,8 @@ export const BettingDashboard = () => {
   useEffect(() => {
     console.log('allPicks changed, length:', allPicks.length);
     if (allPicks.length > 0) {
-      // Only analyze completed picks for stats (all non-pending picks)
-      const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
+      // Only analyze completed picks for stats (all games that have finished)
+      const completedPicks = completedPicksForStats;
       const calculatedResults = BettingAnalysisService.analyzeResults(completedPicks);
       console.log('Calculated results from', completedPicks.length, 'completed picks:', calculatedResults);
       setResults(calculatedResults);
@@ -903,7 +908,7 @@ export const BettingDashboard = () => {
                   </CardHeader>
                   <CardContent className="py-3 lg:py-4">
                     <div className={`text-base lg:text-lg font-bold ${(() => {
-                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
+                        const completedPicks = completedPicksForStats;
                         const totalWagered = completedPicks.length * 10; // $10 per pick
                         // Calculate total winnings (wager amount + profit for wins, 0 for losses)
                         const totalWinnings = completedPicks.reduce((sum, pick) => {
@@ -917,7 +922,7 @@ export const BettingDashboard = () => {
                         return roi >= 0 ? 'text-profit' : 'text-destructive';
                       })()}`}>
                       {(() => {
-                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending');
+                        const completedPicks = completedPicksForStats;
                         const totalWagered = completedPicks.length * 10; // $10 per pick
                         // Calculate total winnings (wager amount + profit for wins, 0 for losses)
                         const totalWinnings = completedPicks.reduce((sum, pick) => {
