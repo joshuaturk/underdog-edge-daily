@@ -164,6 +164,80 @@ export const GolfDashboard = () => {
             <CardTitle className="flex items-center gap-2 text-green-800 dark:text-green-200">
               <Trophy className="h-5 w-5" />
               {analysis.tournament.name}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full p-0 ml-2">
+                    <Info className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Info className="w-5 h-5 text-primary" />
+                      Key Tournament Insights
+                    </DialogTitle>
+                    <DialogDescription asChild>
+                      <div className="space-y-4 text-sm">
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Tournament Analysis</h4>
+                          <div className="space-y-2">
+                            {analysis.keyInsights.map((insight, index) => (
+                              <div key={index} className="flex items-start gap-2 p-2 bg-muted/50 rounded-lg">
+                                <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                <p className="text-sm">{insight}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Course Characteristics</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-muted-foreground">Layout</p>
+                              <p className="text-sm">{analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}</p>
+                              <p className="text-sm">{analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined course' : 'Open layout'}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
+                              <p className="text-sm">{analysis.tournament.courseCharacteristics.greens} greens</p>
+                              <p className="text-sm">{analysis.tournament.courseCharacteristics.rough} rough</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Weather Impact</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <div className="p-2 bg-muted/30 rounded">
+                              <p className="text-xs font-medium text-muted-foreground">Wind</p>
+                              <p className="text-sm">{analysis.tournament.weatherForecast.wind}</p>
+                            </div>
+                            <div className="p-2 bg-muted/30 rounded">
+                              <p className="text-xs font-medium text-muted-foreground">Temperature</p>
+                              <p className="text-sm">{analysis.tournament.weatherForecast.temperature}</p>
+                            </div>
+                            <div className="p-2 bg-muted/30 rounded">
+                              <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
+                              <p className="text-sm">{analysis.tournament.weatherForecast.precipitation}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Selection Criteria</h4>
+                          <ul className="space-y-1 list-disc list-inside text-sm">
+                            <li>Recent form with 2+ top 10s in last 4 starts (60% success rate)</li>
+                            <li>Strokes gained approach &gt; +0.8 per round (critical for this course type)</li>
+                            <li>Strong wind players favored due to forecast conditions</li>
+                            <li>OWGR top 50 players get priority in {analysis.tournament.fieldStrength.toLowerCase()} field</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
             </CardTitle>
           </CardHeader>
           <CardContent>
