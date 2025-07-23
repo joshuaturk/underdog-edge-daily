@@ -11,6 +11,19 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
+// Sports navigation data with consistent Unicode symbols as backup
+const sportsMenu = [
+  { name: 'MLB', symbol: '⚾', active: true, path: '/' },
+  { name: 'NCAA Football', symbol: '🏈', path: '#' },
+  { name: 'NCAA Bball', symbol: '🏀', path: '#' },
+  { name: 'NHL', symbol: '🏒', path: '#' },
+  { name: 'NBA', symbol: '🏀', path: '#' },
+  { name: 'NFL', symbol: '🏈', path: '#' },
+  { name: 'Soccer', symbol: '⚽', path: '#' },
+  { name: 'Golf', symbol: '⛳', path: '/golf' },
+  { name: 'Tennis', symbol: '🎾', path: '#' }
+];
+
 export const GolfDashboard = () => {
   const [analysis, setAnalysis] = useState<GolfAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,35 +88,75 @@ export const GolfDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              ⛳ Golf Top 10 Analysis
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Data-driven picks for top 10 finishers
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5">
+      <div className="container mx-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+        {/* Header - Mobile optimized */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 lg:gap-6">
+          <div className="flex items-center gap-3 justify-center lg:justify-start">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/db562826-74b8-4870-8f78-da45d663e372.png" 
+                alt="betbud.ai"
+                className="h-10 lg:h-12 object-contain"
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
+          
+          <div className="flex items-center gap-2 justify-center lg:justify-end flex-wrap">
             <Button
               onClick={loadGolfAnalysis}
               disabled={isLoading}
+              variant="outline"
               size="sm"
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="px-3 py-2 h-9"
             >
               {isLoading ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                <RefreshCw className="h-4 w-4 animate-spin mr-1 lg:mr-2" />
               ) : (
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4 mr-1 lg:mr-2" />
               )}
-              Refresh
+              <span className="hidden lg:inline">Refresh Data</span>
+              <span className="lg:hidden">Refresh</span>
             </Button>
             <ThemeToggle />
           </div>
         </div>
+
+        {/* Sports Navigation Menu */}
+        <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 rounded-full">
+          <CardContent className="p-2 sm:p-4">
+            <div className="flex items-center justify-center gap-1 flex-wrap">
+              {sportsMenu.map((sport, index) => {
+                const isActive = sport.path === '/golf';
+                return (
+                  <Button
+                    key={sport.name}
+                    variant={isActive ? "default" : "ghost"}
+                    size="sm"
+                    className={`flex items-center gap-1 sm:gap-2 rounded-full text-xs sm:text-sm px-2 sm:px-3 ${
+                      isActive 
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                        : "hover:bg-muted"
+                    }`}
+                    onClick={() => {
+                      if (sport.path !== '#') {
+                        // Navigation logic would go here
+                        window.location.href = sport.path;
+                      }
+                    }}
+                    disabled={sport.path === '#'}
+                  >
+                    <span className="text-sm sm:text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
+                      {sport.symbol}
+                    </span>
+                    <span className="hidden sm:inline">{sport.name}</span>
+                    <span className="sm:hidden">{sport.name.split(' ')[0]}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Tournament Info */}
         <Card className="border-green-200 dark:border-green-800">
