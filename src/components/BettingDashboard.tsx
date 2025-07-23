@@ -320,11 +320,11 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Create the exact 4 games you specified for today (these are static)
+      // Create the exact games for today with your specified picks
       const todayGames = [
         { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: false, odds: -144, homePitcher: 'Joey Cantillo', awayPitcher: 'Brandon Young' },
-        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
-        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: true, odds: 115, homePitcher: 'Frankie Montas', awayPitcher: 'Kyle Hendricks' },
+        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: false, odds: 118, homePitcher: 'Edward Cabrera', awayPitcher: 'Stephen Kolek' },
+        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: false, odds: 115, homePitcher: 'Frankie Montas', awayPitcher: 'Kyle Hendricks' },
         { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: false, odds: -186, homePitcher: 'Max Scherzer', awayPitcher: 'Cam Schlittler' }
       ];
 
@@ -625,15 +625,15 @@ export const BettingDashboard = () => {
 
                 <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xs font-medium">Total Profit</CardTitle>
+                    <CardTitle className="text-xs font-medium">Total Winnings</CardTitle>
                     <DollarSign className="h-3 w-3 text-profit" />
                   </CardHeader>
                   <CardContent>
                     <div className={`text-lg font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                      {results.totalProfit >= 0 ? '+' : ''}${results.totalProfit.toFixed(2)}
+                      ${((results.totalPicks * 10) + results.totalProfit).toFixed(2)}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {results.roi.toFixed(1)}% ROI
+                      Total Wagered: ${(results.totalPicks * 10).toFixed(2)}
                     </p>
                   </CardContent>
                 </Card>
