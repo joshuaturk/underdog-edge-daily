@@ -711,13 +711,32 @@ export const BettingDashboard = () => {
                     <TrendingUp className="h-3 w-3 text-profit" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-lg font-bold text-profit">
+                    <div className={`text-lg font-bold ${(() => {
+                        const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
+                        const totalWagered = completedPicks.length * 10; // $10 per pick
+                        // Calculate total winnings (wager amount + profit for wins, 0 for losses)
+                        const totalWinnings = completedPicks.reduce((sum, pick) => {
+                          if (pick.status === 'won') {
+                            return sum + 10 + (pick.profit || 0); // wager + profit
+                          }
+                          return sum; // losses contribute 0 to winnings
+                        }, 0);
+                        const profit = totalWinnings - totalWagered;
+                        const roi = totalWagered > 0 ? (profit / totalWagered) * 100 : 0;
+                        return roi >= 0 ? 'text-profit' : 'text-destructive';
+                      })()}`}>
                       {(() => {
                         const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
-                        const totalWagered = 40; // $10 per pick × 4 picks
-                        const totalProfit = completedPicks.reduce((sum, pick) => sum + (pick.profit || 0), 0);
-                        const netProfit = totalProfit - totalWagered;
-                        const roi = totalWagered > 0 ? (netProfit / totalWagered) * 100 : 0;
+                        const totalWagered = completedPicks.length * 10; // $10 per pick
+                        // Calculate total winnings (wager amount + profit for wins, 0 for losses)
+                        const totalWinnings = completedPicks.reduce((sum, pick) => {
+                          if (pick.status === 'won') {
+                            return sum + 10 + (pick.profit || 0); // wager + profit
+                          }
+                          return sum; // losses contribute 0 to winnings
+                        }, 0);
+                        const profit = totalWinnings - totalWagered;
+                        const roi = totalWagered > 0 ? (profit / totalWagered) * 100 : 0;
                         return `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
                       })()}
                     </div>
