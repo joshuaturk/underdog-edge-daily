@@ -37,66 +37,6 @@ const sportsMenu = [
   { name: 'Tennis', symbol: '🎾', path: '#' }
 ];
 
-// Cache for real analysis to avoid repeated API calls
-const analysisCache = new Map<string, string>();
-
-// Generate buddy-style analysis for picks with REAL MLB stats
-const generateRealAnalysis = async (pick: BettingPick): Promise<string> => {
-  const teamName = pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam;
-  const opponentName = pick.recommendedBet === 'home_runline' ? pick.awayTeam : pick.homeTeam;
-  const isHome = pick.recommendedBet === 'home_runline';
-  const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
-  
-  // Check cache first
-  if (analysisCache.has(cacheKey)) {
-    return analysisCache.get(cacheKey)!;
-  }
-  
-  try {
-    // Fetch real stats for both teams
-    const [teamStats, opponentStats] = await Promise.all([
-      MLBStatsService.getTeamStats(teamName),
-      MLBStatsService.getTeamStats(opponentName)
-    ]);
-
-    if (teamStats) {
-      // Generate analysis with real stats
-      const baseAnalysis = MLBStatsService.generateAdvancedAnalysis(teamStats, opponentStats, isHome);
-      
-      // Add buddy-style flavor to the real analysis
-      const buddyIntros = [
-        "Listen up, buddy - here's the real deal:",
-        "Alright, I've done my homework on this one:",
-        "Check this out - the numbers don't lie:",
-        "Here's why this pick is solid gold:",
-        "Trust me on this one - I've analyzed the data:"
-      ];
-      
-      const introIndex = Math.abs((pick.homeTeam + pick.awayTeam).split('').reduce((a, b) => {
-        a = ((a << 5) - a) + b.charCodeAt(0);
-        return a & a;
-      }, 0)) % buddyIntros.length;
-      
-      const fullAnalysis = `${buddyIntros[introIndex]} ${baseAnalysis}`;
-      analysisCache.set(cacheKey, fullAnalysis);
-      return fullAnalysis;
-    }
-  } catch (error) {
-    console.error('Error fetching real stats:', error);
-  }
-  
-  // Fallback to basic analysis if API fails
-  const fallback = `${teamName} has been competitive all season and the +1.5 runline gives us excellent insurance. They've shown they can keep games close even against tough opponents, making this a solid value play.`;
-  analysisCache.set(cacheKey, fallback);
-  return fallback;
-};
-
-// Sync function to get analysis (will be "Loading..." initially, then update)
-const getBuddyAnalysis = (pick: BettingPick): string => {
-  const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
-  return analysisCache.get(cacheKey) || "Loading real-time analysis...";
-};
-
 export const BettingDashboard = () => {
   // Simple state - one source of truth
   const [allPicks, setAllPicks] = useState<BettingPick[]>([]);
@@ -104,12 +44,73 @@ export const BettingDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [realAnalysisLoaded, setRealAnalysisLoaded] = useState<Set<string>>(new Set());
+  const [analysisCache, setAnalysisCache] = useState<Map<string, string>>(new Map());
   
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
   const [resultsDisplayCount, setResultsDisplayCount] = useState(10); // For pagination
+
+  const { toast } = useToast();
+
+  // Generate buddy-style analysis for picks with REAL MLB stats
+  const generateRealAnalysis = async (pick: BettingPick): Promise<string> => {
+    const teamName = pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam;
+    const opponentName = pick.recommendedBet === 'home_runline' ? pick.awayTeam : pick.homeTeam;
+    const isHome = pick.recommendedBet === 'home_runline';
+    const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
+    
+    // Check cache first
+    if (analysisCache.has(cacheKey)) {
+      return analysisCache.get(cacheKey)!;
+    }
+    
+    try {
+      // Fetch real stats for both teams
+      const [teamStats, opponentStats] = await Promise.all([
+        MLBStatsService.getTeamStats(teamName),
+        MLBStatsService.getTeamStats(opponentName)
+      ]);
+
+      if (teamStats) {
+        // Generate analysis with real stats
+        const baseAnalysis = MLBStatsService.generateAdvancedAnalysis(teamStats, opponentStats, isHome);
+        
+        // Add buddy-style flavor to the real analysis
+        const buddyIntros = [
+          "Listen up, buddy - here's the real deal:",
+          "Alright, I've done my homework on this one:",
+          "Check this out - the numbers don't lie:",
+          "Here's why this pick is solid gold:",
+          "Trust me on this one - I've analyzed the data:"
+        ];
+        
+        const introIndex = Math.abs((pick.homeTeam + pick.awayTeam).split('').reduce((a, b) => {
+          a = ((a << 5) - a) + b.charCodeAt(0);
+          return a & a;
+        }, 0)) % buddyIntros.length;
+        
+        const fullAnalysis = `${buddyIntros[introIndex]} ${baseAnalysis}`;
+        
+        // Update cache state
+        setAnalysisCache(prev => new Map(prev.set(cacheKey, fullAnalysis)));
+        return fullAnalysis;
+      }
+    } catch (error) {
+      console.error('Error fetching real stats:', error);
+    }
+    
+    // Fallback to basic analysis if API fails
+    const fallback = `${teamName} has been competitive all season and the +1.5 runline gives us excellent insurance. They've shown they can keep games close even against tough opponents, making this a solid value play.`;
+    setAnalysisCache(prev => new Map(prev.set(cacheKey, fallback)));
+    return fallback;
+  };
+
+  // Sync function to get analysis (will be "Loading..." initially, then update)
+  const getBuddyAnalysis = (pick: BettingPick): string => {
+    const cacheKey = `${pick.homeTeam}-${pick.awayTeam}-${pick.recommendedBet}`;
+    return analysisCache.get(cacheKey) || "Loading real-time analysis...";
+  };
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
 
   // Get today's and tomorrow's picks from allPicks
   const todayDate = new Date().toISOString().split('T')[0];
