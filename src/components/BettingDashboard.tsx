@@ -738,7 +738,7 @@ export const BettingDashboard = () => {
               <TabsTrigger value="results" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                 <span>Results</span>
                 <Badge variant="outline" className="text-xs">
-                  {allPicks.filter(pick => pick.status !== 'pending').length}
+                  {allPicks.filter(pick => pick.status !== 'pending').slice(0, 4).length}
                 </Badge>
               </TabsTrigger>
             </TabsList>
