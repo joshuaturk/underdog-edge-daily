@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, Globe, Database, 
+import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Target, 
          GraduationCap, Dribbble, Trophy, ChevronDown, Check, Info, Clock } from 'lucide-react';
 import { BettingPick, BettingResults } from '@/types/betting';
 import { BettingAnalysisService } from '@/services/BettingAnalysisService';
@@ -95,7 +95,7 @@ export const BettingDashboard = () => {
   const [results, setResults] = useState<BettingResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const [isUsingLiveData, setIsUsingLiveData] = useState(true);
+  
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
   const [resultsDisplayCount, setResultsDisplayCount] = useState(10); // For pagination
   const navigate = useNavigate();
@@ -675,19 +675,6 @@ export const BettingDashboard = () => {
           </div>
           
           <div className="flex items-center gap-2 justify-center lg:justify-end flex-wrap">
-            {isUsingLiveData ? (
-              <Badge variant="outline" className="bg-profit/10 text-profit border-profit/20 px-3 py-1.5">
-                <Globe className="w-3 h-3 mr-1" />
-                <span className="hidden lg:inline">Live Data</span>
-                <span className="lg:hidden">Live</span>
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20 px-3 py-1.5">
-                <Database className="w-3 h-3 mr-1" />
-                <span className="hidden lg:inline">Demo Mode</span>
-                <span className="lg:hidden">Demo</span>
-              </Badge>
-            )}
             <ThemeToggle />
             <Button onClick={refreshPickData} disabled={isLoading} variant="outline" size="sm" className="px-3 py-2 h-9">
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 lg:mr-2'}`} />
