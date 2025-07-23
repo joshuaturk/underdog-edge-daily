@@ -355,7 +355,17 @@ export const BettingDashboard = () => {
             const finalPicks = newPicks.slice(0, 4);
             console.log('Setting daily picks:', finalPicks);
             setDailyPicks(finalPicks);
-            setAllPicks(prev => [...prev, ...finalPicks]);
+            setAllPicks(prev => {
+              const combined = [...prev, ...finalPicks];
+              // Remove duplicates based on homeTeam, awayTeam, and date
+              return combined.filter((pick, index) => 
+                index === combined.findIndex(p => 
+                  p.homeTeam === pick.homeTeam && 
+                  p.awayTeam === pick.awayTeam && 
+                  p.date === pick.date
+                )
+              );
+            });
             setLastUpdate(new Date());
             
             toast({
@@ -393,7 +403,17 @@ export const BettingDashboard = () => {
       
       console.log('Demo picks created:', demoPicks.length);
       setDailyPicks(demoPicks);
-      setAllPicks(prev => [...prev, ...demoPicks]);
+      setAllPicks(prev => {
+        const combined = [...prev, ...demoPicks];
+        // Remove duplicates based on homeTeam, awayTeam, and date
+        return combined.filter((pick, index) => 
+          index === combined.findIndex(p => 
+            p.homeTeam === pick.homeTeam && 
+            p.awayTeam === pick.awayTeam && 
+            p.date === pick.date
+          )
+        );
+      });
       
       toast({
         title: "Demo Mode Active",
@@ -600,7 +620,7 @@ export const BettingDashboard = () => {
                   }
                 ];
                 setDailyPicks(testPicks);
-                setAllPicks(testPicks);
+                setAllPicks(testPicks); // Replace entirely for test picks
                 console.log('Test picks created:', testPicks);
               }} 
               variant="outline" 
@@ -1017,15 +1037,7 @@ export const BettingDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {allPicks
-                          .filter((pick, index, self) => 
-                            index === self.findIndex(p => 
-                              p.homeTeam === pick.homeTeam && 
-                              p.awayTeam === pick.awayTeam && 
-                              p.date === pick.date
-                            )
-                          )
-                          .map((pick, index) => (
+                        {allPicks.map((pick, index) => (
                           <div 
                             key={`${pick.homeTeam}-${pick.awayTeam}-${pick.date}-${index}`}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
