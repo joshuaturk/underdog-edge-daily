@@ -333,52 +333,11 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // First try The Odds API for proper American odds
-      console.log('=== Fetching from The Odds API for proper odds ===');
-      const oddsResult = await SportsAPIService.getMLBGames();
-      console.log('Odds API result:', oddsResult);
+      // Fetch today's actual MLB games from ESPN (after 12:01 AM, pull real games)
+      const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
+      console.log('ESPN result for daily picks:', espnResult);
       
-      if (oddsResult.success && oddsResult.data && oddsResult.data.length > 0) {
-        console.log('Using The Odds API games with proper odds:', oddsResult.data.length, 'games found');
-        
-        const todayPicks: BettingPick[] = [];
-        
-        // Analyze each game from Odds API (has proper American odds)
-        for (const game of oddsResult.data) {
-          console.log(`Analyzing game: ${game.homeTeam} vs ${game.awayTeam}, runline odds: ${game.runlineOdds}`);
-          
-          const isHomeUnderdog = game.homeOdds > 0; // Positive odds = underdog
-          const actualOdds = game.runlineOdds || game.awayOdds; // Use runline odds
-          
-          const pick = BettingAnalysisService.analyzeGame(
-            game.homeTeam,
-            game.awayTeam,
-            isHomeUnderdog,
-            actualOdds, // Real odds from The Odds API
-            game.homePitcher || 'TBD',
-            game.awayPitcher || 'TBD'
-          );
-          
-          if (pick) {
-            console.log(`Generated pick with odds ${actualOdds}:`, pick);
-            todayPicks.push(pick);
-          }
-        }
-        
-        // Take top qualifying picks
-        const topPicks = todayPicks.slice(0, 4);
-        console.log(`Generated ${topPicks.length} picks from The Odds API`);
-        
-        if (topPicks.length > 0) {
-          const historicalPicks = generateMockHistoricalPicks();
-          setAllPicks([...topPicks, ...historicalPicks]);
-          setIsLoading(false);
-          setLastUpdate(new Date());
-          return;
-        }
-      }
-      
-      // Fallback to ESPN if Odds API fails
+      if (espnResult.success && espnResult.data && espnResult.data.length > 0) {
         console.log('Using real MLB games for picks:', espnResult.data.length, 'games found');
         
         const todayPicks: BettingPick[] = [];
@@ -419,21 +378,14 @@ export const BettingDashboard = () => {
         }
       }
       
-    } catch (error) {
-      console.error('Error generating daily picks:', error);
-      
-      // Debug logging for odds issue - using fallback picks
-      console.log('=== ODDS DEBUG: Using fallback picks ===');
+      // Fallback to hardcoded games with REAL ESPN API odds
+      console.log('Using fallback picks with real ESPN odds from console logs');
       const todayGames = [
-        { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: true, odds: 160, homePitcher: 'Slade Cecconi', awayPitcher: 'Charlie Morton' },
-        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: 104, homePitcher: 'Sandy Alcantara', awayPitcher: 'Dylan Cease' },
-        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: false, odds: 108, homePitcher: 'Sean Manaea', awayPitcher: 'Brock Burke' },
-        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: true, odds: 124, homePitcher: 'Chris Bassitt', awayPitcher: 'Max Fried' }
+        { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', isHomeUnderdog: true, odds: +160, homePitcher: 'Slade Cecconi', awayPitcher: 'Charlie Morton' },
+        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', isHomeUnderdog: true, odds: +104, homePitcher: 'Sandy Alcantara', awayPitcher: 'Dylan Cease' },
+        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', isHomeUnderdog: false, odds: +108, homePitcher: 'Sean Manaea', awayPitcher: 'Brock Burke' },
+        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', isHomeUnderdog: true, odds: +124, homePitcher: 'Chris Bassitt', awayPitcher: 'Max Fried' }
       ];
-      
-      todayGames.forEach(game => {
-        console.log(`=== ODDS DEBUG: Game ${game.homeTeam} vs ${game.awayTeam} has odds: ${game.odds} ===`);
-      });
 
       const todayPicks: BettingPick[] = [];
       
@@ -544,7 +496,7 @@ export const BettingDashboard = () => {
         description: `Today: ${todayPicks.length} picks, Results: 4 completed`,
       });
       
-      console.error('Original error generating daily picks:', error);
+    } catch (error) {
       console.error('Error generating static picks:', error);
       toast({
         title: "Error",
@@ -553,7 +505,7 @@ export const BettingDashboard = () => {
       });
     } finally {
       setIsLoading(false);
-      setLastUpdate(new Date());
+      console.log('=== generateStaticDailyPicks completed ===');
     }
   };
 
@@ -1046,7 +998,6 @@ export const BettingDashboard = () => {
                               </div>
                               <div className="flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-2">
                                 <Badge variant="outline" className="text-muted-foreground font-medium px-3 py-1.5 lg:px-2 lg:py-1">
-                                  {console.log(`=== ODDS DISPLAY DEBUG: Showing ${pick.homeTeam} vs ${pick.awayTeam} odds as: ${pick.odds} ===`) || ''}
                                   {pick.odds > 0 ? '+' : ''}{pick.odds}
                                 </Badge>
                                 {pick.status !== 'pending' && (
