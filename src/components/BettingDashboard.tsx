@@ -199,7 +199,9 @@ export const BettingDashboard = () => {
     const updateLiveScores = async () => {
       if (allPicks.length === 0) return;
       
+      console.log('=== LIVE SCORE UPDATE TRIGGERED ===');
       console.log('Updating live scores for', allPicks.length, 'picks');
+      console.log('Picks before live update:', allPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
       
       try {
         // Fetch live scores from ESPN
@@ -321,7 +323,8 @@ export const BettingDashboard = () => {
           );
           
           if (hasChanges) {
-            console.log('Updating picks with live scores');
+            console.log('=== UPDATING PICKS WITH LIVE SCORES ===');
+            console.log('Updated picks:', updatedPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
             setAllPicks(updatedPicks);
           } else {
             console.log('No changes to update');
@@ -570,13 +573,17 @@ export const BettingDashboard = () => {
 
   // Refresh data - ONLY updates existing picks, doesn't generate new ones
   const refreshPickData = async () => {
-    console.log('=== refreshPickData called - updating existing picks only ===');
+    console.log('=== REFRESH BUTTON CLICKED ===');
+    console.log('Current picks before refresh:', allPicks.length);
+    console.log('Picks before refresh:', allPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
+    
     setIsLoading(true);
     
     try {
       // Don't regenerate picks, just update live scores for existing picks
-      console.log('Current picks before refresh:', allPicks.length);
       setLastUpdate(new Date());
+      
+      console.log('=== REFRESH COMPLETED - NO DATA CHANGES ===');
       
       toast({
         title: "Data Refreshed",
