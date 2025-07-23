@@ -132,12 +132,23 @@ export const BettingDashboard = () => {
   // For stats calculation: use the same logic as Results picks (all completed games)
   const completedPicksForStats = resultsPicks.filter(pick => pick.status !== 'pending');
 
-  // Debug logging to track game movement
+  // Debug logging to track game movement and specific game
   console.log('=== PICK DISTRIBUTION ===');
   console.log('Total picks:', allPicks.length);
+  console.log('All picks:', allPicks.map(p => `${p.awayTeam} @ ${p.homeTeam} (${p.date}, ${p.status})`));
   console.log('Today picks (pending, no scores):', todayPicks.length);
   console.log('Results picks (with scores or completed):', resultsPicks.length);
+  console.log('Results picks details:', resultsPicks.map(p => `${p.awayTeam} @ ${p.homeTeam} (${p.date}, ${p.status})`));
   console.log('Completed picks for stats:', completedPicksForStats.length);
+  
+  // Check specifically for Miami/Padres game
+  const miamiPadresGame = allPicks.find(p => 
+    (p.homeTeam.includes('Miami') || p.homeTeam.includes('Marlins')) && 
+    (p.awayTeam.includes('San Diego') || p.awayTeam.includes('Padres')) ||
+    (p.awayTeam.includes('Miami') || p.awayTeam.includes('Marlins')) && 
+    (p.homeTeam.includes('San Diego') || p.homeTeam.includes('Padres'))
+  );
+  console.log('Miami/Padres game found:', miamiPadresGame);
   console.log('========================');
 
   // Helper function to get dates in ET timezone
@@ -502,16 +513,18 @@ export const BettingDashboard = () => {
         console.log(`Added pick: ${pick.homeTeam} vs ${pick.awayTeam}, confidence: ${pick.confidence}, bet: ${pick.recommendedBet}`);
       });
 
-      // Create some completed picks for results (yesterday's games)
+      // Create some completed picks for results (including today's completed game)
       const yesterdayDate = new Date();
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       const yesterdayDateStr = yesterdayDate.toISOString().split('T')[0];
       
       const completedGames = [
-        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', recommendedBet: 'away_runline' as const, odds: 118, confidence: 72, homeScore: 4, awayScore: 6 },
-        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', recommendedBet: 'away_runline' as const, odds: 115, confidence: 68, homeScore: 3, awayScore: 2 },
-        { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', recommendedBet: 'away_runline' as const, odds: -144, confidence: 65, homeScore: 7, awayScore: 3 },
-        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', recommendedBet: 'away_runline' as const, odds: -186, confidence: 70, homeScore: 1, awayScore: 8 }
+        // Today's completed game (Miami vs SD) - based on console logs showing final 3-2 score
+        { homeTeam: 'Miami Marlins', awayTeam: 'San Diego Padres', recommendedBet: 'away_runline' as const, odds: 118, confidence: 72, homeScore: 3, awayScore: 2, date: todayDate },
+        // Yesterday's games
+        { homeTeam: 'NY Mets', awayTeam: 'LA Angels', recommendedBet: 'away_runline' as const, odds: 115, confidence: 68, homeScore: 3, awayScore: 2, date: yesterdayDateStr },
+        { homeTeam: 'Cleveland Guardians', awayTeam: 'Baltimore Orioles', recommendedBet: 'away_runline' as const, odds: -144, confidence: 65, homeScore: 7, awayScore: 3, date: yesterdayDateStr },
+        { homeTeam: 'Toronto Blue Jays', awayTeam: 'NY Yankees', recommendedBet: 'away_runline' as const, odds: -186, confidence: 70, homeScore: 1, awayScore: 8, date: yesterdayDateStr }
       ];
       
       const completedPicks: BettingPick[] = completedGames.map((game, index) => {
@@ -536,7 +549,7 @@ export const BettingDashboard = () => {
         
         return {
           id: `completed-${index}`,
-          date: yesterdayDateStr,
+          date: game.date,
           homeTeam: game.homeTeam,
           awayTeam: game.awayTeam,
           recommendedBet: game.recommendedBet,
@@ -1086,14 +1099,23 @@ export const BettingDashboard = () => {
                           </div>
                          
                          {pick.result && (
-                           <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
-                             Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
-                             {pick.profit !== undefined && (
-                               <span className={`ml-2 font-semibold ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                 ({pick.profit >= 0 ? '+' : ''}${pick.profit.toFixed(2)})
-                               </span>
-                             )}
-                           </div>
+                            <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2 flex justify-between items-center">
+                              <div>
+                                Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
+                                {pick.profit !== undefined && (
+                                  <span className={`ml-2 font-semibold ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                    ({pick.profit >= 0 ? '+' : ''}${pick.profit.toFixed(2)})
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-muted-foreground font-medium">
+                                {new Date(pick.date).toLocaleDateString('en-US', { 
+                                  weekday: 'short',
+                                  month: 'short', 
+                                  day: 'numeric' 
+                                })}
+                              </span>
+                            </div>
                          )}
                        </div>
                      ))}
@@ -1177,9 +1199,18 @@ export const BettingDashboard = () => {
                                 
                                  {/* Pick Details with Status Indicator */}
                                  <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
-                                   <span className="text-sm text-muted-foreground">
-                                     {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
-                                   </span>
+                                   <div className="flex justify-between items-start">
+                                     <span className="text-sm text-muted-foreground">
+                                       {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
+                                     </span>
+                                     <span className="text-xs text-muted-foreground font-medium">
+                                       {new Date(pick.date).toLocaleDateString('en-US', { 
+                                         weekday: 'short',
+                                         month: 'short', 
+                                         day: 'numeric' 
+                                       })}
+                                     </span>
+                                   </div>
                                    <div className="text-xs text-muted-foreground">
                                      Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
                                    </div>
