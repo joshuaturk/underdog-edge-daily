@@ -307,8 +307,10 @@ export const BettingDashboard = () => {
   useEffect(() => {
     console.log('allPicks changed, length:', allPicks.length);
     if (allPicks.length > 0) {
-      const calculatedResults = BettingAnalysisService.analyzeResults(allPicks);
-      console.log('Calculated results:', calculatedResults);
+      // Only analyze completed picks for stats (not pending Today picks)
+      const completedPicks = allPicks.filter(pick => pick.status !== 'pending').slice(0, 4);
+      const calculatedResults = BettingAnalysisService.analyzeResults(completedPicks);
+      console.log('Calculated results from', completedPicks.length, 'completed picks:', calculatedResults);
       setResults(calculatedResults);
     } else {
       console.log('No picks to analyze');
@@ -534,57 +536,6 @@ export const BettingDashboard = () => {
                 className="h-8 sm:h-12 object-contain"
               />
             </div>
-            
-            {/* Info Button */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-2">
-                  <Info className="w-4 h-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-primary" />
-                    BetBud.ai Algorithm Explained
-                  </DialogTitle>
-                  <DialogDescription asChild>
-                    <div className="space-y-4 text-sm">
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">How We Pick Winners</h4>
-                        <p>Our algorithm analyzes MLB games using proven statistical models to identify profitable runline (+1.5) betting opportunities.</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Key Factors</h4>
-                        <ul className="space-y-1 list-disc list-inside">
-                          <li><strong>Historical Performance:</strong> Teams with proven runline coverage rates (60%+ recommended)</li>
-                          <li><strong>Home vs Away:</strong> Road underdogs get +5% bonus due to superior value</li>
-                          <li><strong>Recent Form:</strong> Last 10 games weighted at 30% of decision</li>
-                          <li><strong>Pitcher Analysis:</strong> Starting pitcher matchups and ERA considerations</li>
-                          <li><strong>Minimum Threshold:</strong> Only games with 65%+ confidence recommended</li>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Top Performing Teams</h4>
-                        <p>Houston (81.2%), Toronto (73.3%), Tampa Bay (69.6%), and San Diego (69.4%) lead our runline coverage metrics.</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Day-of-Week Edge</h4>
-                        <p>Historical data shows Thursday (+3%) and Saturday (+4%) provide additional value due to scheduling patterns.</p>
-                      </div>
-                      
-                      <div className="bg-accent/10 p-3 rounded-lg">
-                        <h4 className="font-semibold text-foreground mb-2">Risk Management</h4>
-                        <p>All picks are calculated based on $10 unit sizes. ROI calculations include the original wager in winning payouts for accurate profit tracking.</p>
-                      </div>
-                    </div>
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
           </div>
           
           <div className="flex items-center gap-2 justify-between sm:justify-end">
@@ -664,7 +615,7 @@ export const BettingDashboard = () => {
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <Target className="w-5 h-5 text-primary" />
-                        BetBud.ai Algorithm Explained
+                        BetBud.ai Runline Algorithm
                       </DialogTitle>
                       <DialogDescription asChild>
                         <div className="space-y-4 text-sm">
