@@ -239,18 +239,26 @@ export const BettingDashboard = () => {
                   
                   updatedPick.status = isWin ? 'won' : 'lost';
                   
-                  // Calculate profit based on actual odds
+                  // Calculate profit based on actual American odds
                   if (isWin) {
                     const odds = pick.odds;
+                    let profit = 0;
+                    
                     if (odds > 0) {
-                      // Positive odds: +118 means $100 bet wins $118
-                      updatedPick.profit = (odds / 100);
+                      // Positive odds: +118 means $100 bet wins $118, so $10 bet wins $11.80
+                      profit = (10 * odds) / 100;
                     } else {
-                      // Negative odds: -150 means need to bet $150 to win $100
-                      updatedPick.profit = (100 / Math.abs(odds));
+                      // Negative odds: -150 means need to bet $150 to win $100, so $10 bet wins $6.67
+                      profit = (10 * 100) / Math.abs(odds);
                     }
+                    
+                    // Store the profit (not including the original wager)
+                    updatedPick.profit = profit;
+                    
+                    console.log(`Win calculation: $10 bet at ${odds} odds = $${profit.toFixed(2)} profit (Total return: $${(10 + profit).toFixed(2)})`);
                   } else {
-                    updatedPick.profit = -1; // Lost the $10 bet
+                    updatedPick.profit = -10; // Lost the entire $10 wager
+                    console.log(`Loss: $10 bet lost = -$10.00`);
                   }
                   
                   console.log(`Game final: ${pick.recommendedBet} ${isWin ? 'WON' : 'LOST'}`);
@@ -622,7 +630,7 @@ export const BettingDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <div className={`text-lg font-bold ${results.totalProfit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                      {results.totalProfit >= 0 ? '+' : ''}${(results.totalProfit * 10).toFixed(2)}
+                      {results.totalProfit >= 0 ? '+' : ''}${results.totalProfit.toFixed(2)}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {results.roi.toFixed(1)}% ROI
@@ -806,9 +814,9 @@ export const BettingDashboard = () => {
                          {pick.result && (
                            <div className="text-sm text-muted-foreground border-t border-border/30 pt-2 mt-2">
                              Final: {pick.homeTeam} {pick.result.homeScore} - {pick.awayTeam} {pick.result.awayScore}
-                             {pick.profit && (
-                               <span className={`ml-2 font-semibold ${pick.profit > 0 ? 'text-profit' : 'text-loss'}`}>
-                                 ({pick.profit > 0 ? '+' : ''}{pick.profit.toFixed(2)}u)
+                             {pick.profit !== undefined && (
+                               <span className={`ml-2 font-semibold ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                 ({pick.profit >= 0 ? '+' : ''}${pick.profit.toFixed(2)})
                                </span>
                              )}
                            </div>
@@ -1046,7 +1054,7 @@ export const BettingDashboard = () => {
                                  </div>
                                  {pick.profit !== undefined && (
                                    <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                     {pick.profit >= 0 ? '+' : ''}${(pick.profit * 10).toFixed(2)}
+                                     {pick.profit >= 0 ? '+' : ''}${pick.profit.toFixed(2)}
                                    </div>
                                  )}
                                </div>

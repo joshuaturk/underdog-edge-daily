@@ -145,9 +145,12 @@ export class BettingAnalysisService {
     const totalProfit = completedPicks.reduce((sum, pick) => sum + (pick.profit || 0), 0);
     const winRate = completedPicks.length > 0 ? (wonPicks.length / completedPicks.length) * 100 : 0;
     
-    // Calculate ROI based on actual profit from odds
-    const totalInvested = completedPicks.length; // 1 unit per bet
-    const roi = totalInvested > 0 ? (totalProfit / totalInvested) * 100 : 0;
+    // Calculate ROI: (Total Winnings - Total Wagered) / Total Wagered * 100
+    // Total Wagered = $10 per completed pick
+    // Total Winnings = Total Wagered + Total Profit
+    const totalWagered = completedPicks.length * 10;
+    const totalWinnings = totalWagered + totalProfit;
+    const roi = totalWagered > 0 ? ((totalWinnings - totalWagered) / totalWagered) * 100 : 0;
 
     // Calculate early cashout opportunities as percentage
     // Include both winning picks and losing picks that had cashout opportunities
