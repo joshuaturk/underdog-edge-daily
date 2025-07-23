@@ -654,47 +654,55 @@ export const BettingDashboard = () => {
                 <p className="text-muted-foreground text-center text-sm">
                   MLB stat model to identify valuable runlines (+1.5)
                 </p>
-                <Popover>
-                  <PopoverTrigger asChild>
+                <Dialog>
+                  <DialogTrigger asChild>
                     <Button variant="ghost" size="sm" className="h-6 w-6 rounded-full p-0">
                       <Info className="h-4 w-4" />
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
-                    <div className="space-y-4 text-sm">
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">How We Pick Winners</h4>
-                        <p>Our algorithm analyzes MLB games using proven statistical models to identify profitable runline (+1.5) betting opportunities.</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Key Factors</h4>
-                        <ul className="space-y-1 list-disc list-inside">
-                          <li><strong>Historical Performance:</strong> Teams with proven runline coverage rates (60%+ recommended)</li>
-                          <li><strong>Home vs Away:</strong> Road underdogs get +5% bonus due to superior value</li>
-                          <li><strong>Recent Form:</strong> Last 10 games weighted at 30% of decision</li>
-                          <li><strong>Pitcher Analysis:</strong> Starting pitcher matchups and ERA considerations</li>
-                          <li><strong>Minimum Threshold:</strong> Only games with 65%+ confidence recommended</li>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Top Performing Teams</h4>
-                        <p>Houston (81.2%), Toronto (73.3%), Tampa Bay (69.6%), and San Diego (69.4%) lead our runline coverage metrics.</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Day-of-Week Edge</h4>
-                        <p>Historical data shows Thursday (+3%) and Saturday (+4%) provide additional value due to scheduling patterns.</p>
-                      </div>
-                      
-                      <div className="bg-accent/10 p-3 rounded-lg">
-                        <h4 className="font-semibold text-foreground mb-2">Risk Management</h4>
-                        <p>All picks are calculated based on $10 unit sizes. ROI calculations include the original wager in winning payouts for accurate profit tracking.</p>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto mx-4">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Target className="w-5 h-5 text-primary" />
+                        BetBud.ai Algorithm Explained
+                      </DialogTitle>
+                      <DialogDescription asChild>
+                        <div className="space-y-4 text-sm">
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">How We Pick Winners</h4>
+                            <p>Our algorithm analyzes MLB games using proven statistical models to identify profitable runline (+1.5) betting opportunities.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Key Factors</h4>
+                            <ul className="space-y-1 list-disc list-inside">
+                              <li><strong>Historical Performance:</strong> Teams with proven runline coverage rates (60%+ recommended)</li>
+                              <li><strong>Home vs Away:</strong> Road underdogs get +5% bonus due to superior value</li>
+                              <li><strong>Recent Form:</strong> Last 10 games weighted at 30% of decision</li>
+                              <li><strong>Pitcher Analysis:</strong> Starting pitcher matchups and ERA considerations</li>
+                              <li><strong>Minimum Threshold:</strong> Only games with 65%+ confidence recommended</li>
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Top Performing Teams</h4>
+                            <p>Houston (81.2%), Toronto (73.3%), Tampa Bay (69.6%), and San Diego (69.4%) lead our runline coverage metrics.</p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-foreground mb-2">Day-of-Week Edge</h4>
+                            <p>Historical data shows Thursday (+3%) and Saturday (+4%) provide additional value due to scheduling patterns.</p>
+                          </div>
+                          
+                          <div className="bg-accent/10 p-3 rounded-lg">
+                            <h4 className="font-semibold text-foreground mb-2">Risk Management</h4>
+                            <p>All picks are calculated based on $10 unit sizes. ROI calculations include the original wager in winning payouts for accurate profit tracking.</p>
+                          </div>
+                        </div>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             
@@ -930,7 +938,7 @@ export const BettingDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {allPicks.filter(pick => pick.status !== 'pending').map((pick, index) => (
+                        {allPicks.filter(pick => pick.status !== 'pending').slice(0, 4).map((pick, index) => (
                           <div 
                             key={`${pick.homeTeam}-${pick.awayTeam}-${pick.date}-${index}`}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
