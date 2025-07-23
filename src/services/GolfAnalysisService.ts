@@ -8,201 +8,51 @@ export class GolfAnalysisService {
   // Sample tournament data - in production this would come from web scraping
   static getMockTournament(): GolfTournament {
     return {
-      name: "FedEx St. Jude Championship",
-      course: "TPC Southwind",
-      location: "Memphis, TN", 
-      dates: "August 15-18, 2025",
-      purse: "$20,000,000",
-      fieldStrength: 'Elite',
+      name: "3M Open",
+      course: "TPC Twin Cities",
+      location: "Blaine, MN", 
+      dates: "July 24-27, 2025",
+      purse: "$8,200,000",
+      fieldStrength: 'Strong',
       courseCharacteristics: {
-        length: 7244,
-        parTotal: 70,
+        length: 7431,
+        parTotal: 71,
         rough: 'Moderate',
         greens: 'Bentgrass',
         wind: 'Low',
         treelined: true,
-        waterHazards: 3,
+        waterHazards: 4,
         elevation: 'Sea Level'
       },
       weatherForecast: {
-        wind: "5-10 mph variable",
-        temperature: "85-90°F",
-        precipitation: "20% chance Thursday"
+        wind: "8-12 mph SW",
+        temperature: "75-82°F",
+        precipitation: "10% chance Friday"
       },
       pastWinners: [
-        { year: "2024", winner: "Hideki Matsuyama", score: "-17" },
-        { year: "2023", winner: "Lucas Glover", score: "-15" },
-        { year: "2022", winner: "J.J. Spaun", score: "-13" }
+        { year: "2024", winner: "Jhonattan Vegas", score: "-14" },
+        { year: "2023", winner: "Lee Hodges", score: "-15" },
+        { year: "2022", winner: "Tony Finau", score: "-17" }
       ]
     };
   }
 
-  // Mock player data with realistic stats
+  // Mock player data with realistic stats for 3M Open
   static getMockPlayers(): GolfPlayer[] {
     return [
       {
         id: "1",
-        name: "Viktor Hovland",
-        owgr: 8,
-        fedexCupRank: 12,
-        recentForm: {
-          top10sLast4Starts: 3,
-          sgTotalLast3: 1.8,
-          sgApproachLast3: 1.2,
-          sgAroundGreenLast3: 0.4,
-          sgPuttingLast3: 0.2,
-          sgOffTeeLastMonth: 0.8,
-          lastStartResult: "T4"
-        },
-        courseHistory: {
-          pastTop10s: 2,
-          bestFinish: "T3",
-          timesPlayed: 4
-        },
-        seasonStats: {
-          drivingDistance: 295,
-          drivingAccuracy: 62.5,
-          sgApproach: 1.1,
-          sgAroundGreen: 0.3,
-          sgPutting: 0.1,
-          sgOffTee: 0.5,
-          sgTotal: 2.0
-        },
-        specialties: ["iron play specialist", "bentgrass expert"]
-      },
-      {
-        id: "2", 
-        name: "Collin Morikawa",
-        owgr: 15,
-        fedexCupRank: 8,
-        recentForm: {
-          top10sLast4Starts: 2,
-          sgTotalLast3: 1.5,
-          sgApproachLast3: 1.8,
-          sgAroundGreenLast3: 0.1,
-          sgPuttingLast3: -0.2,
-          sgOffTeeLastMonth: 0.3,
-          lastStartResult: "T7"
-        },
-        courseHistory: {
-          pastTop10s: 1,
-          bestFinish: "T6",
-          timesPlayed: 3
-        },
-        seasonStats: {
-          drivingDistance: 288,
-          drivingAccuracy: 68.2,
-          sgApproach: 1.4,
-          sgAroundGreen: 0.2,
-          sgPutting: -0.1,
-          sgOffTee: 0.2,
-          sgTotal: 1.7
-        },
-        specialties: ["iron play specialist", "tight course expert"]
-      },
-      {
-        id: "3",
-        name: "Tony Finau", 
+        name: "Sam Burns",
         owgr: 22,
-        fedexCupRank: 18,
-        recentForm: {
-          top10sLast4Starts: 2,
-          sgTotalLast3: 1.2,
-          sgApproachLast3: 0.9,
-          sgAroundGreenLast3: 0.5,
-          sgPuttingLast3: 0.8,
-          sgOffTeeLastMonth: 1.1,
-          lastStartResult: "T9"
-        },
-        courseHistory: {
-          pastTop10s: 3,
-          bestFinish: "2nd",
-          timesPlayed: 6
-        },
-        seasonStats: {
-          drivingDistance: 312,
-          drivingAccuracy: 58.9,
-          sgApproach: 0.7,
-          sgAroundGreen: 0.4,
-          sgPutting: 0.3,
-          sgOffTee: 0.9,
-          sgTotal: 2.3
-        },
-        specialties: ["power player", "course history"]
-      },
-      {
-        id: "4",
-        name: "Xander Schauffele",
-        owgr: 3,
-        fedexCupRank: 2,
+        fedexCupRank: 22,
         recentForm: {
           top10sLast4Starts: 3,
-          sgTotalLast3: 2.1,
-          sgApproachLast3: 1.0,
-          sgAroundGreenLast3: 0.3,
-          sgPuttingLast3: 0.6,
-          sgOffTeeLastMonth: 0.7,
-          lastStartResult: "T2"
-        },
-        courseHistory: {
-          pastTop10s: 2,
-          bestFinish: "T4",
-          timesPlayed: 5
-        },
-        seasonStats: {
-          drivingDistance: 298,
-          drivingAccuracy: 65.1,
-          sgApproach: 0.9,
-          sgAroundGreen: 0.4,
-          sgPutting: 0.5,
-          sgOffTee: 0.6,
-          sgTotal: 2.4
-        },
-        specialties: ["all-around player", "clutch performer"]
-      },
-      {
-        id: "5",
-        name: "Tommy Fleetwood",
-        owgr: 28,
-        fedexCupRank: 35,
-        recentForm: {
-          top10sLast4Starts: 1,
-          sgTotalLast3: 0.8,
-          sgApproachLast3: 1.1,
-          sgAroundGreenLast3: 0.6,
-          sgPuttingLast3: -0.3,
-          sgOffTeeLastMonth: 0.4,
-          lastStartResult: "T15"
-        },
-        courseHistory: {
-          pastTop10s: 0,
-          bestFinish: "T12",
-          timesPlayed: 2
-        },
-        seasonStats: {
-          drivingDistance: 285,
-          drivingAccuracy: 71.3,
-          sgApproach: 0.8,
-          sgAroundGreen: 0.5,
-          sgPutting: 0.0,
-          sgOffTee: 0.1,
-          sgTotal: 1.4
-        },
-        specialties: ["accuracy specialist", "wind player"]
-      },
-      {
-        id: "6",
-        name: "Scottie Scheffler",
-        owgr: 1,
-        fedexCupRank: 1,
-        recentForm: {
-          top10sLast4Starts: 4,
-          sgTotalLast3: 2.8,
-          sgApproachLast3: 1.5,
-          sgAroundGreenLast3: 0.7,
-          sgPuttingLast3: 0.4,
-          sgOffTeeLastMonth: 1.2,
-          lastStartResult: "1st"
+          sgTotalLast3: 1.9,
+          sgApproachLast3: 1.3,
+          sgAroundGreenLast3: 0.5,
+          sgPuttingLast3: 0.1,
+          sgOffTeeLastMonth: 1.0,
+          lastStartResult: "T12"
         },
         courseHistory: {
           pastTop10s: 1,
@@ -210,15 +60,165 @@ export class GolfAnalysisService {
           timesPlayed: 3
         },
         seasonStats: {
-          drivingDistance: 302,
-          drivingAccuracy: 63.8,
-          sgApproach: 1.6,
-          sgAroundGreen: 0.6,
-          sgPutting: 0.3,
+          drivingDistance: 305,
+          drivingAccuracy: 61.2,
+          sgApproach: 1.2,
+          sgAroundGreen: 0.4,
+          sgPutting: 0.2,
           sgOffTee: 0.8,
-          sgTotal: 3.3
+          sgTotal: 2.6
         },
-        specialties: ["elite all-around", "momentum player"]
+        specialties: ["long iron specialist", "wind player"]
+      },
+      {
+        id: "2", 
+        name: "Tony Finau",
+        owgr: 28,
+        fedexCupRank: 31,
+        recentForm: {
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.4,
+          sgApproachLast3: 0.8,
+          sgAroundGreenLast3: 0.6,
+          sgPuttingLast3: 0.2,
+          sgOffTeeLastMonth: 1.2,
+          lastStartResult: "T15"
+        },
+        courseHistory: {
+          pastTop10s: 4,
+          bestFinish: "1st",
+          timesPlayed: 6
+        },
+        seasonStats: {
+          drivingDistance: 315,
+          drivingAccuracy: 59.1,
+          sgApproach: 0.9,
+          sgAroundGreen: 0.5,
+          sgPutting: 0.1,
+          sgOffTee: 1.1,
+          sgTotal: 2.6
+        },
+        specialties: ["power player", "TPC Twin Cities expert"]
+      },
+      {
+        id: "3",
+        name: "Max Homa", 
+        owgr: 18,
+        fedexCupRank: 26,
+        recentForm: {
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.6,
+          sgApproachLast3: 1.1,
+          sgAroundGreenLast3: 0.3,
+          sgPuttingLast3: 0.4,
+          sgOffTeeLastMonth: 0.8,
+          lastStartResult: "T7"
+        },
+        courseHistory: {
+          pastTop10s: 2,
+          bestFinish: "T3",
+          timesPlayed: 4
+        },
+        seasonStats: {
+          drivingDistance: 292,
+          drivingAccuracy: 65.8,
+          sgApproach: 1.0,
+          sgAroundGreen: 0.3,
+          sgPutting: 0.3,
+          sgOffTee: 0.5,
+          sgTotal: 2.1
+        },
+        specialties: ["iron play specialist", "course management"]
+      },
+      {
+        id: "4",
+        name: "Chris Gotterup",
+        owgr: 35,
+        fedexCupRank: 18,
+        recentForm: {
+          top10sLast4Starts: 3,
+          sgTotalLast3: 2.2,
+          sgApproachLast3: 1.4,
+          sgAroundGreenLast3: 0.4,
+          sgPuttingLast3: 0.6,
+          sgOffTeeLastMonth: 0.9,
+          lastStartResult: "T3"
+        },
+        courseHistory: {
+          pastTop10s: 0,
+          bestFinish: "T18",
+          timesPlayed: 2
+        },
+        seasonStats: {
+          drivingDistance: 308,
+          drivingAccuracy: 62.4,
+          sgApproach: 1.3,
+          sgAroundGreen: 0.3,
+          sgPutting: 0.4,
+          sgOffTee: 0.7,
+          sgTotal: 2.7
+        },
+        specialties: ["rising star", "momentum player"]
+      },
+      {
+        id: "5",
+        name: "Wyndham Clark",
+        owgr: 12,
+        fedexCupRank: 15,
+        recentForm: {
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.8,
+          sgApproachLast3: 1.0,
+          sgAroundGreenLast3: 0.3,
+          sgPuttingLast3: 0.3,
+          sgOffTeeLastMonth: 1.1,
+          lastStartResult: "T9"
+        },
+        courseHistory: {
+          pastTop10s: 1,
+          bestFinish: "T6",
+          timesPlayed: 3
+        },
+        seasonStats: {
+          drivingDistance: 318,
+          drivingAccuracy: 58.7,
+          sgApproach: 1.1,
+          sgAroundGreen: 0.2,
+          sgPutting: 0.2,
+          sgOffTee: 1.0,
+          sgTotal: 2.5
+        },
+        specialties: ["power player", "major winner"]
+      },
+      {
+        id: "6",
+        name: "Maverick McNealy",
+        owgr: 45,
+        fedexCupRank: 28,
+        recentForm: {
+          top10sLast4Starts: 2,
+          sgTotalLast3: 1.3,
+          sgApproachLast3: 0.9,
+          sgAroundGreenLast3: 0.5,
+          sgPuttingLast3: 0.1,
+          sgOffTeeLastMonth: 0.6,
+          lastStartResult: "T11"
+        },
+        courseHistory: {
+          pastTop10s: 1,
+          bestFinish: "T9",
+          timesPlayed: 3
+        },
+        seasonStats: {
+          drivingDistance: 295,
+          drivingAccuracy: 68.3,
+          sgApproach: 0.8,
+          sgAroundGreen: 0.4,
+          sgPutting: 0.0,
+          sgOffTee: 0.3,
+          sgTotal: 1.5
+        },
+        specialties: ["accuracy specialist", "consistent player"]
       }
     ];
   }
@@ -308,72 +308,72 @@ export class GolfAnalysisService {
       .sort((a, b) => b.analysis.score - a.analysis.score)
       .slice(0, this.TOP_10_TARGET);
 
-    // Create picks with real-world buddy tone descriptions and actual odds
+    // Create picks with real-world buddy tone descriptions and actual odds for 3M Open
     const picks: GolfPick[] = qualifiedPlayers.map(({ player, analysis }, index) => {
       const baseConfidence = Math.min(65 + (analysis.score * 5), 85);
       const probability = baseConfidence;
 
-      // Real buddy-tone descriptions based on player
+      // Real buddy-tone descriptions based on player for 3M Open
       const buddyDescriptions = {
-        "Viktor Hovland": {
+        "Sam Burns": {
           description: [
-            "Dude, Viktor's been absolutely crushing it lately with his iron play, and TPC Southwind is basically built for guys who can stick it close.",
-            "He's coming off a solid T4 finish and has that Norwegian precision that just works on tight, tree-lined tracks like this.",
-            "The guy's got serious course history here too - two top-10s in four tries tells you he knows how to navigate these tricky Memphis greens.",
-            "With bentgrass putting surfaces that reward his methodical approach, he should be right in the mix come Sunday.",
-            "Plus, the weather looks pretty calm this week, which means his ball-striking advantage should really shine through."
+            "Sam's been absolutely dialed in lately with three top-10s in his last four starts, and TPC Twin Cities has always been a course where his long iron game shines.",
+            "He finished T8 here in 2023 and has that veteran presence now where he knows exactly how to navigate these water-heavy holes without taking unnecessary risks.",
+            "The guy's been gaining over a stroke per round on approach shots recently, which is exactly what you need on a course where precision into these small greens is everything.",
+            "With 11 consecutive made cuts and seven top-20 finishes this season, he's playing with the kind of confidence that translates into consistent scoring.",
+            "At +1600 odds, he's got serious value as someone who's been knocking on the door all season and knows this course layout like the back of his hand."
           ],
           odds: "+185"
         },
-        "Collin Morikawa": {
-          description: [
-            "Man, Collin's iron game is just ridiculous right now - he's gaining nearly two strokes per round on approach shots, which is exactly what you need at Southwind.",
-            "Sure, he's been struggling a bit with the putter, but these bentgrass greens tend to be more predictable than the grainy bermuda stuff he's been dealing with.",
-            "This course rewards precision over power, and nobody hits it more consistently than Morikawa when he's dialed in.",
-            "He finished T6 here before and has that major championship mentality that shows up when the pressure's on.",
-            "With the field being so stacked, having a guy who rarely makes big numbers is exactly the type of steady play that sneaks into the top 10."
-          ],
-          odds: "+195"
-        },
         "Tony Finau": {
           description: [
-            "Tony's basically become Mr. Consistency lately, and this course has been really good to him over the years with three top-10s.",
-            "The dude finished second here before, so he clearly knows how to score on this layout, especially with his improved putting stroke.",
-            "He's been gaining almost a full stroke per round on the greens in his last few starts, which was always the missing piece of his game.",
-            "Length isn't everything at Southwind, but when you can bomb it 310+ yards AND control your distances like Tony's been doing, that's a lethal combo.",
-            "Plus, the guy just has this clutch gene in big moments now - he's not the same player who used to struggle to close out tournaments."
+            "Tony literally won this tournament in 2022 and has four career top-10s at TPC Twin Cities, so you know he's got the course figured out completely.",
+            "He's coming off a decent T15 at The Open and has been steadily improving his putting, which was always the missing piece of his game at this venue.",
+            "The length advantage he has here is massive - being able to hit shorter irons into these tight pin positions gives him a huge edge over the field.",
+            "He finished 2nd here in 2021 and has never missed a cut in six appearances, showing he just understands how to play this course in all conditions.",
+            "With the field being a bit weaker than usual and his home course advantage in the Midwest, Tony should be right in the mix again this week."
+          ],
+          odds: "+220"
+        },
+        "Max Homa": {
+          description: [
+            "Max has been quietly solid all season and his course management skills are perfect for TPC Twin Cities, where strategy matters more than raw power.",
+            "He finished T3 here in 2023 and T7 in his last start, showing he's got his game in a really good spot heading into this crucial stretch.",
+            "His iron play has been exceptional lately, gaining over a stroke on approach, and these bentgrass greens should reward his precise putting stroke.",
+            "The guy's been one of the most consistent players on tour this year and rarely makes the big mistakes that can cost you at a course with this much water.",
+            "With his Twitter game keeping him loose and his methodical approach to course management, Max is exactly the type of player who excels at venues like this."
           ],
           odds: "+165"
         },
-        "Xander Schauffele": {
+        "Chris Gotterup": {
           description: [
-            "Xander's having one of those seasons where everything just seems to click - three top-10s in four starts is no joke, especially in these strong fields.",
-            "He finished T2 in his last start and has that champion's confidence rolling after his major wins this year.",
-            "This guy never really has a bad week anymore; he's become one of those players who finds a way to grind out solid finishes even when he's not at his best.",
-            "The course setup should suit his all-around game perfectly - he doesn't need any one aspect to be perfect because he's elite at everything.",
-            "When you're ranked in the top 3 in the world and playing with house money, that's when guys like Xander tend to be most dangerous."
+            "Chris is absolutely on fire right now with three top-10s in his last four starts, including that clutch T3 finish at The Open Championship.",
+            "He just won the Scottish Open and celebrated his 26th birthday with that incredible major performance, so confidence is sky-high right now.",
+            "While he doesn't have extensive history at TPC Twin Cities, his current ball-striking form is so good that course history might not matter.",
+            "He's been gaining over two strokes per round in total strokes gained lately, which is elite-level stuff that usually translates anywhere.",
+            "At his current odds, you're getting a guy who's playing the best golf of his career and has that fearless mentality that can lead to breakthrough wins."
           ],
           odds: "+145"
         },
-        "Tommy Fleetwood": {
+        "Wyndham Clark": {
           description: [
-            "Tommy might not have the course history here, but his accuracy off the tee is exactly what you want on a tree-lined track like this.",
-            "He's been striking his irons really well lately, gaining over a stroke on approach in his last three starts, which is his bread and butter.",
-            "The English weather he grew up playing in should actually help him if those afternoon storms roll through like they're forecasting.",
-            "Sure, he's only played here twice before, but sometimes fresh perspective and a methodical European approach can be exactly what a course needs.",
-            "At his odds, he's definitely worth a flyer - the guy knows how to peak at the right moments, and this late-season push could be his time."
+            "Wyndham's power game should play really well at TPC Twin Cities, especially if the wind stays down like they're forecasting this week.",
+            "He finished T6 here in 2023 and has been solid lately with a T9 in his last start, showing his game is trending in the right direction.",
+            "As a major winner, he's got that championship experience that helps when the pressure mounts on Sunday at these smaller field events.",
+            "His driving distance gives him shorter clubs into these protected greens, and he's been much more accurate off the tee this season.",
+            "The guy's been gaining over a stroke on approach lately and has the kind of clutch putting stroke that shows up when he needs to make birdies."
           ],
-          odds: "+285"
+          odds: "+195"
         },
-        "Scottie Scheffler": {
+        "Maverick McNealy": {
           description: [
-            "Look, Scottie's obviously the best player in the world right now, but weirdly enough, this course hasn't been his best venue historically.",
-            "That said, when you're coming off a major win and playing with this kind of confidence, course history sometimes goes out the window.",
-            "His approach play has been absolutely unconscious lately - gaining 1.5 strokes per round is video game numbers that nobody else is putting up.",
-            "The guy's in that zone where even his bad weeks result in top-15 finishes, so a top-10 here feels like almost a lock.",
-            "With the momentum he's carrying and the way he's been closing tournaments, it's hard to bet against the world number one regardless of the venue."
+            "Maverick's accuracy off the tee is exactly what you want at TPC Twin Cities, where finding fairways is crucial for scoring opportunities.",
+            "He finished T9 here in 2022 and has been really consistent this season with two top-10s in his last four starts and 11 made cuts in a row.",
+            "His course management and methodical approach should serve him well on a layout where patience and precision beat aggression every time.",
+            "He's been gaining strokes on approach consistently and his short game has been really sharp, which is key for scrambling around these water hazards.",
+            "At longer odds, he's a great value play as someone who rarely implodes and has the steady game that can grind out a top-10 finish."
           ],
-          odds: "+120"
+          odds: "+265"
         }
       };
 

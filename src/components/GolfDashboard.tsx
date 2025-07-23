@@ -166,7 +166,7 @@ export const GolfDashboard = () => {
               <img 
                 src="/lovable-uploads/749fb266-2b69-40f1-8720-c5af0940190d.png" 
                 alt="Top 10 Tee-Box"
-                className="h-16 w-16 lg:h-24 lg:w-24 object-contain"
+                className="w-[300px] h-[300px] object-contain"
               />
               <div className="flex items-center justify-center gap-2 px-2">
                 <p className="text-muted-foreground text-center text-xs sm:text-sm lg:text-base leading-relaxed">
@@ -429,89 +429,90 @@ export const GolfDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Top 10 Picks */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Top 10 Picks - Full Width Cards */}
+            <div className="space-y-4">
               {analysis.picks.map((pick, index) => (
                 <Card key={pick.id} className="border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg font-bold text-gray-900 dark:text-white">
-                          #{index + 1} {pick.player.name}
-                        </CardTitle>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            OWGR #{pick.player.owgr}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            FedEx #{pick.player.fedexCupRank}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-xl font-bold ${getConfidenceColor(pick.confidence)}`}>
-                          {pick.confidence.toFixed(0)}%
-                        </div>
-                        <Badge className={`text-xs ${getConfidenceBadge(pick.top10Probability)}`}>
-                          {pick.odds || '+200'} Top 10
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                        <p>His recent form shows exceptional consistency with three top-10 finishes in his last four starts, including a runner-up at the Memorial Tournament.</p>
-                        <p>The course setup strongly favors his precision iron play, ranking 3rd in strokes gained approach over the past month.</p>
-                        <p>Weather conditions are expected to be mild with minimal wind, playing perfectly into his controlled ball-striking style.</p>
-                        <p>He has a proven track record at TPC Southwind with two previous top-5 finishes and never missing a cut in five appearances.</p>
-                        <p>His putting has been solid recently, gaining 0.4 strokes per round on the greens over his last three tournaments.</p>
-                      </div>
-
-                      {/* Key Factors */}
-                      <Collapsible>
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                            <span className="text-sm font-medium">Key Factors ({pick.keyFactors.length})</span>
-                            <ChevronDown className="h-4 w-4" />
-                          </Button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="space-y-2 mt-2">
-                          {pick.keyFactors.map((factor, factorIndex) => (
-                            <div key={factorIndex} className="flex items-start gap-2">
-                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                              <p className="text-xs text-gray-600 dark:text-gray-400">{factor}</p>
+                  <div className="p-4 lg:p-6">
+                    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 lg:gap-6">
+                      {/* Left Side - Player Info */}
+                      <div className="flex-1 space-y-3 lg:space-y-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                              #{index + 1} {pick.player.name}
                             </div>
-                          ))}
-                          <div className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Scorecard Points: {pick.scoreCardPoints}</p>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                OWGR #{pick.player.owgr}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                FedEx #{pick.player.fedexCupRank}
+                              </Badge>
+                            </div>
                           </div>
-                        </CollapsibleContent>
-                      </Collapsible>
+                          
+                          {/* Right Side - Confidence & Odds */}
+                          <div className="text-right">
+                            <div className={`text-xl font-bold ${getConfidenceColor(pick.confidence)}`}>
+                              {pick.confidence.toFixed(0)}%
+                            </div>
+                            <Badge className={`text-xs ${getConfidenceBadge(pick.top10Probability)}`}>
+                              {pick.odds || '+200'} Top 10
+                            </Badge>
+                          </div>
+                        </div>
 
-                      {pick.riskFactors.length > 0 && (
+                        {/* Player Analysis - Buddy Tone */}
+                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2 leading-relaxed">
+                          {pick.reason}
+                        </div>
+
+                        {/* Key Factors */}
                         <Collapsible>
                           <CollapsibleTrigger asChild>
                             <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                              <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                                Risk Factors ({pick.riskFactors.length})
-                              </span>
+                              <span className="text-sm font-medium">Key Factors ({pick.keyFactors.length})</span>
                               <ChevronDown className="h-4 w-4" />
                             </Button>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="space-y-2 mt-2">
-                            {pick.riskFactors.map((risk, riskIndex) => (
-                              <div key={riskIndex} className="flex items-start gap-2">
-                                <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                                <p className="text-xs text-orange-600 dark:text-orange-400">{risk}</p>
+                            {pick.keyFactors.map((factor, factorIndex) => (
+                              <div key={factorIndex} className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                                <p className="text-xs text-gray-600 dark:text-gray-400">{factor}</p>
                               </div>
                             ))}
+                            <div className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Scorecard Points: {pick.scoreCardPoints}</p>
+                            </div>
                           </CollapsibleContent>
                         </Collapsible>
-                      )}
+
+                        {pick.riskFactors.length > 0 && (
+                          <Collapsible>
+                            <CollapsibleTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
+                                <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                                  Risk Factors ({pick.riskFactors.length})
+                                </span>
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="space-y-2 mt-2">
+                              {pick.riskFactors.map((risk, riskIndex) => (
+                                <div key={riskIndex} className="flex items-start gap-2">
+                                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                                  <p className="text-xs text-orange-600 dark:text-orange-400">{risk}</p>
+                                </div>
+                              ))}
+                            </CollapsibleContent>
+                          </Collapsible>
+                        )}
+                      </div>
                     </div>
-                  </CardContent>
+                  </div>
                 </Card>
               ))}
             </div>
