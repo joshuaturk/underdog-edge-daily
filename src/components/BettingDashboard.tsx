@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1162,19 +1163,31 @@ export const BettingDashboard = () => {
                                    <span className="text-sm text-muted-foreground">
                                      {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
                                    </span>
-                                   <div className="text-xs text-muted-foreground">
-                                     Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
-                                   </div>
-                                   {pick.status === 'lost' && pick.result && (
-                                     <div className="text-xs text-warning">
-                                       Cashout available: 7th inning
-                                     </div>
-                                   )}
-                                   {pick.status === 'won' && pick.result && (
-                                     <div className="text-xs text-profit">
-                                       Cashout available: 5th inning
-                                     </div>
-                                   )}
+                                    <div className="text-xs text-muted-foreground">
+                                      Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
+                                    </div>
+                                    {/* Game Date - show for all picks without scores */}
+                                    {!pick.result && (
+                                      <div className="text-xs text-muted-foreground">
+                                        {format(new Date(pick.date), 'MMMM d, yyyy')}
+                                      </div>
+                                    )}
+                                    {pick.status === 'lost' && pick.result && (
+                                      <div className="text-xs text-warning">
+                                        Cashout available: 7th inning
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          {format(new Date(pick.date), 'MMMM d, yyyy')}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {pick.status === 'won' && pick.result && (
+                                      <div className="text-xs text-profit">
+                                        Cashout available: 5th inning
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          {format(new Date(pick.date), 'MMMM d, yyyy')}
+                                        </div>
+                                      </div>
+                                    )}
                                    {pick.status === 'pending' && pick.result && (
                                      <div className="flex items-center gap-1">
                                        {/* Live pick status indicator */}
@@ -1195,10 +1208,13 @@ export const BettingDashboard = () => {
                                            </div>
                                          );
                                        })()}
-                                       <span className="text-[10px] text-accent font-medium">
-                                         {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
-                                       </span>
-                                     </div>
+                                        <span className="text-[10px] text-accent font-medium">
+                                          {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
+                                        </span>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                          {format(new Date(pick.date), 'MMMM d, yyyy')}
+                                        </div>
+                                      </div>
                                    )}
                                  </div>
                                </div>
