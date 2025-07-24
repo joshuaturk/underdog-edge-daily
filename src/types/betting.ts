@@ -7,7 +7,7 @@ export interface BettingPick {
   confidence: number;
   reason: string;
   odds: number;
-  status: 'pending' | 'won' | 'lost' | 'push';
+  status: 'pending' | 'won' | 'lost' | 'push' | 'live';
   result?: {
     homeScore: number;
     awayScore: number;

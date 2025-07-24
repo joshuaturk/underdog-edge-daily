@@ -217,9 +217,9 @@ export const BettingDashboard = () => {
                 
                 console.log(`Updated pick with scores: ${liveGame.homeScore}-${liveGame.awayScore}`);
                 
-                // Update status based on game status - live games should move to Results tab
+                // Update status based on game status - live games should show as live
                 if (liveGame.status === 'live' && pick.status === 'pending') {
-                  updatedPick.status = 'pending'; // Keep as pending but with live scores
+                  updatedPick.status = 'live'; // Show as live with live scores
                 } else if (liveGame.status === 'final') {
                   const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
                   
