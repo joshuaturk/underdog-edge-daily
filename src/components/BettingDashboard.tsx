@@ -619,9 +619,58 @@ export const BettingDashboard = () => {
   
   
   const generateMockHistoricalPicks = (): BettingPick[] => {
+    // July 21st completed games
+    const july21 = '2025-07-21';
+    const july21Picks = [
+      {
+        id: `tigers-brewers-${july21}`,
+        date: july21,
+        homeTeam: 'Detroit Tigers',
+        awayTeam: 'Milwaukee Brewers',
+        recommendedBet: 'away_runline' as const,
+        confidence: 74,
+        reason: 'Milwaukee Brewers road underdog +1.5',
+        odds: -165,
+        status: 'won' as const,
+        result: { homeScore: 3, awayScore: 7, scoreDifference: 4 },
+        profit: 6.06,
+        homePitcher: 'Tarik Skubal',
+        awayPitcher: 'Freddy Peralta'
+      },
+      {
+        id: `dodgers-nationals-${july21}`,
+        date: july21,
+        homeTeam: 'LA Dodgers',
+        awayTeam: 'Washington Nationals',
+        recommendedBet: 'away_runline' as const,
+        confidence: 67,
+        reason: 'Washington Nationals road underdog +1.5',
+        odds: 142,
+        status: 'lost' as const,
+        result: { homeScore: 8, awayScore: 2, scoreDifference: 6 },
+        profit: -10,
+        homePitcher: 'Walker Buehler',
+        awayPitcher: 'MacKenzie Gore'
+      },
+      {
+        id: `rangers-cardinals-${july21}`,
+        date: july21,
+        homeTeam: 'Texas Rangers',
+        awayTeam: 'St. Louis Cardinals',
+        recommendedBet: 'away_runline' as const,
+        confidence: 71,
+        reason: 'St. Louis Cardinals road underdog +1.5',
+        odds: 128,
+        status: 'won' as const,
+        result: { homeScore: 4, awayScore: 6, scoreDifference: 2 },
+        profit: 12.80,
+        homePitcher: 'Nathan Eovaldi',
+        awayPitcher: 'Sonny Gray'
+      }
+    ];
+
     // July 22nd completed games (these should NEVER disappear)
     const july22 = '2025-07-22';
-    
     const july22Picks = [
       {
         id: `guardians-orioles-${july22}`,
@@ -684,8 +733,58 @@ export const BettingDashboard = () => {
         awayPitcher: 'Cam Schlittler'
       }
     ];
+
+    // July 23rd completed games
+    const july23 = '2025-07-23';
+    const july23Picks = [
+      {
+        id: `astros-mariners-${july23}`,
+        date: july23,
+        homeTeam: 'Houston Astros',
+        awayTeam: 'Seattle Mariners',
+        recommendedBet: 'away_runline' as const,
+        confidence: 69,
+        reason: 'Seattle Mariners road underdog +1.5',
+        odds: 134,
+        status: 'won' as const,
+        result: { homeScore: 3, awayScore: 5, scoreDifference: 2 },
+        profit: 13.40,
+        homePitcher: 'Framber Valdez',
+        awayPitcher: 'Logan Gilbert'
+      },
+      {
+        id: `braves-phillies-${july23}`,
+        date: july23,
+        homeTeam: 'Atlanta Braves',
+        awayTeam: 'Philadelphia Phillies',
+        recommendedBet: 'away_runline' as const,
+        confidence: 76,
+        reason: 'Philadelphia Phillies road underdog +1.5',
+        odds: -158,
+        status: 'lost' as const,
+        result: { homeScore: 9, awayScore: 3, scoreDifference: 6 },
+        profit: -10,
+        homePitcher: 'Spencer Strider',
+        awayPitcher: 'Zack Wheeler'
+      },
+      {
+        id: `cubs-reds-${july23}`,
+        date: july23,
+        homeTeam: 'Chicago Cubs',
+        awayTeam: 'Cincinnati Reds',
+        recommendedBet: 'away_runline' as const,
+        confidence: 73,
+        reason: 'Cincinnati Reds road underdog +1.5',
+        odds: 122,
+        status: 'won' as const,
+        result: { homeScore: 4, awayScore: 7, scoreDifference: 3 },
+        profit: 12.20,
+        homePitcher: 'Justin Steele',
+        awayPitcher: 'Hunter Greene'
+      }
+    ];
     
-    return july22Picks;
+    return [...july21Picks, ...july22Picks, ...july23Picks];
   };
 
   const hasMoreResults = allPicks.filter(pick => 
