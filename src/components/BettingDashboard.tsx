@@ -170,9 +170,10 @@ export const BettingDashboard = () => {
               return pick;
             }
             
-            // Only update picks from today's date that are still pending
-            if (pick.date !== todayDate || pick.status !== 'pending') {
-              console.log(`Skipping pick: ${pick.homeTeam} vs ${pick.awayTeam} (Date: ${pick.date}, Status: ${pick.status})`);
+            // Only update picks that are still pending (regardless of date)
+            // This preserves all historical picks permanently while only updating live/pending games
+            if (pick.status !== 'pending') {
+              console.log(`Skipping completed pick: ${pick.homeTeam} vs ${pick.awayTeam} (Date: ${pick.date}, Status: ${pick.status})`);
               return pick;
             }
             
