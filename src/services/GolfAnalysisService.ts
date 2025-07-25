@@ -553,71 +553,6 @@ export class GolfAnalysisService {
     ];
   }
 
-  // Live scoring functionality
-  static async fetchLiveScores(): Promise<Array<{ playerName: string; score: string; position: string; round: number; holes: string }>> {
-    try {
-      // Since we're not connected to Supabase, we'll use a frontend-only approach
-      // For live scoring, we'd typically need ESPN Golf API or PGA Tour API
-      
-      // Try ESPN's public golf API first
-      const espnResponse = await fetch('https://site.api.espn.com/apis/site/v2/sports/golf/pga/leaderboard');
-      if (espnResponse.ok) {
-        const data = await espnResponse.json();
-        console.log('Live golf scores:', data);
-        return this.parseESPNGolfData(data);
-      }
-      
-      // Fallback to current tournament data (tournament in progress)
-      return this.getMockLiveScores();
-      
-    } catch (error) {
-      console.error('Error fetching live scores:', error);
-      return this.getMockLiveScores();
-    }
-  }
-
-  private static parseESPNGolfData(data: any): Array<{ playerName: string; score: string; position: string; round: number; holes: string }> {
-    const scores: Array<{ playerName: string; score: string; position: string; round: number; holes: string }> = [];
-    
-    try {
-      if (data.events && data.events.length > 0) {
-        const tournament = data.events.find((event: any) => event.name.includes('3M Open'));
-        if (tournament && tournament.competitions && tournament.competitions[0].competitors) {
-          tournament.competitions[0].competitors.forEach((competitor: any) => {
-            if (competitor.athlete) {
-              scores.push({
-                playerName: competitor.athlete.displayName,
-                score: competitor.score || 'E',
-                position: competitor.position || 'T1',
-                round: 1, // Would need to parse this from the data
-                holes: competitor.status || '18'
-              });
-            }
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error parsing ESPN golf data:', error);
-    }
-    
-    return scores.length > 0 ? scores : this.getMockLiveScores();
-  }
-
-  private static getMockLiveScores(): Array<{ playerName: string; score: string; position: string; round: number; holes: string }> {
-    // Real live scores from 3M Open 2025 first round (actual confirmed field)
-    return [
-      { playerName: "Chris Gotterup", score: "-4", position: "T3", round: 1, holes: "18" },
-      { playerName: "Max Greyserman", score: "-3", position: "T5", round: 1, holes: "18" },
-      { playerName: "Wyndham Clark", score: "-2", position: "T8", round: 1, holes: "18" },
-      { playerName: "Sam Burns", score: "-2", position: "T8", round: 1, holes: "18" },
-      { playerName: "Tony Finau", score: "-1", position: "T15", round: 1, holes: "18" },
-      { playerName: "Maverick McNealy", score: "E", position: "T25", round: 1, holes: "18" },
-      { playerName: "Taylor Pendrith", score: "+1", position: "T40", round: 1, holes: "18" },
-      { playerName: "Sungjae Im", score: "+1", position: "T40", round: 1, holes: "18" },
-      { playerName: "Adam Scott", score: "+2", position: "T55", round: 1, holes: "18" },
-      { playerName: "Akshay Bhatia", score: "+2", position: "T55", round: 1, holes: "18" }
-    ];
-  }
 
   // New weighted scoring algorithm
   static analyzePlayer(player: GolfPlayer, tournament: GolfTournament): { score: number; factors: string[]; risks: string[]; buddyInsight: string } {
@@ -705,11 +640,8 @@ export class GolfAnalysisService {
     const players = this.getMockPlayers();
     const allAnalyses: Array<{ player: GolfPlayer; analysis: ReturnType<typeof this.analyzePlayer> }> = [];
 
-    // Fetch real odds and live scores
-    const [liveOdds, liveScores] = await Promise.all([
-      this.fetchGolfOdds(),
-      this.fetchLiveScores()
-    ]);
+    // Fetch real odds
+    const liveOdds = await this.fetchGolfOdds();
 
     // Analyze all players using weighted system
     players.forEach(player => {
@@ -732,9 +664,12 @@ export class GolfAnalysisService {
         player.name.toLowerCase().includes(odd.playerName.toLowerCase().split(' ')[0])
       );
 
-      const currentScore = liveScores.find(score =>
-        score.playerName.toLowerCase().includes(player.name.toLowerCase())
-      );
+      // Mock live score for current player
+      const currentScore = {
+        playerName: player.name,
+        score: Math.floor(Math.random() * 20) - 10, // Random score between -10 and +10
+        position: `T${Math.floor(Math.random() * 50) + 1}` // Random position T1-T50
+      };
 
       // Real buddy-style descriptions based on actual performance and confirmed players
       const getBuddyDescription = (playerName: string, score: number, currentScore?: any): string => {
@@ -811,5 +746,44 @@ export class GolfAnalysisService {
       success: true,
       data: this.getMockTournament()
     };
+  }
+
+  static async fetchLiveScores(picks: GolfPick[]): Promise<GolfPick[]> {
+    // Mock live scores for the 3M Open 2025 actual players
+    const mockLiveScores = [
+      { name: 'Maverick McNealy', position: 5, score: -8, thru: 18, round: 2, rounds: [69, 67], status: 'WON' },
+      { name: 'Sam Burns', position: 12, score: -5, thru: 18, round: 2, rounds: [71, 68], status: 'LOST' },
+      { name: 'Wyndham Clark', position: 3, score: -10, thru: 18, round: 2, rounds: [66, 68], status: 'WON' },
+      { name: 'Chris Gotterup', position: 8, score: -7, thru: 18, round: 2, rounds: [70, 67], status: 'WON' },
+      { name: 'Sungjae Im', position: 15, score: -4, thru: 18, round: 2, rounds: [72, 68], status: 'LOST' },
+      { name: 'Max Greyserman', position: 7, score: -7, thru: 18, round: 2, rounds: [68, 69], status: 'WON' },
+      { name: 'Taylor Pendrith', position: 18, score: -3, thru: 18, round: 2, rounds: [73, 68], status: 'LOST' },
+      { name: 'Akshay Bhatia', position: 6, score: -8, thru: 18, round: 2, rounds: [69, 67], status: 'WON' },
+      { name: 'Adam Scott', position: 9, score: -6, thru: 18, round: 2, rounds: [70, 68], status: 'WON' },
+      { name: 'Tony Finau', position: 4, score: -9, thru: 18, round: 2, rounds: [67, 68], status: 'WON' }
+    ];
+
+    return picks.map(pick => {
+      const mockScore = mockLiveScores.find(score => score.name === pick.player.name);
+      if (mockScore) {
+        return {
+          ...pick,
+          player: {
+            ...pick.player,
+            liveScore: {
+              currentPosition: mockScore.position,
+              totalScore: mockScore.score,
+              thru: mockScore.thru,
+              currentRound: mockScore.round,
+              rounds: mockScore.rounds,
+              isTop10: mockScore.position <= 10,
+              status: mockScore.status as 'WON' | 'LOST' | 'ACTIVE' | 'CUT',
+              lastUpdated: new Date()
+            }
+          }
+        };
+      }
+      return pick;
+    });
   }
 }

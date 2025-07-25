@@ -38,6 +38,18 @@ export interface GolfPlayer {
     sgTotal: number;
   };
   specialties: string[]; // ["wind player", "bermuda specialist", "links expert", etc.]
+  // Live scoring data
+  liveScore?: {
+    currentPosition: number;
+    totalScore: number;
+    thru: number; // holes completed current round
+    currentRound: number;
+    rounds: number[]; // scores for each completed round
+    isTop10: boolean;
+    status: 'WON' | 'LOST' | 'ACTIVE' | 'CUT';
+    teeTime?: string;
+    lastUpdated: Date;
+  };
 }
 
 export interface GolfPick {

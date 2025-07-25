@@ -12,6 +12,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useSportsMenu } from '@/hooks/useSportsMenu';
+import { LiveGolfPerformance } from './LiveGolfPerformance';
 
 export const GolfDashboard = () => {
   const [analysis, setAnalysis] = useState<GolfAnalysis | null>(null);
@@ -514,49 +515,7 @@ export const GolfDashboard = () => {
 
           {/* Results Tab */}
           <TabsContent value="results" className="space-y-6">
-            <Card className="border-purple-200 dark:border-purple-800">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-800 dark:text-purple-200">
-                  <Target className="h-5 w-5" />
-                  Golf Picks Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🏌️‍♂️</div>
-                  <h3 className="text-xl font-semibold mb-2">Results Coming Soon</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Live tournament tracking will appear here once our picks are active in the next PGA Tour event.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                    <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
-                          Live Leaderboard
-                        </div>
-                        <p className="text-sm text-green-800 dark:text-green-200">Track our picks in real-time</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
-                          Round Updates
-                        </div>
-                        <p className="text-sm text-blue-800 dark:text-blue-200">Daily score updates</p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
-                          Final Results
-                        </div>
-                        <p className="text-sm text-purple-800 dark:text-purple-200">Top 10 hit rates</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {analysis && <LiveGolfPerformance picks={analysis.picks} />}
           </TabsContent>
         </Tabs>
 
