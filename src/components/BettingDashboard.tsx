@@ -26,8 +26,8 @@ import footballIcon from '@/assets/football-icon.png';
 import soccerIcon from '@/assets/soccer-icon.png';
 
 // Sports navigation data with consistent Unicode symbols as backup
-const sportsMenu = [
-  { name: 'MLB', symbol: '⚾', active: true, path: '/' },
+const baseSportsMenu = [
+  { name: 'MLB', symbol: '⚾', path: '/' },
   { name: 'NCAA Football', symbol: '🏈', path: '#' },
   { name: 'NCAA Bball', symbol: '🏀', path: '#' },
   { name: 'NHL', symbol: '🏒', path: '#' },
@@ -52,6 +52,19 @@ export const BettingDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+
+  // Create prioritized sports menu with active item first
+  const sportsMenu = [...baseSportsMenu].sort((a, b) => {
+    const aIsActive = location.pathname === a.path;
+    const bIsActive = location.pathname === b.path;
+    
+    // Active item comes first
+    if (aIsActive && !bIsActive) return -1;
+    if (!aIsActive && bIsActive) return 1;
+    
+    // Otherwise maintain original order
+    return baseSportsMenu.indexOf(a) - baseSportsMenu.indexOf(b);
+  });
 
   // Get today's and tomorrow's picks from allPicks
   const todayDate = new Date().toISOString().split('T')[0];
