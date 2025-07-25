@@ -5,17 +5,28 @@ export interface GolfPlayer {
   fedexCupRank: number;
   recentForm: {
     top10sLast4Starts: number;
+    top10sLast10Starts: number; // For new scoring system
+    top10sThisSeason: number; // For season consistency
     sgTotalLast3: number;
     sgApproachLast3: number;
     sgAroundGreenLast3: number;
     sgPuttingLast3: number;
     sgOffTeeLastMonth: number;
     lastStartResult: string; // "T5", "MC", "T23", etc.
+    // New fields for momentum scoring
+    wonInLast3Events: boolean;
+    top3InLast3Events: boolean;
+    top10InLast3Events: boolean;
+    madeCutInLast3Events: boolean;
   };
   courseHistory: {
     pastTop10s: number;
     bestFinish: string;
     timesPlayed: number;
+    // New fields for course history scoring
+    top3InLast3Years: boolean;
+    top10InLast3Years: boolean;
+    madeCutInLast3Years: boolean;
   };
   seasonStats: {
     drivingDistance: number;
