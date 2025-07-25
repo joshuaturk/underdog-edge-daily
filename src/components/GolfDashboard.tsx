@@ -327,15 +327,15 @@ export const GolfDashboard = () => {
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                                 <div className="p-2 bg-muted/30 rounded">
                                   <p className="text-xs font-medium text-muted-foreground">Wind</p>
-                                  <p className="text-sm">{analysis.tournament.weatherForecast.wind}</p>
-                                </div>
-                                <div className="p-2 bg-muted/30 rounded">
-                                  <p className="text-xs font-medium text-muted-foreground">Temperature</p>
-                                  <p className="text-sm">{analysis.tournament.weatherForecast.temperature}</p>
-                                </div>
-                                <div className="p-2 bg-muted/30 rounded">
-                                  <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
-                                  <p className="text-sm">{analysis.tournament.weatherForecast.precipitation}</p>
+                                   <p className="text-sm">{analysis?.tournament?.weatherForecast?.wind || 'N/A'}</p>
+                                 </div>
+                                 <div className="p-2 bg-muted/30 rounded">
+                                   <p className="text-xs font-medium text-muted-foreground">Temperature</p>
+                                   <p className="text-sm">{analysis?.tournament?.weatherForecast?.temperature || 'N/A'}</p>
+                                 </div>
+                                 <div className="p-2 bg-muted/30 rounded">
+                                   <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
+                                   <p className="text-sm">{analysis?.tournament?.weatherForecast?.precipitation || 'N/A'}</p>
                                 </div>
                               </div>
                             </div>
@@ -410,15 +410,15 @@ export const GolfDashboard = () => {
                       Weather Forecast
                     </div>
                     <div className="space-y-1">
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Wind: {analysis.tournament.weatherForecast.wind}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Temp: {analysis.tournament.weatherForecast.temperature}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Rain: {analysis.tournament.weatherForecast.precipitation}
-                      </p>
+                       <p className="text-xs text-gray-600 dark:text-gray-400">
+                         Wind: {analysis?.tournament?.weatherForecast?.wind || 'N/A'}
+                       </p>
+                       <p className="text-xs text-gray-600 dark:text-gray-400">
+                         Temp: {analysis?.tournament?.weatherForecast?.temperature || 'N/A'}
+                       </p>
+                       <p className="text-xs text-gray-600 dark:text-gray-400">
+                         Rain: {analysis?.tournament?.weatherForecast?.precipitation || 'N/A'}
+                       </p>
                     </div>
                   </div>
                 </div>
