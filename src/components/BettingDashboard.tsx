@@ -53,22 +53,27 @@ export const BettingDashboard = () => {
   const location = useLocation();
   const { toast } = useToast();
 
-  // Create prioritized sports menu with active links first
+  // Create prioritized sports menu: active link first, then other working links, then placeholders
   const sportsMenu = [...baseSportsMenu].sort((a, b) => {
     const aIsActive = location.pathname === a.path;
     const bIsActive = location.pathname === b.path;
     const aHasContent = a.path !== '#'; // Has actual content/page
     const bHasContent = b.path !== '#';
     
-    // Active page comes first among working links
-    if (aIsActive && aHasContent) return -1;
-    if (bIsActive && bHasContent) return -1;
+    // If one is active and the other isn't (both must have content)
+    if (aIsActive && !bIsActive && aHasContent && bHasContent) return -1;
+    if (bIsActive && !aIsActive && aHasContent && bHasContent) return 1;
+    
+    // If both have content but neither is active, or both are active, maintain original order
+    if (aHasContent && bHasContent) {
+      return baseSportsMenu.indexOf(a) - baseSportsMenu.indexOf(b);
+    }
     
     // Working links come before placeholder links
     if (aHasContent && !bHasContent) return -1;
     if (!aHasContent && bHasContent) return 1;
     
-    // Within same category, maintain original order
+    // Both are placeholders, maintain original order
     return baseSportsMenu.indexOf(a) - baseSportsMenu.indexOf(b);
   });
 
