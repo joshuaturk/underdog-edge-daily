@@ -34,7 +34,7 @@ export const BettingDashboard = () => {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
-  const [resultsDisplayCount, setResultsDisplayCount] = useState(15); // Increased to show all 14 historical picks
+  const [resultsDisplayCount, setResultsDisplayCount] = useState(999999); // Unlimited display for all historical and future picks
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -62,11 +62,10 @@ export const BettingDashboard = () => {
   console.log('Results picks after filtering:', resultsPicks.length);
   console.log('Results picks:', resultsPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date}`));
   
-  // Get historical picks for Results tab (excluding today's pending picks, sorted by date desc)
+  // Get all historical picks including future dates for Results tab - no date restrictions, unlimited display
   const historicalPicks = allPicks
-    .filter(pick => pick.date !== todayDate || pick.status !== 'pending')
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, resultsDisplayCount);
+    .filter(pick => pick.status !== 'pending' || (pick.status === 'pending' && pick.result))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Helper function to get dates in ET timezone
   const getETDate = (daysOffset: number = 0) => {
@@ -774,9 +773,6 @@ export const BettingDashboard = () => {
     console.log('Updating pick statuses and moving started games');
   };
 
-  const handleLoadMoreResults = () => {
-    setResultsDisplayCount(prev => prev + 10);
-  };
 
   
   
@@ -981,21 +977,6 @@ export const BettingDashboard = () => {
         awayPitcher: 'Walker Buehler'
       },
       {
-        id: `twins-rockies-2025-07-24`,
-        date: '2025-07-24',
-        homeTeam: 'Minnesota Twins',
-        awayTeam: 'Colorado Rockies',
-        recommendedBet: 'away_runline' as const,
-        confidence: 68,
-        reason: 'Colorado Rockies road underdog +1.5',
-        odds: 165,
-        status: 'lost' as const,
-        result: { homeScore: 8, awayScore: 1, scoreDifference: 7 },
-        profit: -10,
-        homePitcher: 'Bailey Ober',
-        awayPitcher: 'Kyle Freeland'
-      },
-      {
         id: `diamondbacks-white-sox-2025-07-24`,
         date: '2025-07-24',
         homeTeam: 'Arizona Diamondbacks', 
@@ -1040,9 +1021,6 @@ export const BettingDashboard = () => {
     return allHistoricalPicks;
   };
 
-  const hasMoreResults = allPicks.filter(pick => 
-    pick.date !== todayDate || pick.status !== 'pending'
-  ).length > resultsDisplayCount;
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'bg-profit text-profit-foreground';
@@ -1459,7 +1437,7 @@ export const BettingDashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        {resultsPicks.slice(0, resultsDisplayCount).map((pick, index) => (
+                        {resultsPicks.map((pick, index) => (
                           <div 
                             key={`${pick.homeTeam}-${pick.awayTeam}-${pick.date}-${index}`}
                             className={`border border-border/50 rounded-lg p-4 bg-gradient-to-r transition-all duration-300 ${
@@ -1599,19 +1577,6 @@ export const BettingDashboard = () => {
                               />
                            </div>
                          ))}
-                        
-                        {/* Load More Button */}
-                        {hasMoreResults && (
-                          <div className="flex justify-center pt-4">
-                            <Button 
-                              variant="outline" 
-                              onClick={handleLoadMoreResults}
-                              className="text-sm"
-                            >
-                              Load More Results
-                            </Button>
-                          </div>
-                        )}
                        </div>
                       )}
                     </div>
