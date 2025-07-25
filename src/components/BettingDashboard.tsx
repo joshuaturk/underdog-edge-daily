@@ -638,21 +638,6 @@ export const BettingDashboard = () => {
         awayPitcher: 'Freddy Peralta'
       },
       {
-        id: `dodgers-nationals-${july21}`,
-        date: july21,
-        homeTeam: 'LA Dodgers',
-        awayTeam: 'Washington Nationals',
-        recommendedBet: 'away_runline' as const,
-        confidence: 67,
-        reason: 'Washington Nationals road underdog +1.5',
-        odds: 142,
-        status: 'lost' as const,
-        result: { homeScore: 8, awayScore: 2, scoreDifference: 6 },
-        profit: -10,
-        homePitcher: 'Walker Buehler',
-        awayPitcher: 'MacKenzie Gore'
-      },
-      {
         id: `rangers-cardinals-${july21}`,
         date: july21,
         homeTeam: 'Texas Rangers',
