@@ -214,7 +214,8 @@ export const BettingDashboard = () => {
                     homeScore: liveGame.homeScore,
                     awayScore: liveGame.awayScore,
                     scoreDifference: Math.abs(liveGame.homeScore - liveGame.awayScore)
-                  }
+                  },
+                  inning: liveGame.inning // Add inning information
                 };
                 
                 console.log(`Updated pick with scores: ${liveGame.homeScore}-${liveGame.awayScore}`);
@@ -1293,12 +1294,18 @@ export const BettingDashboard = () => {
                                            </div>
                                          );
                                        })()}
-                                        <span className="text-[10px] text-accent font-medium">
-                                          {pick.status === 'pending' ? 'LIVE' : 'FINAL'}
-                                        </span>
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                          {format(new Date(pick.date), 'MMMM d, yyyy')}
-                                        </div>
+                                         <span className="text-[10px] text-accent font-medium">
+                                           {(pick.status === 'pending' || pick.status === 'live') ? 'LIVE' : 'FINAL'}
+                                         </span>
+                                         {/* Show inning for live games */}
+                                         {(['live', 'pending'].includes(pick.status)) && pick.inning && (
+                                           <div className="text-[10px] text-primary font-medium">
+                                             {pick.inning}
+                                           </div>
+                                         )}
+                                         <div className="text-xs text-muted-foreground mt-1">
+                                           {format(new Date(pick.date), 'MMMM d, yyyy')}
+                                         </div>
                                       </div>
                                    )}
                                  </div>

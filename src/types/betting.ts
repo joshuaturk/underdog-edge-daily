@@ -16,6 +16,7 @@ export interface BettingPick {
   profit?: number;
   homePitcher?: string;
   awayPitcher?: string;
+  inning?: string;
 }
 
 export interface TeamStats {
