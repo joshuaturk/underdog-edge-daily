@@ -368,7 +368,7 @@ export const GolfDashboard = () => {
                                 <li>Recent form with 2+ top 10s in last 4 starts (60% success rate)</li>
                                 <li>Strokes gained approach &gt; +0.8 per round (critical for this course type)</li>
                                 <li>Strong wind players favored due to forecast conditions</li>
-                                <li>OWGR top 50 players get priority in {analysis.tournament.fieldStrength.toLowerCase()} field</li>
+                                <li>OWGR top 50 players get priority in {analysis?.tournament?.fieldStrength?.toLowerCase() || 'tournament'} field</li>
                               </ul>
                             </div>
                           </div>
