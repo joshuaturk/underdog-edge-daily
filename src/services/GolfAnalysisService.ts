@@ -1,4 +1,5 @@
 import { GolfPlayer, GolfPick, GolfTournament, GolfAnalysis } from '@/types/golf';
+import { supabase } from '@/integrations/supabase/client';
 
 export class GolfAnalysisService {
   private static readonly ODDS_API_BASE_URL = 'https://api.the-odds-api.com/v4';
@@ -742,49 +743,95 @@ export class GolfAnalysisService {
   }
 
   static async scrapeUpcomingTournament(): Promise<{ success: boolean; error?: string; data?: any }> {
-    return {
-      success: true,
-      data: this.getMockTournament()
-    };
+    try {
+      // Get current tournament schedule
+      const response = await supabase.functions.invoke('golf-live-data', {
+        body: { 
+          endpoint: 'Tournaments/Current',
+          params: {}
+        }
+      });
+
+      if (!response.data?.success) {
+        console.error('Failed to fetch tournament:', response.data?.error);
+        return {
+          success: false,
+          error: response.data?.error || 'Failed to fetch tournament data'
+        };
+      }
+
+      const tournament = response.data.data;
+      return {
+        success: true,
+        data: tournament
+      };
+    } catch (error) {
+      console.error('Error fetching tournament:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 
   static async fetchLiveScores(picks: GolfPick[]): Promise<GolfPick[]> {
-    // Real live scores from the 3M Open 2025 leaderboard (ESPN data from July 25, 2025)
-    const realLiveScores = [
-      { name: 'Maverick McNealy', position: 80, score: -2, thru: 'F', round: 2, rounds: [69, 69], status: 'LOST' },
-      { name: 'Sam Burns', position: 21, score: -7, thru: 'F', round: 2, rounds: [71, 64], status: 'WON' },
-      { name: 'Wyndham Clark', position: 7, score: -10, thru: 'F', round: 2, rounds: [67, 65], status: 'WON' },
-      { name: 'Chris Gotterup', position: 7, score: -10, thru: 'F', round: 2, rounds: [63, 69], status: 'WON' },
-      { name: 'Sungjae Im', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'LOST' },
-      { name: 'Max Greyserman', position: 80, score: -2, thru: 'F', round: 2, rounds: [69, 71], status: 'LOST' },
-      { name: 'Taylor Pendrith', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'LOST' },
-      { name: 'Akshay Bhatia', position: 7, score: -10, thru: 17, round: 2, rounds: [66], status: 'WON' },
-      { name: 'Adam Scott', position: 26, score: -6, thru: 'F', round: 2, rounds: [69, 67], status: 'WON' },
-      { name: 'Tony Finau', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'LOST' },
-      { name: 'Max Homa', position: 38, score: -5, thru: '1:43 PM', round: 2, rounds: [66], status: 'WON' }
-    ];
+    try {
+      // First get current tournament leaderboard
+      const leaderboardResponse = await supabase.functions.invoke('golf-live-data', {
+        body: { 
+          endpoint: 'Leaderboard/Current',
+          params: {}
+        }
+      });
 
-    return picks.map(pick => {
-      const liveScore = realLiveScores.find(score => score.name === pick.player.name);
-      if (liveScore) {
-        return {
-          ...pick,
-          player: {
-            ...pick.player,
-            liveScore: {
-              currentPosition: liveScore.position,
-              totalScore: liveScore.score,
-              thru: typeof liveScore.thru === 'string' ? 18 : liveScore.thru,
-              currentRound: liveScore.round,
-              rounds: liveScore.rounds,
-              isTop10: liveScore.position <= 10,
-              status: liveScore.status as 'WON' | 'LOST' | 'ACTIVE' | 'CUT',
-              lastUpdated: new Date()
-            }
-          }
-        };
+      if (!leaderboardResponse.data?.success) {
+        console.error('Failed to fetch leaderboard:', leaderboardResponse.data?.error);
+        return picks; // Return original picks if API fails
       }
-      return pick;
-    });
+
+      const leaderboard = leaderboardResponse.data.data;
+      
+      // Map picks to live scores from API
+      return picks.map(pick => {
+        const liveScore = leaderboard?.Players?.find((player: any) => 
+          player.Name?.toLowerCase().includes(pick.player.name.toLowerCase()) ||
+          pick.player.name.toLowerCase().includes(player.Name?.toLowerCase())
+        );
+
+        if (liveScore) {
+          const isTop10 = liveScore.Rank <= 10;
+          let status: 'WON' | 'LOST' | 'ACTIVE' | 'CUT' = 'ACTIVE';
+          
+          if (liveScore.MadeCut === false) {
+            status = 'CUT';
+          } else if (isTop10) {
+            status = 'WON';
+          } else if (liveScore.TotalStrokes && liveScore.TotalStrokes > 0) {
+            status = liveScore.Rank <= 10 ? 'WON' : 'LOST';
+          }
+
+          return {
+            ...pick,
+            player: {
+              ...pick.player,
+              liveScore: {
+                currentPosition: liveScore.Rank || 999,
+                totalScore: liveScore.TotalScore || 0,
+                thru: liveScore.Thru || 0,
+                currentRound: liveScore.Round || 1,
+                rounds: liveScore.Rounds?.map((r: any) => r.Score) || [],
+                isTop10,
+                status,
+                lastUpdated: new Date()
+              }
+            }
+          };
+        }
+        return pick;
+      });
+    } catch (error) {
+      console.error('Error fetching live scores:', error);
+      return picks; // Return original picks if error occurs
+    }
   }
 }
