@@ -782,36 +782,36 @@ export class GolfAnalysisService {
     }
   }
   private static addFallback3MOpenData(picks: GolfPick[]): GolfPick[] {
-    // Updated 3M Open 2025 final results (July 27, 2025)
-    const finalResults = [
-      { name: 'Maverick McNealy', position: 72, score: -1, thru: 'F', round: 4, rounds: [69, 69, 70, 71], status: 'LOST' },
-      { name: 'Sam Burns', position: 15, score: -8, thru: 'F', round: 4, rounds: [71, 64, 69, 68], status: 'WON' },
-      { name: 'Wyndham Clark', position: 4, score: -12, thru: 'F', round: 4, rounds: [67, 65, 68, 68], status: 'WON' },
-      { name: 'Chris Gotterup', position: 8, score: -10, thru: 'F', round: 4, rounds: [63, 69, 70, 70], status: 'WON' },
-      { name: 'Sungjae Im', position: 45, score: -3, thru: 'F', round: 4, rounds: [70, 70, 69, 70], status: 'LOST' },
-      { name: 'Max Greyserman', position: 28, score: -5, thru: 'F', round: 4, rounds: [69, 71, 68, 69], status: 'LOST' },
-      { name: 'Taylor Pendrith', position: 18, score: -7, thru: 'F', round: 4, rounds: [70, 70, 67, 68], status: 'WON' },
-      { name: 'Akshay Bhatia', position: 2, score: -15, thru: 'F', round: 4, rounds: [66, 67, 68, 65], status: 'WON' },
-      { name: 'Adam Scott', position: 12, score: -9, thru: 'F', round: 4, rounds: [69, 67, 68, 67], status: 'WON' },
-      { name: 'Tony Finau', position: 35, score: -4, thru: 'F', round: 4, rounds: [70, 70, 69, 69], status: 'LOST' },
-      { name: 'Max Homa', position: 6, score: -11, thru: 'F', round: 4, rounds: [66, 69, 68, 68], status: 'WON' }
+    // Current 3M Open 2025 scores - Friday July 25th (Round 2 in progress)
+    const currentScores = [
+      { name: 'Maverick McNealy', position: 80, score: -2, thru: 'F', round: 2, rounds: [69, 69], status: 'ACTIVE' },
+      { name: 'Sam Burns', position: 21, score: -7, thru: 'F', round: 2, rounds: [71, 64], status: 'ACTIVE' },
+      { name: 'Wyndham Clark', position: 7, score: -10, thru: 'F', round: 2, rounds: [67, 65], status: 'ACTIVE' },
+      { name: 'Chris Gotterup', position: 7, score: -10, thru: 'F', round: 2, rounds: [63, 69], status: 'ACTIVE' },
+      { name: 'Sungjae Im', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'ACTIVE' },
+      { name: 'Max Greyserman', position: 80, score: -2, thru: 'F', round: 2, rounds: [69, 71], status: 'ACTIVE' },
+      { name: 'Taylor Pendrith', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'ACTIVE' },
+      { name: 'Akshay Bhatia', position: 7, score: -10, thru: 17, round: 2, rounds: [66], status: 'ACTIVE' },
+      { name: 'Adam Scott', position: 26, score: -6, thru: 'F', round: 2, rounds: [69, 67], status: 'ACTIVE' },
+      { name: 'Tony Finau', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'ACTIVE' },
+      { name: 'Max Homa', position: 38, score: -5, thru: 18, round: 2, rounds: [66, 69], status: 'ACTIVE' }
     ];
 
     return picks.map(pick => {
-      const result = finalResults.find(r => r.name === pick.player.name);
-      if (result) {
+      const score = currentScores.find(s => s.name === pick.player.name);
+      if (score) {
         return {
           ...pick,
           player: {
             ...pick.player,
             liveScore: {
-              currentPosition: result.position,
-              totalScore: result.score,
-              thru: 18,
-              currentRound: result.round,
-              rounds: result.rounds,
-              isTop10: result.position <= 10,
-              status: result.status as 'WON' | 'LOST' | 'ACTIVE' | 'CUT',
+              currentPosition: score.position,
+              totalScore: score.score,
+              thru: typeof score.thru === 'string' ? (score.thru === 'F' ? 18 : 0) : score.thru,
+              currentRound: score.round,
+              rounds: score.rounds,
+              isTop10: score.position <= 10,
+              status: score.status as 'WON' | 'LOST' | 'ACTIVE' | 'CUT',
               lastUpdated: new Date()
             }
           }
