@@ -192,130 +192,127 @@ export const BettingDashboard = () => {
         }
         
         const updatedPicks = allPicks.map(pick => {
-            // Skip updating static completed games using specific ID patterns
-            if ((pick.id.includes('completed') || pick.id.includes('final')) && pick.status !== 'pending') {
-              console.log(`Skipping static completed game: ${pick.homeTeam} vs ${pick.awayTeam} (ID: ${pick.id})`);
-              return pick;
-            }
-            
-            // Only update picks that are still pending (regardless of date)
-            // This preserves all historical picks permanently while only updating live/pending games
-            if (pick.status !== 'pending') {
-              console.log(`Skipping completed pick: ${pick.homeTeam} vs ${pick.awayTeam} (Date: ${pick.date}, Status: ${pick.status})`);
-              return pick;
-            }
-            
-            // Find matching live game using unique ESPN game ID when possible
-            const liveGame = liveGames.find(game => {
-              // First try to match by ESPN game ID if available
-              if (game.id && pick.id && pick.id.includes(game.id)) {
-                return true;
-              }
-              
-              // Fallback to team name matching for today's pending games only
-              const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
-              const pickAwayShort = pick.awayTeam.split(' ').pop()?.toLowerCase();
-              const gameHomeShort = game.homeTeam.split(' ').pop()?.toLowerCase();
-              const gameAwayShort = game.awayTeam.split(' ').pop()?.toLowerCase();
-              
-              const homeMatch = 
-                pickHomeShort === gameHomeShort ||
-                pick.homeTeam.toLowerCase().includes(game.homeTeam.toLowerCase()) ||
-                game.homeTeam.toLowerCase().includes(pick.homeTeam.toLowerCase());
-                
-              const awayMatch = 
-                pickAwayShort === gameAwayShort ||
-                pick.awayTeam.toLowerCase().includes(game.awayTeam.toLowerCase()) ||
-                game.awayTeam.toLowerCase().includes(pick.awayTeam.toLowerCase());
-              
-              return homeMatch && awayMatch;
-            });
-            
-            if (liveGame) {
-              console.log(`Found matching game for ${pick.homeTeam} vs ${pick.awayTeam}:`, liveGame);
-              
-              if (liveGame.homeScore !== undefined && liveGame.awayScore !== undefined) {
-                // Update pick with live score data
-                const updatedPick = {
-                  ...pick,
-                  result: {
-                    homeScore: liveGame.homeScore,
-                    awayScore: liveGame.awayScore,
-                    scoreDifference: Math.abs(liveGame.homeScore - liveGame.awayScore)
-                  },
-                  inning: liveGame.inning // Add inning information
-                };
-                
-                console.log(`Updated pick with scores: ${liveGame.homeScore}-${liveGame.awayScore}`);
-                
-                // Update status based on game status - live games should show as live
-                if (liveGame.status === 'live' && pick.status === 'pending') {
-                  updatedPick.status = 'live'; // Show as live with live scores
-                } else if (liveGame.status === 'final') {
-                  const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
-                  
-                  // Check if runline bet won (+1.5 spread)
-                  let isWin = false;
-                  if (recommendedTeam === 'home') {
-                    isWin = (liveGame.homeScore + 1.5) > liveGame.awayScore;
-                  } else {
-                    isWin = (liveGame.awayScore + 1.5) > liveGame.homeScore;
-                  }
-                  
-                  updatedPick.status = isWin ? 'won' : 'lost';
-                  
-                  // Calculate profit based on actual American odds
-                  if (isWin) {
-                    const odds = pick.odds;
-                    let profit = 0;
-                    
-                    if (odds > 0) {
-                      // Positive odds: +118 means $100 bet wins $118, so $10 bet wins $11.80
-                      profit = (10 * odds) / 100;
-                    } else {
-                      // Negative odds: -150 means need to bet $150 to win $100, so $10 bet wins $6.67
-                      profit = (10 * 100) / Math.abs(odds);
-                    }
-                    
-                    // Store the profit (not including the original wager)
-                    updatedPick.profit = profit;
-                    
-                    console.log(`Win calculation: $10 bet at ${odds} odds = $${profit.toFixed(2)} profit (Total return: $${(10 + profit).toFixed(2)})`);
-                  } else {
-                    updatedPick.profit = -10; // Lost the entire $10 wager
-                    console.log(`Loss: $10 bet lost = -$10.00`);
-                  }
-                  
-                  console.log(`Game final: ${pick.recommendedBet} ${isWin ? 'WON' : 'LOST'}`);
-                }
-                
-                return updatedPick;
-              } else {
-                console.log('Live game found but no scores yet:', liveGame);
-              }
-            } else {
-              console.log(`No matching live game found for ${pick.homeTeam} vs ${pick.awayTeam}`);
-            }
-            
+          // Skip updating static completed games using specific ID patterns
+          if ((pick.id.includes('completed') || pick.id.includes('final')) && pick.status !== 'pending') {
+            console.log(`Skipping static completed game: ${pick.homeTeam} vs ${pick.awayTeam} (ID: ${pick.id})`);
             return pick;
+          }
+          
+          // Only update picks that are still pending (regardless of date)
+          // This preserves all historical picks permanently while only updating live/pending games
+          if (pick.status !== 'pending') {
+            console.log(`Skipping completed pick: ${pick.homeTeam} vs ${pick.awayTeam} (Date: ${pick.date}, Status: ${pick.status})`);
+            return pick;
+          }
+          
+          // Find matching live game using unique ESPN game ID when possible
+          const liveGame = liveGames.find(game => {
+            // First try to match by ESPN game ID if available
+            if (game.id && pick.id && pick.id.includes(game.id)) {
+              return true;
+            }
+            
+            // Fallback to team name matching for today's pending games only
+            const pickHomeShort = pick.homeTeam.split(' ').pop()?.toLowerCase();
+            const pickAwayShort = pick.awayTeam.split(' ').pop()?.toLowerCase();
+            const gameHomeShort = game.homeTeam.split(' ').pop()?.toLowerCase();
+            const gameAwayShort = game.awayTeam.split(' ').pop()?.toLowerCase();
+            
+            const homeMatch = 
+              pickHomeShort === gameHomeShort ||
+              pick.homeTeam.toLowerCase().includes(game.homeTeam.toLowerCase()) ||
+              game.homeTeam.toLowerCase().includes(pick.homeTeam.toLowerCase());
+              
+            const awayMatch = 
+              pickAwayShort === gameAwayShort ||
+              pick.awayTeam.toLowerCase().includes(game.awayTeam.toLowerCase()) ||
+              game.awayTeam.toLowerCase().includes(pick.awayTeam.toLowerCase());
+            
+            return homeMatch && awayMatch;
           });
           
-          // Only update if we found changes
-          const hasChanges = updatedPicks.some((pick, index) => 
-            pick.result !== allPicks[index].result || pick.status !== allPicks[index].status
-          );
-          
-          if (hasChanges) {
-            console.log('=== UPDATING PICKS WITH LIVE SCORES ===');
-            console.log('Updated picks:', updatedPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
+          if (liveGame) {
+            console.log(`Found matching game for ${pick.homeTeam} vs ${pick.awayTeam}:`, liveGame);
             
-            // Preserve date-based organization when updating live scores
-            setAllPicks(updatedPicks);
+            if (liveGame.homeScore !== undefined && liveGame.awayScore !== undefined) {
+              // Update pick with live score data
+              const updatedPick = {
+                ...pick,
+                result: {
+                  homeScore: liveGame.homeScore,
+                  awayScore: liveGame.awayScore,
+                  scoreDifference: Math.abs(liveGame.homeScore - liveGame.awayScore)
+                },
+                inning: liveGame.inning // Add inning information
+              };
+              
+              console.log(`Updated pick with scores: ${liveGame.homeScore}-${liveGame.awayScore}`);
+              
+              // Update status based on game status - live games should show as live
+              if (liveGame.status === 'live' && pick.status === 'pending') {
+                updatedPick.status = 'live'; // Show as live with live scores
+              } else if (liveGame.status === 'final') {
+                const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+                
+                // Check if runline bet won (+1.5 spread)
+                let isWin = false;
+                if (recommendedTeam === 'home') {
+                  isWin = (liveGame.homeScore + 1.5) > liveGame.awayScore;
+                } else {
+                  isWin = (liveGame.awayScore + 1.5) > liveGame.homeScore;
+                }
+                
+                updatedPick.status = isWin ? 'won' : 'lost';
+                
+                // Calculate profit based on actual American odds
+                if (isWin) {
+                  const odds = pick.odds;
+                  let profit = 0;
+                  
+                  if (odds > 0) {
+                    // Positive odds: +118 means $100 bet wins $118, so $10 bet wins $11.80
+                    profit = (10 * odds) / 100;
+                  } else {
+                    // Negative odds: -150 means need to bet $150 to win $100, so $10 bet wins $6.67
+                    profit = (10 * 100) / Math.abs(odds);
+                  }
+                  
+                  // Store the profit (not including the original wager)
+                  updatedPick.profit = profit;
+                  
+                  console.log(`Win calculation: $10 bet at ${odds} odds = $${profit.toFixed(2)} profit (Total return: $${(10 + profit).toFixed(2)})`);
+                } else {
+                  updatedPick.profit = -10; // Lost the entire $10 wager
+                  console.log(`Loss: $10 bet lost = -$10.00`);
+                }
+                
+                console.log(`Game final: ${pick.recommendedBet} ${isWin ? 'WON' : 'LOST'}`);
+              }
+              
+              return updatedPick;
+            } else {
+              console.log('Live game found but no scores yet:', liveGame);
+            }
           } else {
-            console.log('No changes to update');
+            console.log(`No matching live game found for ${pick.homeTeam} vs ${pick.awayTeam}`);
           }
+          
+          return pick;
+        });
+        
+        // Only update if we found changes
+        const hasChanges = updatedPicks.some((pick, index) => 
+          pick.result !== allPicks[index].result || pick.status !== allPicks[index].status
+        );
+        
+        if (hasChanges) {
+          console.log('=== UPDATING PICKS WITH LIVE SCORES ===');
+          console.log('Updated picks:', updatedPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
+          
+          // Preserve date-based organization when updating live scores
+          setAllPicks(updatedPicks);
         } else {
-          console.log('No live games data available');
+          console.log('No changes to update');
         }
       } catch (error) {
         console.log('Error updating live scores:', error);
