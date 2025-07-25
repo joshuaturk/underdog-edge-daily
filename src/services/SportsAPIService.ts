@@ -345,4 +345,68 @@ export class SportsAPIService {
 
     return cityMap[name] || name;
   }
+
+  // Get live MLB games from The Odds API as fallback for inning information
+  static async getMLBLiveGamesFromOddsAPI(): Promise<{ success: boolean; data?: MLBGame[] }> {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      console.error('No Odds API key available');
+      return { success: false };
+    }
+
+    try {
+      console.log('Fetching live MLB games from Odds API for inning data...');
+      
+      // Get live scores from The Odds API
+      const response = await fetch(
+        `${this.BASE_URL}/sports/baseball_mlb/scores/?apiKey=${apiKey}&daysFrom=1&daysTo=1`
+      );
+
+      if (!response.ok) {
+        console.error('Odds API live scores request failed:', response.status);
+        return { success: false };
+      }
+
+      const data = await response.json();
+      console.log('Odds API live scores response:', data);
+
+      if (!Array.isArray(data)) {
+        console.error('Invalid Odds API live scores response format');
+        return { success: false };
+      }
+
+      const liveGames: MLBGame[] = data
+        .filter(game => game.completed === false && game.scores) // Only live/ongoing games
+        .map(game => {
+          // Extract inning from Odds API if available
+          let inning: string | undefined;
+          if (game.status && game.status.includes('inning')) {
+            inning = game.status; // e.g., "Top 7th inning" or "Bottom 3rd inning"
+          } else if (game.period) {
+            inning = `${game.period}`; // Fallback to period
+          }
+
+          return {
+            id: game.id,
+            homeTeam: this.cleanTeamName(game.home_team),
+            awayTeam: this.cleanTeamName(game.away_team),
+            homeOdds: 0, // Not needed for live scores
+            awayOdds: 0,
+            gameTime: game.commence_time,
+            source: 'Odds API',
+            homeScore: game.scores?.[0]?.score,
+            awayScore: game.scores?.[1]?.score,
+            status: game.completed ? 'final' : 'live',
+            inning
+          };
+        });
+
+      console.log(`Found ${liveGames.length} live games from Odds API`);
+      return { success: true, data: liveGames };
+
+    } catch (error) {
+      console.error('Error fetching live games from Odds API:', error);
+      return { success: false };
+    }
+  }
 }

@@ -155,15 +155,43 @@ export const BettingDashboard = () => {
       console.log('Picks before live update:', allPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
       
       try {
-        // Fetch live scores from ESPN
+        // Fetch live scores from ESPN first
         const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
         console.log('ESPN result for live scores:', espnResult);
         
+        let liveGames: any[] = [];
+        
         if (espnResult.success && espnResult.data) {
-          const liveGames = espnResult.data;
+          liveGames = espnResult.data;
           console.log('Live games from ESPN:', liveGames.length);
           
-          const updatedPicks = allPicks.map(pick => {
+          // If no inning data from ESPN, try Odds API as fallback
+          const gamesWithoutInning = liveGames.filter(game => !game.inning && game.status === 'live');
+          if (gamesWithoutInning.length > 0) {
+            console.log('Some games missing inning data from ESPN, trying Odds API...');
+            const oddsResult = await SportsAPIService.getMLBLiveGamesFromOddsAPI();
+            
+            if (oddsResult.success && oddsResult.data) {
+              console.log('Found additional inning data from Odds API:', oddsResult.data.length);
+              
+              // Merge inning data from Odds API
+              gamesWithoutInning.forEach(espnGame => {
+                const oddsGame = oddsResult.data!.find(og => 
+                  og.homeTeam.toLowerCase().includes(espnGame.homeTeam.toLowerCase()) ||
+                  espnGame.homeTeam.toLowerCase().includes(og.homeTeam.toLowerCase())
+                );
+                
+                if (oddsGame && oddsGame.inning) {
+                  console.log(`Enhanced ${espnGame.homeTeam} vs ${espnGame.awayTeam} with inning: ${oddsGame.inning}`);
+                  espnGame.inning = oddsGame.inning;
+                  espnGame.source = 'ESPN + Odds API';
+                }
+              });
+            }
+          }
+        }
+        
+        const updatedPicks = allPicks.map(pick => {
             // Skip updating static completed games using specific ID patterns
             if ((pick.id.includes('completed') || pick.id.includes('final')) && pick.status !== 'pending') {
               console.log(`Skipping static completed game: ${pick.homeTeam} vs ${pick.awayTeam} (ID: ${pick.id})`);
@@ -286,6 +314,8 @@ export const BettingDashboard = () => {
           } else {
             console.log('No changes to update');
           }
+        } else {
+          console.log('No live games data available');
         }
       } catch (error) {
         console.log('Error updating live scores:', error);
