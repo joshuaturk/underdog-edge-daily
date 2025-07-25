@@ -34,7 +34,7 @@ export const BettingDashboard = () => {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   
   const [showBuddyAnalysis, setShowBuddyAnalysis] = useState<Record<string, boolean>>({});
-  const [resultsDisplayCount, setResultsDisplayCount] = useState(10); // For pagination
+  const [resultsDisplayCount, setResultsDisplayCount] = useState(15); // Increased to show all 14 historical picks
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
