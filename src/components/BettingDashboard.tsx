@@ -155,26 +155,34 @@ export const BettingDashboard = () => {
       console.log('Picks before live update:', allPicks.map(p => `${p.homeTeam} vs ${p.awayTeam} (${p.status}) - Date: ${p.date} - ID: ${p.id}`));
       
       try {
-        // Fetch live scores from ESPN first
-        const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
-        console.log('ESPN result for live scores:', espnResult);
+        // Try multiple sources for the most complete live data
+        console.log('=== MULTI-SOURCE LIVE DATA FETCH ===');
         
         let liveGames: any[] = [];
+        let sourcesUsed: string[] = [];
         
+        // 1. Try ESPN API first (primary source)
+        const espnResult = await SportsAPIService.getMLBGamesFromESPN(0);
         if (espnResult.success && espnResult.data) {
           liveGames = espnResult.data;
-          console.log('Live games from ESPN:', liveGames.length);
+          sourcesUsed.push('ESPN');
+          console.log(`ESPN: Found ${liveGames.length} games`);
+        }
+        
+        // 2. If no data or missing inning info, try Odds API
+        const gamesWithoutInning = liveGames.filter(game => !game.inning && game.status === 'live');
+        if (liveGames.length === 0 || gamesWithoutInning.length > 0) {
+          console.log('Trying Odds API for additional data...');
+          const oddsResult = await SportsAPIService.getMLBLiveGamesFromOddsAPI();
           
-          // If no inning data from ESPN, try Odds API as fallback
-          const gamesWithoutInning = liveGames.filter(game => !game.inning && game.status === 'live');
-          if (gamesWithoutInning.length > 0) {
-            console.log('Some games missing inning data from ESPN, trying Odds API...');
-            const oddsResult = await SportsAPIService.getMLBLiveGamesFromOddsAPI();
-            
-            if (oddsResult.success && oddsResult.data) {
-              console.log('Found additional inning data from Odds API:', oddsResult.data.length);
-              
-              // Merge inning data from Odds API
+          if (oddsResult.success && oddsResult.data) {
+            if (liveGames.length === 0) {
+              // No ESPN data, use Odds API as primary
+              liveGames = oddsResult.data;
+              sourcesUsed.push('Odds API');
+              console.log(`Odds API: Found ${liveGames.length} games as primary source`);
+            } else {
+              // Merge inning data from Odds API into ESPN games
               gamesWithoutInning.forEach(espnGame => {
                 const oddsGame = oddsResult.data!.find(og => 
                   og.homeTeam.toLowerCase().includes(espnGame.homeTeam.toLowerCase()) ||
@@ -182,14 +190,58 @@ export const BettingDashboard = () => {
                 );
                 
                 if (oddsGame && oddsGame.inning) {
-                  console.log(`Enhanced ${espnGame.homeTeam} vs ${espnGame.awayTeam} with inning: ${oddsGame.inning}`);
+                  console.log(`Enhanced ${espnGame.homeTeam} vs ${espnGame.awayTeam} with Odds API inning: ${oddsGame.inning}`);
                   espnGame.inning = oddsGame.inning;
                   espnGame.source = 'ESPN + Odds API';
                 }
               });
+              sourcesUsed.push('Odds API (enhanced)');
             }
           }
         }
+        
+        // 3. If still no data or missing critical info, try MLB Stats API
+        const gamesStillMissingData = liveGames.filter(game => !game.inning && game.status === 'live');
+        if (liveGames.length === 0 || gamesStillMissingData.length > 0) {
+          console.log('Trying official MLB Stats API for additional data...');
+          const mlbResult = await SportsAPIService.getMLBLiveGamesFromMLBAPI();
+          
+          if (mlbResult.success && mlbResult.data) {
+            if (liveGames.length === 0) {
+              // No previous data, use MLB API as primary
+              liveGames = mlbResult.data;
+              sourcesUsed.push('MLB Stats API');
+              console.log(`MLB Stats API: Found ${liveGames.length} games as primary source`);
+            } else {
+              // Merge detailed inning data from MLB API
+              gamesStillMissingData.forEach(existingGame => {
+                const mlbGame = mlbResult.data!.find(mg => 
+                  mg.homeTeam.toLowerCase().includes(existingGame.homeTeam.toLowerCase()) ||
+                  existingGame.homeTeam.toLowerCase().includes(mg.homeTeam.toLowerCase())
+                );
+                
+                if (mlbGame && mlbGame.inning) {
+                  console.log(`Enhanced ${existingGame.homeTeam} vs ${existingGame.awayTeam} with MLB API inning: ${mlbGame.inning}`);
+                  existingGame.inning = mlbGame.inning;
+                  existingGame.source = existingGame.source + ' + MLB API';
+                  
+                  // Also update scores if MLB has more recent data
+                  if (mlbGame.homeScore !== undefined && mlbGame.awayScore !== undefined) {
+                    existingGame.homeScore = mlbGame.homeScore;
+                    existingGame.awayScore = mlbGame.awayScore;
+                  }
+                }
+              });
+              sourcesUsed.push('MLB API (enhanced)');
+            }
+          }
+        }
+        
+        console.log(`=== FINAL LIVE DATA SUMMARY ===`);
+        console.log(`Sources used: ${sourcesUsed.join(', ')}`);
+        console.log(`Total games with live data: ${liveGames.length}`);
+        console.log(`Games with inning info: ${liveGames.filter(g => g.inning).length}`);
+        
         
         const updatedPicks = allPicks.map(pick => {
           // Skip updating static completed games using specific ID patterns

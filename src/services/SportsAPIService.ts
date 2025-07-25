@@ -406,6 +406,91 @@ export class SportsAPIService {
 
     } catch (error) {
       console.error('Error fetching live games from Odds API:', error);
+    }
+  }
+
+  // Get live MLB games from official MLB Stats API as third fallback
+  static async getMLBLiveGamesFromMLBAPI(): Promise<{ success: boolean; data?: MLBGame[] }> {
+    try {
+      console.log('Fetching live MLB games from official MLB Stats API...');
+      
+      // Get today's games from MLB Stats API (no API key required)
+      const today = new Date().toISOString().split('T')[0];
+      const response = await fetch(
+        `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=game(content(summary,media(epg))),linescore,team`
+      );
+
+      if (!response.ok) {
+        console.error('MLB Stats API request failed:', response.status);
+        return { success: false };
+      }
+
+      const data = await response.json();
+      console.log('MLB Stats API response:', data);
+
+      if (!data.dates || !Array.isArray(data.dates) || data.dates.length === 0) {
+        console.log('No games found from MLB Stats API');
+        return { success: true, data: [] };
+      }
+
+      const allGames = data.dates[0].games || [];
+      
+      const liveGames: MLBGame[] = allGames
+        .filter((game: any) => 
+          game.status?.abstractGameState === 'Live' || 
+          game.status?.abstractGameState === 'Final'
+        )
+        .map((game: any) => {
+          // Extract detailed inning information from MLB API
+          let inning: string | undefined;
+          let status: 'scheduled' | 'live' | 'final' = 'scheduled';
+          
+          if (game.status?.abstractGameState === 'Final') {
+            status = 'final';
+            inning = 'Final';
+          } else if (game.status?.abstractGameState === 'Live') {
+            status = 'live';
+            // Get detailed inning info from MLB API
+            const currentInning = game.linescore?.currentInning;
+            const inningHalf = game.linescore?.inningHalf; // "Top" or "Bottom"
+            const inningState = game.linescore?.inningState; // "Middle", "End", etc.
+            
+            if (currentInning && inningHalf) {
+              const halfSymbol = inningHalf === 'Top' ? '▲' : '▼';
+              inning = `${halfSymbol}${currentInning}`;
+              
+              if (inningState && inningState !== 'Middle') {
+                inning += ` ${inningState}`;
+              }
+            } else if (currentInning) {
+              inning = `Inning ${currentInning}`;
+            }
+          }
+
+          // Extract scores
+          const homeScore = game.teams?.home?.score;
+          const awayScore = game.teams?.away?.score;
+          
+          return {
+            id: `mlb-${game.gamePk}`,
+            homeTeam: this.cleanTeamName(game.teams?.home?.team?.name || 'Unknown'),
+            awayTeam: this.cleanTeamName(game.teams?.away?.team?.name || 'Unknown'),
+            homeOdds: 0, // Not available from MLB API
+            awayOdds: 0,
+            gameTime: game.gameDate,
+            source: 'MLB Stats API',
+            homeScore: homeScore !== undefined ? parseInt(homeScore) : undefined,
+            awayScore: awayScore !== undefined ? parseInt(awayScore) : undefined,
+            status,
+            inning
+          };
+        });
+
+      console.log(`Found ${liveGames.length} live/final games from MLB Stats API`);
+      return { success: true, data: liveGames };
+
+    } catch (error) {
+      console.error('Error fetching live games from MLB Stats API:', error);
       return { success: false };
     }
   }
