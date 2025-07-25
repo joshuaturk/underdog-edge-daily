@@ -1427,129 +1427,125 @@ export const BettingDashboard = () => {
                                 : 'from-card to-card/50'
                             }`}
                           >
-                            <div className="flex justify-between items-start">
+                            {/* Mobile: Stacked layout, Desktop: Side-by-side */}
+                            <div className="space-y-3 sm:space-y-0 sm:flex sm:justify-between sm:items-start">
+                              
+                              {/* Game Info Section */}
                               <div className="flex-1 space-y-2">
-                                {/* Game Teams with Live Scores */}
-                                <div className="flex items-center justify-between">
-                                  <div className="space-y-1">
-                                    <div className="flex items-center gap-3">
+                                {/* Header with status and date - Mobile optimized */}
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <Badge className={`${getStatusColor(pick.status)} text-xs`}>
+                                      {pick.status.toUpperCase()}
+                                    </Badge>
+                                    {pick.status === 'pending' && pick.result && (
+                                      <span className="text-xs text-accent font-medium px-2 py-1 bg-accent/10 rounded">LIVE</span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {format(new Date(pick.date), 'MMM d, yyyy')}
+                                  </div>
+                                </div>
+
+                                {/* Teams and Scores - Mobile row layout */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 flex-1">
                                       <img 
                                         src={getTeamLogo(pick.awayTeam)} 
                                         alt={`${pick.awayTeam} logo`}
-                                        className="w-6 h-6 rounded-full object-cover"
+                                        className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0"
                                         onError={(e) => {
                                           e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                         }}
                                       />
-                                      <span className="font-medium">{pick.awayTeam}</span>
-                                      {pick.result && (
-                                        <span className="text-lg font-bold">{pick.result.awayScore}</span>
-                                      )}
-                                      {pick.status === 'pending' && pick.result && (
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm text-accent font-medium px-2 py-1 bg-accent/10 rounded">LIVE</span>
-                                          <span className="text-xs text-muted-foreground">Top 7</span>
-                                        </div>
-                                      )}
+                                      <span className="font-medium text-sm sm:text-base truncate">{pick.awayTeam}</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
+                                    {pick.result && (
+                                      <span className="text-lg font-bold ml-2">{pick.result.awayScore}</span>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 flex-1">
                                       <img 
                                         src={getTeamLogo(pick.homeTeam)} 
                                         alt={`${pick.homeTeam} logo`}
-                                        className="w-6 h-6 rounded-full object-cover"
+                                        className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0"
                                         onError={(e) => {
                                           e.currentTarget.src = 'https://a.espncdn.com/i/teamlogos/leagues/500/mlb.png';
                                         }}
                                       />
-                                      <span className="font-medium">{pick.homeTeam}</span>
-                                      {pick.result && (
-                                        <span className="text-lg font-bold">{pick.result.homeScore}</span>
-                                      )}
+                                      <span className="font-medium text-sm sm:text-base truncate">{pick.homeTeam}</span>
                                     </div>
+                                    {pick.result && (
+                                      <span className="text-lg font-bold ml-2">{pick.result.homeScore}</span>
+                                    )}
                                   </div>
                                 </div>
                                 
-                                 {/* Pick Details with Status Indicator */}
-                                 <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
-                                   <span className="text-sm text-muted-foreground">
-                                     {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
-                                   </span>
-                                    <div className="text-xs text-muted-foreground">
-                                      Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
+                                {/* Bet Details */}
+                                <div className="border-t border-border/30 pt-2 space-y-1">
+                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                                    <span className="text-xs sm:text-sm text-muted-foreground">
+                                      {pick.recommendedBet === 'home_runline' ? pick.homeTeam : pick.awayTeam} Underdog +1.5
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-muted-foreground">
+                                        {Math.round(pick.confidence)}% confidence
+                                      </span>
+                                      {pick.profit !== undefined && (
+                                        <span className={`text-xs sm:text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                          {pick.profit >= 0 ? `$${(10 + pick.profit).toFixed(2)}` : `-$10.00`}
+                                        </span>
+                                      )}
                                     </div>
-                                    {/* Game Date - show for all picks without scores */}
-                                    {!pick.result && (
-                                      <div className="text-xs text-muted-foreground">
-                                        {format(new Date(pick.date), 'MMMM d, yyyy')}
-                                      </div>
-                                    )}
-                                    {pick.status === 'lost' && pick.result && (
-                                      <div className="text-xs text-warning">
-                                        Cashout available: 7th inning
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                          {format(new Date(pick.date), 'MMMM d, yyyy')}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {pick.status === 'won' && pick.result && (
-                                      <div className="text-xs text-profit">
-                                        Cashout available: 5th inning
-                                        <div className="text-xs text-muted-foreground mt-1">
-                                          {format(new Date(pick.date), 'MMMM d, yyyy')}
-                                        </div>
-                                      </div>
-                                    )}
-                                   {pick.status === 'pending' && pick.result && (
-                                     <div className="flex items-center gap-1">
-                                       {/* Live pick status indicator */}
-                                       {(() => {
-                                         const scoreDiff = Math.abs(pick.result.homeScore - pick.result.awayScore);
-                                         const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
-                                         const isWinning = recommendedTeam === 'home' 
-                                           ? (pick.result.homeScore > pick.result.awayScore - 1.5)
-                                           : (pick.result.awayScore > pick.result.homeScore - 1.5);
-                                         
-                                         return isWinning ? (
-                                           <div className="bg-profit rounded-full p-1">
-                                             <Check className="w-3 h-3 text-white" />
-                                           </div>
-                                         ) : (
-                                           <div className="bg-loss rounded-full w-5 h-5 flex items-center justify-center">
-                                             <span className="text-white text-xs font-bold">✗</span>
-                                           </div>
-                                         );
-                                       })()}
-                                         <span className="text-[10px] text-accent font-medium">
-                                           {(pick.status === 'pending' || pick.status === 'live') ? 'LIVE' : 'FINAL'}
-                                         </span>
-                                         {/* Show inning for live games */}
-                                         {(['live', 'pending'].includes(pick.status)) && pick.inning && (
-                                           <div className="text-[10px] text-primary font-medium">
-                                             {pick.inning}
-                                           </div>
-                                         )}
-                                         <div className="text-xs text-muted-foreground mt-1">
-                                           {format(new Date(pick.date), 'MMMM d, yyyy')}
-                                         </div>
-                                      </div>
-                                   )}
-                                 </div>
-                               </div>
-                               
-                               <div className="text-right space-y-1 ml-4">
-                                 <Badge className={getStatusColor(pick.status)}>
-                                   {pick.status.toUpperCase()}
-                                 </Badge>
-                                 <div className="text-sm text-muted-foreground">
-                                   {Math.round(pick.confidence)}% confidence
-                                 </div>
-                                 {pick.profit !== undefined && (
-                                   <div className={`text-sm font-medium ${pick.profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                     {pick.profit >= 0 ? `$${(10 + pick.profit).toFixed(2)}` : `-$10.00`}
-                                   </div>
-                                 )}
+                                  </div>
+                                  
+                                  {/* Pitchers */}
+                                  <div className="text-xs text-muted-foreground">
+                                    Starting Pitchers: {pick.awayPitcher || 'TBD'} vs {pick.homePitcher || 'TBD'}
+                                  </div>
+                                  
+                                  {/* Live status and inning */}
+                                  {pick.status === 'pending' && pick.result && (
+                                    <div className="flex items-center gap-2">
+                                      {(() => {
+                                        const recommendedTeam = pick.recommendedBet === 'home_runline' ? 'home' : 'away';
+                                        const isWinning = recommendedTeam === 'home' 
+                                          ? (pick.result.homeScore > pick.result.awayScore - 1.5)
+                                          : (pick.result.awayScore > pick.result.homeScore - 1.5);
+                                        
+                                        return isWinning ? (
+                                          <div className="bg-profit rounded-full p-1">
+                                            <Check className="w-3 h-3 text-white" />
+                                          </div>
+                                        ) : (
+                                          <div className="bg-loss rounded-full w-4 h-4 flex items-center justify-center">
+                                            <span className="text-white text-xs font-bold">✗</span>
+                                          </div>
+                                        );
+                                      })()}
+                                      {pick.inning && (
+                                        <span className="text-xs text-primary font-medium">{pick.inning}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Cashout info for completed games */}
+                                  {pick.status === 'lost' && pick.result && (
+                                    <div className="text-xs text-warning">
+                                      Cashout available: 7th inning
+                                    </div>
+                                  )}
+                                  {pick.status === 'won' && pick.result && (
+                                    <div className="text-xs text-profit">
+                                      Cashout available: 5th inning
+                                    </div>
+                                  )}
                                 </div>
                               </div>
+                            </div>
                               
                               <BuddyInsights 
                                 pick={pick} 
