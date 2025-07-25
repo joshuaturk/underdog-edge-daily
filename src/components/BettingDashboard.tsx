@@ -582,7 +582,15 @@ export const BettingDashboard = () => {
   // MERGE picks instead of overwriting - preserve historical picks by date
       // ALWAYS include permanent historical picks to prevent them from disappearing
       const permanentHistoricalPicks = generateMockHistoricalPicks();
-      const newPicksToAdd = [...todayPicks, todayCompletedGame, ...completedPicks, ...permanentHistoricalPicks];
+      // ALWAYS include permanent historical picks to prevent them from disappearing
+      const historicalPicksForMerge = generateMockHistoricalPicks();
+      console.log('=== ENSURING PERMANENT HISTORICAL PICKS ARE INCLUDED ===');
+      console.log('Permanent historical picks count:', historicalPicksForMerge.length);
+      console.log('Today picks count:', todayPicks.length);
+      console.log('Completed game count:', completedPicks.length);
+      
+      const newPicksToAdd = [...todayPicks, todayCompletedGame, ...completedPicks, ...historicalPicksForMerge];
+      console.log('Total new picks to merge:', newPicksToAdd.length);
       
       console.log('=== MERGING PICKS BY DATE ===');
       console.log('Current allPicks before merge:', allPicks.length);
@@ -633,6 +641,24 @@ export const BettingDashboard = () => {
       console.log('Merged picks by date:', Object.keys(mergedPicksByDate).map(date => 
         `${date}: ${mergedPicksByDate[date].length} picks`
       ));
+      
+      // CRITICAL: Verify we have the expected minimum count (13 historical + today's picks)
+      const expectedMinimum = 13; // 13 historical picks should always be present
+      const actualHistoricalCount = allMergedPicks.filter(pick => 
+        pick.date < todayDate || (pick.date === todayDate && pick.status !== 'pending')
+      ).length;
+      
+      console.log('=== PICK COUNT VERIFICATION ===');
+      console.log('Expected minimum historical picks:', expectedMinimum);
+      console.log('Actual historical picks found:', actualHistoricalCount);
+      console.log('Total picks (historical + today):', allMergedPicks.length);
+      
+      if (actualHistoricalCount < expectedMinimum) {
+        console.error('⚠️ MISSING HISTORICAL PICKS! Expected at least', expectedMinimum, 'but found', actualHistoricalCount);
+        console.error('This suggests historical picks are being lost during merge');
+      } else {
+        console.log('✅ Historical picks count verified');
+      }
       
       setAllPicks(allMergedPicks);
       setLastUpdate(new Date());
@@ -888,12 +914,30 @@ export const BettingDashboard = () => {
       }
     ];
     
-    // PERMANENT HISTORICAL DATABASE - These 12 picks should ALWAYS be present
+    // Count picks by date for verification
+    console.log('=== HISTORICAL PICKS COUNT VERIFICATION ===');
+    console.log('July 21 picks:', july21Picks.length);
+    console.log('July 22 picks:', july22Picks.length); 
+    console.log('July 23 picks:', july23Picks.length);
+    console.log('July 24 picks:', july24Picks.length);
+    
+    // PERMANENT HISTORICAL DATABASE - These picks should ALWAYS be present
     const allHistoricalPicks = [...july21Picks, ...july22Picks, ...july23Picks, ...july24Picks];
+    const expectedCount = july21Picks.length + july22Picks.length + july23Picks.length + july24Picks.length;
+    
     console.log('=== PERMANENT HISTORICAL PICKS LOADED ===');
-    console.log('PERMANENT DATABASE SIZE:', allHistoricalPicks.length, 'picks');
+    console.log('EXPECTED HISTORICAL COUNT:', expectedCount, 'picks');
+    console.log('ACTUAL HISTORICAL COUNT:', allHistoricalPicks.length, 'picks');
     console.log('Historical dates covered:', [...new Set(allHistoricalPicks.map(p => p.date))].sort());
     console.log('THESE PICKS MUST NEVER DISAPPEAR OR CHANGE');
+    
+    // Verify no duplicates by checking unique IDs
+    const uniqueIds = new Set(allHistoricalPicks.map(p => p.id));
+    if (uniqueIds.size !== allHistoricalPicks.length) {
+      console.error('⚠️ DUPLICATE HISTORICAL PICKS DETECTED!');
+      console.error('Expected unique picks:', allHistoricalPicks.length);
+      console.error('Actual unique IDs:', uniqueIds.size);
+    }
     
     return allHistoricalPicks;
   };
