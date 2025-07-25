@@ -964,6 +964,51 @@ export const BettingDashboard = () => {
         profit: 13.80,
         homePitcher: 'JP Sears',
         awayPitcher: 'Logan Webb'
+      },
+      {
+        id: `royals-dodgers-2025-07-24`,
+        date: '2025-07-24',
+        homeTeam: 'Kansas City Royals',
+        awayTeam: 'Los Angeles Dodgers',
+        recommendedBet: 'away_runline' as const,
+        confidence: 78,
+        reason: 'Los Angeles Dodgers road underdog +1.5',
+        odds: -142,
+        status: 'won' as const,
+        result: { homeScore: 2, awayScore: 7, scoreDifference: 5 },
+        profit: 7.04,
+        homePitcher: 'Cole Ragans',
+        awayPitcher: 'Walker Buehler'
+      },
+      {
+        id: `twins-rockies-2025-07-24`,
+        date: '2025-07-24',
+        homeTeam: 'Minnesota Twins',
+        awayTeam: 'Colorado Rockies',
+        recommendedBet: 'away_runline' as const,
+        confidence: 68,
+        reason: 'Colorado Rockies road underdog +1.5',
+        odds: 165,
+        status: 'lost' as const,
+        result: { homeScore: 8, awayScore: 1, scoreDifference: 7 },
+        profit: -10,
+        homePitcher: 'Bailey Ober',
+        awayPitcher: 'Kyle Freeland'
+      },
+      {
+        id: `diamondbacks-white-sox-2025-07-24`,
+        date: '2025-07-24',
+        homeTeam: 'Arizona Diamondbacks', 
+        awayTeam: 'Chicago White Sox',
+        recommendedBet: 'away_runline' as const,
+        confidence: 72,
+        reason: 'Chicago White Sox road underdog +1.5',
+        odds: 155,
+        status: 'won' as const,
+        result: { homeScore: 4, awayScore: 6, scoreDifference: 2 },
+        profit: 15.50,
+        homePitcher: 'Zac Gallen',
+        awayPitcher: 'Garrett Crochet'
       }
     ];
     
