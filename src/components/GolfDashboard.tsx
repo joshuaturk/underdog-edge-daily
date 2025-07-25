@@ -66,7 +66,8 @@ export const GolfDashboard = () => {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
   };
 
-  if (!analysis) {
+  // Show loading state while data is being fetched
+  if (!analysis && isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
@@ -74,6 +75,27 @@ export const GolfDashboard = () => {
             <div className="text-center">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
               <p>Loading golf analysis...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if analysis failed to load and we're not loading
+  if (!analysis && !isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="mb-4">Unable to load golf analysis</p>
+              <button 
+                onClick={loadGolfAnalysis}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+              >
+                Try Again
+              </button>
             </div>
           </div>
         </div>
