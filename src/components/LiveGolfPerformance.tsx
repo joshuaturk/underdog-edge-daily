@@ -31,15 +31,11 @@ export const LiveGolfPerformance = ({ picks }: LiveGolfPerformanceProps) => {
       const updatedPicks = await GolfAnalysisService.fetchLiveScores(picks);
       setLiveScores(updatedPicks);
       setLastUpdate(new Date());
-      toast({
-        title: "Success",
-        description: "Live scores updated from API",
-      });
     } catch (error) {
       console.error('Error fetching live scores:', error);
       toast({
-        title: "API Error",
-        description: error instanceof Error ? error.message : "Failed to fetch live tournament data",
+        title: "Error",
+        description: "Failed to fetch live scores",
         variant: "destructive",
       });
     } finally {

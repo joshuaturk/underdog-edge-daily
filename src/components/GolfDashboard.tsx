@@ -37,12 +37,11 @@ export const GolfDashboard = () => {
       
       toast({
         title: "Analysis Updated",
-        description: `Found ${analysisData?.picks?.length || 0} top 10 candidates`,
+        description: `Found ${analysisData.picks.length} top 10 candidates`,
         duration: 3000,
       });
     } catch (error) {
       console.error('Error loading golf analysis:', error);
-      setAnalysis(null); // Ensure analysis is set to null on error
       toast({
         title: "Error",
         description: "Failed to load golf analysis",
@@ -66,8 +65,7 @@ export const GolfDashboard = () => {
     return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
   };
 
-  // Show loading state while data is being fetched
-  if (!analysis && isLoading) {
+  if (!analysis) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
@@ -75,27 +73,6 @@ export const GolfDashboard = () => {
             <div className="text-center">
               <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
               <p>Loading golf analysis...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state if analysis failed to load and we're not loading
-  if (!analysis && !isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <p className="mb-4">Unable to load golf analysis</p>
-              <button 
-                onClick={loadGolfAnalysis}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
-              >
-                Try Again
-              </button>
             </div>
           </div>
         </div>
@@ -333,13 +310,13 @@ export const GolfDashboard = () => {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1">
                                   <p className="text-xs font-medium text-muted-foreground">Layout</p>
-                                  <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.length || 'N/A'} yards, Par {analysis?.tournament?.courseCharacteristics?.parTotal || 'N/A'}</p>
-                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.treelined ? 'Tree-lined course' : 'Open layout'}</p>
-                                 </div>
-                                 <div className="space-y-1">
-                                   <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
-                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.greens || 'N/A'} greens</p>
-                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.rough || 'N/A'} rough</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined course' : 'Open layout'}</p>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.greens} greens</p>
+                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.rough} rough</p>
                                 </div>
                               </div>
                             </div>
@@ -349,15 +326,15 @@ export const GolfDashboard = () => {
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                                 <div className="p-2 bg-muted/30 rounded">
                                   <p className="text-xs font-medium text-muted-foreground">Wind</p>
-                                   <p className="text-sm">{analysis?.tournament?.weatherForecast?.wind || 'N/A'}</p>
-                                 </div>
-                                 <div className="p-2 bg-muted/30 rounded">
-                                   <p className="text-xs font-medium text-muted-foreground">Temperature</p>
-                                   <p className="text-sm">{analysis?.tournament?.weatherForecast?.temperature || 'N/A'}</p>
-                                 </div>
-                                 <div className="p-2 bg-muted/30 rounded">
-                                   <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
-                                   <p className="text-sm">{analysis?.tournament?.weatherForecast?.precipitation || 'N/A'}</p>
+                                  <p className="text-sm">{analysis.tournament.weatherForecast.wind}</p>
+                                </div>
+                                <div className="p-2 bg-muted/30 rounded">
+                                  <p className="text-xs font-medium text-muted-foreground">Temperature</p>
+                                  <p className="text-sm">{analysis.tournament.weatherForecast.temperature}</p>
+                                </div>
+                                <div className="p-2 bg-muted/30 rounded">
+                                  <p className="text-xs font-medium text-muted-foreground">Precipitation</p>
+                                  <p className="text-sm">{analysis.tournament.weatherForecast.precipitation}</p>
                                 </div>
                               </div>
                             </div>
@@ -368,7 +345,7 @@ export const GolfDashboard = () => {
                                 <li>Recent form with 2+ top 10s in last 4 starts (60% success rate)</li>
                                 <li>Strokes gained approach &gt; +0.8 per round (critical for this course type)</li>
                                 <li>Strong wind players favored due to forecast conditions</li>
-                                <li>OWGR top 50 players get priority in {analysis?.tournament?.fieldStrength?.toLowerCase() || 'tournament'} field</li>
+                                <li>OWGR top 50 players get priority in {analysis.tournament.fieldStrength.toLowerCase()} field</li>
                               </ul>
                             </div>
                           </div>
@@ -388,7 +365,7 @@ export const GolfDashboard = () => {
                     <p className="font-semibold text-gray-900 dark:text-white">{analysis.tournament.course}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{analysis.tournament.location}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
-                      {analysis?.tournament?.courseCharacteristics?.length || 'N/A'} yards, Par {analysis?.tournament?.courseCharacteristics?.parTotal || 'N/A'}
+                      {analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}
                     </p>
                   </div>
                   
@@ -414,15 +391,15 @@ export const GolfDashboard = () => {
                       Course Character
                     </div>
                     <div className="space-y-1">
-                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                         {analysis?.tournament?.courseCharacteristics?.greens || 'N/A'} greens
-                       </p>
-                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                         {analysis?.tournament?.courseCharacteristics?.rough || 'N/A'} rough
-                       </p>
-                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                         {analysis?.tournament?.courseCharacteristics?.treelined ? 'Tree-lined' : 'Open layout'}
-                       </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {analysis.tournament.courseCharacteristics.greens} greens
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {analysis.tournament.courseCharacteristics.rough} rough
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined' : 'Open layout'}
+                      </p>
                     </div>
                   </div>
                   
@@ -432,15 +409,15 @@ export const GolfDashboard = () => {
                       Weather Forecast
                     </div>
                     <div className="space-y-1">
-                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                         Wind: {analysis?.tournament?.weatherForecast?.wind || 'N/A'}
-                       </p>
-                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                         Temp: {analysis?.tournament?.weatherForecast?.temperature || 'N/A'}
-                       </p>
-                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                         Rain: {analysis?.tournament?.weatherForecast?.precipitation || 'N/A'}
-                       </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Wind: {analysis.tournament.weatherForecast.wind}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Temp: {analysis.tournament.weatherForecast.temperature}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Rain: {analysis.tournament.weatherForecast.precipitation}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -490,7 +467,7 @@ export const GolfDashboard = () => {
                         <Collapsible>
                           <CollapsibleTrigger asChild>
                             <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                              <span className="text-sm font-medium">Key Factors ({pick?.keyFactors?.length || 0})</span>
+                              <span className="text-sm font-medium">Key Factors ({pick.keyFactors.length})</span>
                               <ChevronDown className="h-4 w-4" />
                             </Button>
                           </CollapsibleTrigger>
@@ -508,13 +485,13 @@ export const GolfDashboard = () => {
                           </CollapsibleContent>
                         </Collapsible>
 
-                         {(pick?.riskFactors?.length || 0) > 0 && (
-                           <Collapsible>
-                             <CollapsibleTrigger asChild>
-                               <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                                 <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                                   Risk Factors ({pick?.riskFactors?.length || 0})
-                                 </span>
+                        {pick.riskFactors.length > 0 && (
+                          <Collapsible>
+                            <CollapsibleTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
+                                <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                                  Risk Factors ({pick.riskFactors.length})
+                                </span>
                                 <ChevronDown className="h-4 w-4" />
                               </Button>
                             </CollapsibleTrigger>
