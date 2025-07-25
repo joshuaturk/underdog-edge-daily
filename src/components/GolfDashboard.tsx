@@ -312,12 +312,12 @@ export const GolfDashboard = () => {
                                 <div className="space-y-1">
                                   <p className="text-xs font-medium text-muted-foreground">Layout</p>
                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.length || 'N/A'} yards, Par {analysis?.tournament?.courseCharacteristics?.parTotal || 'N/A'}</p>
-                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined course' : 'Open layout'}</p>
-                                </div>
-                                <div className="space-y-1">
-                                  <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
-                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.greens} greens</p>
-                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.rough} rough</p>
+                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.treelined ? 'Tree-lined course' : 'Open layout'}</p>
+                                 </div>
+                                 <div className="space-y-1">
+                                   <p className="text-xs font-medium text-muted-foreground">Playing Conditions</p>
+                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.greens || 'N/A'} greens</p>
+                                   <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.rough || 'N/A'} rough</p>
                                 </div>
                               </div>
                             </div>
@@ -392,15 +392,15 @@ export const GolfDashboard = () => {
                       Course Character
                     </div>
                     <div className="space-y-1">
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {analysis.tournament.courseCharacteristics.greens} greens
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {analysis.tournament.courseCharacteristics.rough} rough
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined' : 'Open layout'}
-                      </p>
+                       <p className="text-xs text-gray-600 dark:text-gray-400">
+                         {analysis?.tournament?.courseCharacteristics?.greens || 'N/A'} greens
+                       </p>
+                       <p className="text-xs text-gray-600 dark:text-gray-400">
+                         {analysis?.tournament?.courseCharacteristics?.rough || 'N/A'} rough
+                       </p>
+                       <p className="text-xs text-gray-600 dark:text-gray-400">
+                         {analysis?.tournament?.courseCharacteristics?.treelined ? 'Tree-lined' : 'Open layout'}
+                       </p>
                     </div>
                   </div>
                   
