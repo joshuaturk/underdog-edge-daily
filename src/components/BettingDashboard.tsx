@@ -18,27 +18,13 @@ import { useToast } from '@/hooks/use-toast';
 import { determineUnderdog } from '@/utils/oddsUtils';
 import { getTeamLogo } from '@/utils/teamLogos';
 import { BuddyInsights } from '@/components/BuddyInsights';
+import { useSportsMenu } from '@/hooks/useSportsMenu';
 
 // Import custom sports icons
 import baseballIcon from '@/assets/baseball-icon.png';
 import hockeyIcon from '@/assets/hockey-icon.png';
 import footballIcon from '@/assets/football-icon.png';
 import soccerIcon from '@/assets/soccer-icon.png';
-
-// Sports navigation data with consistent Unicode symbols as backup
-const baseSportsMenu = [
-  { name: 'MLB', symbol: '⚾', path: '/' },
-  { name: 'NCAA Football', symbol: '🏈', path: '#' },
-  { name: 'NCAA Bball', symbol: '🏀', path: '#' },
-  { name: 'NHL', symbol: '🏒', path: '#' },
-  { name: 'NBA', symbol: '🏀', path: '#' },
-  { name: 'NFL', symbol: '🏈', path: '#' },
-  { name: 'Soccer', symbol: '⚽', path: '#' },
-  { name: 'Golf', symbol: '⛳', path: '/golf' },
-  { name: 'Tennis', symbol: '🎾', path: '#' }
-];
-
-// Sports navigation data with consistent Unicode symbols as backup
 
 export const BettingDashboard = () => {
   // Simple state - one source of truth
@@ -52,30 +38,7 @@ export const BettingDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-
-  // Create prioritized sports menu: active link first, then other working links, then placeholders
-  const sportsMenu = [...baseSportsMenu].sort((a, b) => {
-    const aIsActive = location.pathname === a.path;
-    const bIsActive = location.pathname === b.path;
-    const aHasContent = a.path !== '#'; // Has actual content/page
-    const bHasContent = b.path !== '#';
-    
-    // If one is active and the other isn't (both must have content)
-    if (aIsActive && !bIsActive && aHasContent && bHasContent) return -1;
-    if (bIsActive && !aIsActive && aHasContent && bHasContent) return 1;
-    
-    // If both have content but neither is active, or both are active, maintain original order
-    if (aHasContent && bHasContent) {
-      return baseSportsMenu.indexOf(a) - baseSportsMenu.indexOf(b);
-    }
-    
-    // Working links come before placeholder links
-    if (aHasContent && !bHasContent) return -1;
-    if (!aHasContent && bHasContent) return 1;
-    
-    // Both are placeholders, maintain original order
-    return baseSportsMenu.indexOf(a) - baseSportsMenu.indexOf(b);
-  });
+  const { sportsMenu } = useSportsMenu();
 
   // Get today's and tomorrow's picks from allPicks
   const todayDate = new Date().toISOString().split('T')[0];

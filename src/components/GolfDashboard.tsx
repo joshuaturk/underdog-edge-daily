@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,25 +11,16 @@ import { GolfAnalysisService } from '@/services/GolfAnalysisService';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-
-// Sports navigation data with consistent Unicode symbols as backup
-const sportsMenu = [
-  { name: 'MLB', symbol: '⚾', active: true, path: '/' },
-  { name: 'NCAA Football', symbol: '🏈', path: '#' },
-  { name: 'NCAA Bball', symbol: '🏀', path: '#' },
-  { name: 'NHL', symbol: '🏒', path: '#' },
-  { name: 'NBA', symbol: '🏀', path: '#' },
-  { name: 'NFL', symbol: '🏈', path: '#' },
-  { name: 'Soccer', symbol: '⚽', path: '#' },
-  { name: 'Golf', symbol: '⛳', path: '/golf' },
-  { name: 'Tennis', symbol: '🎾', path: '#' }
-];
+import { useSportsMenu } from '@/hooks/useSportsMenu';
 
 export const GolfDashboard = () => {
   const [analysis, setAnalysis] = useState<GolfAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { sportsMenu } = useSportsMenu();
 
   // Load initial data
   useEffect(() => {
@@ -129,7 +121,7 @@ export const GolfDashboard = () => {
             <div className="overflow-x-auto scrollbar-hide sm:overflow-visible">
               <div className="flex items-center gap-1 sm:gap-2 sm:justify-center min-w-max sm:min-w-0">
                 {sportsMenu.map((sport, index) => {
-                  const isActive = sport.path === '/golf';
+                  const isActive = location.pathname === sport.path;
                   return (
                     <Button
                       key={sport.name}
@@ -142,8 +134,7 @@ export const GolfDashboard = () => {
                       }`}
                       onClick={() => {
                         if (sport.path !== '#') {
-                          // Navigation logic would go here
-                          window.location.href = sport.path;
+                          navigate(sport.path);
                         }
                       }}
                       disabled={sport.path === '#'}
