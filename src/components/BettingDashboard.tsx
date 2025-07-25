@@ -1259,7 +1259,7 @@ export const BettingDashboard = () => {
           {/* Date Selector Tabs - Mobile optimized */}
           <div className="text-center space-y-4 mb-4 lg:mb-6 px-4 lg:px-0">
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-12 lg:h-10">
-              <TabsTrigger value="today" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
+              <TabsTrigger value="today" className="flex flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
                 <span className="font-medium">Today</span>
                 <span className="text-xs text-muted-foreground hidden lg:inline">
                   {getETDate()}
@@ -1268,7 +1268,7 @@ export const BettingDashboard = () => {
                   {todayPicks.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="results" className="flex flex-col lg:flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
+              <TabsTrigger value="results" className="flex flex-row items-center gap-1 lg:gap-2 text-xs lg:text-sm py-2 lg:py-1">
                 <span className="font-medium">Results</span>
                 <Badge variant="outline" className="text-xs h-5 px-1.5">
                   {resultsPicks.length}
