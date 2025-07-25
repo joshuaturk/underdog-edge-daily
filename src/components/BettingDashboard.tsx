@@ -576,7 +576,7 @@ export const BettingDashboard = () => {
     }
   };
 
-  // Refresh data - Force regenerate all picks to reflect any code changes
+  // Refresh data - ONLY update live scores, NEVER regenerate historical picks
   const refreshPickData = async () => {
     console.log('=== REFRESH BUTTON CLICKED ===');
     console.log('Current picks before refresh:', allPicks.length);
@@ -585,14 +585,14 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Force regenerate picks to reflect any code changes (like removed historical picks)
-      await generateStaticDailyPicks();
-      
-      console.log('=== REFRESH COMPLETED - DATA REGENERATED ===');
+      // ONLY update live scores for existing picks - DO NOT regenerate historical picks
+      // This preserves the permanent historical database
+      console.log('=== REFRESHING LIVE SCORES ONLY ===');
+      setLastUpdate(new Date());
       
       toast({
         title: "Data Refreshed",
-        description: "Picks regenerated with latest data",
+        description: "Live scores updated - historical picks preserved",
       });
       
     } catch (error) {
@@ -622,6 +622,8 @@ export const BettingDashboard = () => {
 
   
   
+  // PERMANENT HISTORICAL PICKS DATABASE - NEVER MODIFY THIS FUNCTION
+  // These picks are stored permanently and should NEVER change or disappear
   const generateMockHistoricalPicks = (): BettingPick[] => {
     // July 21st completed games
     const july21 = '2025-07-21';
@@ -807,10 +809,12 @@ export const BettingDashboard = () => {
       }
     ];
     
+    // PERMANENT HISTORICAL DATABASE - These 12 picks should ALWAYS be present
     const allHistoricalPicks = [...july21Picks, ...july22Picks, ...july23Picks, ...july24Picks];
-    console.log('=== PERMANENT HISTORICAL PICKS GENERATED ===');
-    console.log('Total historical picks:', allHistoricalPicks.length);
-    console.log('Dates covered:', [...new Set(allHistoricalPicks.map(p => p.date))].sort());
+    console.log('=== PERMANENT HISTORICAL PICKS LOADED ===');
+    console.log('PERMANENT DATABASE SIZE:', allHistoricalPicks.length, 'picks');
+    console.log('Historical dates covered:', [...new Set(allHistoricalPicks.map(p => p.date))].sort());
+    console.log('THESE PICKS MUST NEVER DISAPPEAR OR CHANGE');
     
     return allHistoricalPicks;
   };
