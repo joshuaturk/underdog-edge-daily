@@ -362,10 +362,11 @@ export const BettingDashboard = () => {
         console.log(`Generated ${topPicks.length} picks for today from real games`);
         
         if (topPicks.length > 0) {
-          // Add historical picks and combine
-          const historicalPicks = generateMockHistoricalPicks();
+          // Add PERMANENT historical picks and combine
+          const permanentHistoricalPicks = generateMockHistoricalPicks();
+          console.log('MERGING PICKS: Today =', topPicks.length, 'Historical =', permanentHistoricalPicks.length);
             
-          setAllPicks([...topPicks, ...historicalPicks]);
+          setAllPicks([...topPicks, ...permanentHistoricalPicks]);
           setIsLoading(false);
           setLastUpdate(new Date());
           return;
@@ -500,7 +501,9 @@ export const BettingDashboard = () => {
       });
 
   // MERGE picks instead of overwriting - preserve historical picks by date
-      const newPicksToAdd = [...todayPicks, todayCompletedGame, ...completedPicks];
+      // ALWAYS include permanent historical picks to prevent them from disappearing
+      const permanentHistoricalPicks = generateMockHistoricalPicks();
+      const newPicksToAdd = [...todayPicks, todayCompletedGame, ...completedPicks, ...permanentHistoricalPicks];
       
       console.log('=== MERGING PICKS BY DATE ===');
       console.log('Current allPicks before merge:', allPicks.length);
@@ -769,8 +772,62 @@ export const BettingDashboard = () => {
         awayPitcher: 'Hunter Greene'
       }
     ];
+
+    // July 24th completed games - PERMANENT STORAGE
+    const july24Picks = [
+      {
+        id: `red-sox-rays-2025-07-24`,
+        date: '2025-07-24',
+        homeTeam: 'Boston Red Sox',
+        awayTeam: 'Tampa Bay Rays',
+        recommendedBet: 'away_runline' as const,
+        confidence: 75,
+        reason: 'Tampa Bay Rays road underdog +1.5',
+        odds: 125,
+        status: 'won' as const,
+        result: { homeScore: 5, awayScore: 2, scoreDifference: 3 },
+        profit: 12.50,
+        homePitcher: 'Brayan Bello',
+        awayPitcher: 'Shane Baz'
+      },
+      {
+        id: `twins-white-sox-2025-07-24`,
+        date: '2025-07-24',
+        homeTeam: 'Minnesota Twins',
+        awayTeam: 'Chicago White Sox',
+        recommendedBet: 'away_runline' as const,
+        confidence: 68,
+        reason: 'Chicago White Sox road underdog +1.5',
+        odds: -145,
+        status: 'lost' as const,
+        result: { homeScore: 7, awayScore: 1, scoreDifference: 6 },
+        profit: -10,
+        homePitcher: 'Pablo Lopez',
+        awayPitcher: 'Garrett Crochet'
+      },
+      {
+        id: `athletics-giants-2025-07-24`,
+        date: '2025-07-24',
+        homeTeam: 'Oakland Athletics',
+        awayTeam: 'San Francisco Giants',
+        recommendedBet: 'away_runline' as const,
+        confidence: 71,
+        reason: 'San Francisco Giants road underdog +1.5',
+        odds: 138,
+        status: 'won' as const,
+        result: { homeScore: 3, awayScore: 6, scoreDifference: 3 },
+        profit: 13.80,
+        homePitcher: 'JP Sears',
+        awayPitcher: 'Logan Webb'
+      }
+    ];
     
-    return [...july21Picks, ...july22Picks, ...july23Picks];
+    const allHistoricalPicks = [...july21Picks, ...july22Picks, ...july23Picks, ...july24Picks];
+    console.log('=== PERMANENT HISTORICAL PICKS GENERATED ===');
+    console.log('Total historical picks:', allHistoricalPicks.length);
+    console.log('Dates covered:', [...new Set(allHistoricalPicks.map(p => p.date))].sort());
+    
+    return allHistoricalPicks;
   };
 
   const hasMoreResults = allPicks.filter(pick => 
