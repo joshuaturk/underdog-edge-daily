@@ -572,7 +572,7 @@ export const BettingDashboard = () => {
     }
   };
 
-  // Refresh data - ONLY updates existing picks, doesn't generate new ones
+  // Refresh data - Force regenerate all picks to reflect any code changes
   const refreshPickData = async () => {
     console.log('=== REFRESH BUTTON CLICKED ===');
     console.log('Current picks before refresh:', allPicks.length);
@@ -581,14 +581,14 @@ export const BettingDashboard = () => {
     setIsLoading(true);
     
     try {
-      // Don't regenerate picks, just update live scores for existing picks
-      setLastUpdate(new Date());
+      // Force regenerate picks to reflect any code changes (like removed historical picks)
+      await generateStaticDailyPicks();
       
-      console.log('=== REFRESH COMPLETED - NO DATA CHANGES ===');
+      console.log('=== REFRESH COMPLETED - DATA REGENERATED ===');
       
       toast({
         title: "Data Refreshed",
-        description: "Updated live scores",
+        description: "Picks regenerated with latest data",
       });
       
     } catch (error) {
