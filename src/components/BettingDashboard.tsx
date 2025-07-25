@@ -129,9 +129,35 @@ export const BettingDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize static picks on component mount
+  // Initialize static picks on component mount - with accumulated picks support
   useEffect(() => {
     if (allPicks.length === 0) {
+      // Try to load accumulated picks from localStorage first
+      try {
+        const savedData = localStorage.getItem('accumulatedPicksData');
+        if (savedData) {
+          const pickData = JSON.parse(savedData);
+          const savedDate = new Date(pickData.lastUpdate);
+          const todayDate = new Date().toISOString().split('T')[0];
+          const savedDate_str = savedDate.toISOString().split('T')[0];
+          
+          // If we have recent saved data, use it and add today's new picks
+          if (savedDate_str === todayDate && pickData.picks && pickData.picks.length > 0) {
+            console.log('=== LOADING ACCUMULATED PICKS FROM STORAGE ===');
+            console.log('Loaded picks from localStorage:', pickData.picks.length);
+            console.log('Last saved:', pickData.lastUpdate);
+            console.log('Historical count:', pickData.historicalCount);
+            
+            setAllPicks(pickData.picks);
+            setLastUpdate(new Date());
+            return; // Use saved data, don't regenerate
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved picks:', error);
+      }
+      
+      // If no valid saved data, generate fresh picks
       const lastFetchDate = localStorage.getItem('lastAutoFetch');
       const today = new Date().toDateString();
       
@@ -642,22 +668,46 @@ export const BettingDashboard = () => {
         `${date}: ${mergedPicksByDate[date].length} picks`
       ));
       
-      // CRITICAL: Verify we have the expected minimum count (13 historical + today's picks)
-      const expectedMinimum = 13; // 13 historical picks should always be present
-      const actualHistoricalCount = allMergedPicks.filter(pick => 
+      // DYNAMIC ACCUMULATION SYSTEM: Historical picks should GROW over time
+      // As picks complete each day, they become permanent historical results
+      const pendingTodayPicks = allMergedPicks.filter(pick => 
+        pick.date === todayDate && pick.status === 'pending'
+      );
+      const historicalCompletedPicks = allMergedPicks.filter(pick => 
         pick.date < todayDate || (pick.date === todayDate && pick.status !== 'pending')
-      ).length;
+      );
       
-      console.log('=== PICK COUNT VERIFICATION ===');
-      console.log('Expected minimum historical picks:', expectedMinimum);
-      console.log('Actual historical picks found:', actualHistoricalCount);
-      console.log('Total picks (historical + today):', allMergedPicks.length);
+      console.log('=== DYNAMIC ACCUMULATION TRACKING ===');
+      console.log('Completed/Historical picks (will accumulate daily):', historicalCompletedPicks.length);
+      console.log('Today pending picks:', pendingTodayPicks.length);
+      console.log('Total picks (growing each day):', allMergedPicks.length);
       
-      if (actualHistoricalCount < expectedMinimum) {
-        console.error('⚠️ MISSING HISTORICAL PICKS! Expected at least', expectedMinimum, 'but found', actualHistoricalCount);
-        console.error('This suggests historical picks are being lost during merge');
-      } else {
-        console.log('✅ Historical picks count verified');
+      // Store the growing historical count for reference
+      console.log('Historical picks by date:');
+      const picksByDate = historicalCompletedPicks.reduce((acc, pick) => {
+        acc[pick.date] = (acc[pick.date] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      Object.keys(picksByDate).sort().forEach(date => {
+        console.log(`  ${date}: ${picksByDate[date]} picks`);
+      });
+      
+      console.log('🎯 EXPECTED BEHAVIOR: Total should GROW as picks complete each day');
+      
+      // PERSISTENCE: Save accumulated picks to localStorage to prevent loss
+      try {
+        const pickData = {
+          picks: allMergedPicks,
+          lastUpdate: new Date().toISOString(),
+          totalCount: allMergedPicks.length,
+          historicalCount: historicalCompletedPicks.length,
+          pendingCount: pendingTodayPicks.length
+        };
+        localStorage.setItem('accumulatedPicksData', JSON.stringify(pickData));
+        console.log('✅ Picks data saved to localStorage for persistence');
+      } catch (error) {
+        console.error('⚠️ Failed to save picks to localStorage:', error);
       }
       
       setAllPicks(allMergedPicks);
