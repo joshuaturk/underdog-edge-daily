@@ -1074,34 +1074,37 @@ export const BettingDashboard = () => {
         {/* Sports Navigation Menu */}
         <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 rounded-full">
           <CardContent className="p-2 sm:p-4">
-            <div className="flex items-center justify-center gap-1 flex-wrap">
-              {sportsMenu.map((sport, index) => {
-                const isActive = location.pathname === sport.path;
-                return (
-                  <Button
-                    key={sport.name}
-                    variant={isActive ? "default" : "ghost"}
-                    size="sm"
-                    className={`flex items-center gap-1 sm:gap-2 rounded-full text-xs sm:text-sm px-2 sm:px-3 ${
-                      isActive 
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-                        : "hover:bg-muted"
-                    }`}
-                    onClick={() => {
-                      if (sport.path !== '#') {
-                        navigate(sport.path);
-                      }
-                    }}
-                    disabled={sport.path === '#'}
-                  >
-                    <span className="text-sm sm:text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
-                      {sport.symbol}
-                    </span>
-                    <span className="hidden sm:inline">{sport.name}</span>
-                    <span className="sm:hidden">{sport.name.split(' ')[0]}</span>
-                  </Button>
-                );
-              })}
+            {/* Mobile: Horizontal scroll, Desktop: Centered flex */}
+            <div className="overflow-x-auto scrollbar-hide sm:overflow-visible">
+              <div className="flex items-center gap-1 sm:gap-2 sm:justify-center min-w-max sm:min-w-0">
+                {sportsMenu.map((sport, index) => {
+                  const isActive = location.pathname === sport.path;
+                  return (
+                    <Button
+                      key={sport.name}
+                      variant={isActive ? "default" : "ghost"}
+                      size="sm"
+                      className={`flex items-center gap-1 sm:gap-2 rounded-full text-xs sm:text-sm px-2 sm:px-3 flex-shrink-0 ${
+                        isActive 
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                          : "hover:bg-muted"
+                      }`}
+                      onClick={() => {
+                        if (sport.path !== '#') {
+                          navigate(sport.path);
+                        }
+                      }}
+                      disabled={sport.path === '#'}
+                    >
+                      <span className="text-sm sm:text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
+                        {sport.symbol}
+                      </span>
+                      <span className="hidden sm:inline">{sport.name}</span>
+                      <span className="sm:hidden">{sport.name.split(' ')[0]}</span>
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
