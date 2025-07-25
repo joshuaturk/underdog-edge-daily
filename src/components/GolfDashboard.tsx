@@ -311,7 +311,7 @@ export const GolfDashboard = () => {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1">
                                   <p className="text-xs font-medium text-muted-foreground">Layout</p>
-                                  <p className="text-sm">{analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}</p>
+                                  <p className="text-sm">{analysis?.tournament?.courseCharacteristics?.length || 'N/A'} yards, Par {analysis?.tournament?.courseCharacteristics?.parTotal || 'N/A'}</p>
                                   <p className="text-sm">{analysis.tournament.courseCharacteristics.treelined ? 'Tree-lined course' : 'Open layout'}</p>
                                 </div>
                                 <div className="space-y-1">
@@ -366,7 +366,7 @@ export const GolfDashboard = () => {
                     <p className="font-semibold text-gray-900 dark:text-white">{analysis.tournament.course}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{analysis.tournament.location}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
-                      {analysis.tournament.courseCharacteristics.length} yards, Par {analysis.tournament.courseCharacteristics.parTotal}
+                      {analysis?.tournament?.courseCharacteristics?.length || 'N/A'} yards, Par {analysis?.tournament?.courseCharacteristics?.parTotal || 'N/A'}
                     </p>
                   </div>
                   
@@ -468,7 +468,7 @@ export const GolfDashboard = () => {
                         <Collapsible>
                           <CollapsibleTrigger asChild>
                             <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                              <span className="text-sm font-medium">Key Factors ({pick.keyFactors.length})</span>
+                              <span className="text-sm font-medium">Key Factors ({pick?.keyFactors?.length || 0})</span>
                               <ChevronDown className="h-4 w-4" />
                             </Button>
                           </CollapsibleTrigger>
@@ -486,13 +486,13 @@ export const GolfDashboard = () => {
                           </CollapsibleContent>
                         </Collapsible>
 
-                        {pick.riskFactors.length > 0 && (
-                          <Collapsible>
-                            <CollapsibleTrigger asChild>
-                              <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
-                                <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                                  Risk Factors ({pick.riskFactors.length})
-                                </span>
+                         {(pick?.riskFactors?.length || 0) > 0 && (
+                           <Collapsible>
+                             <CollapsibleTrigger asChild>
+                               <Button variant="ghost" size="sm" className="w-full justify-between p-0 h-auto">
+                                 <span className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                                   Risk Factors ({pick?.riskFactors?.length || 0})
+                                 </span>
                                 <ChevronDown className="h-4 w-4" />
                               </Button>
                             </CollapsibleTrigger>
