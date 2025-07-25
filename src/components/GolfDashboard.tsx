@@ -37,11 +37,12 @@ export const GolfDashboard = () => {
       
       toast({
         title: "Analysis Updated",
-        description: `Found ${analysisData.picks.length} top 10 candidates`,
+        description: `Found ${analysisData?.picks?.length || 0} top 10 candidates`,
         duration: 3000,
       });
     } catch (error) {
       console.error('Error loading golf analysis:', error);
+      setAnalysis(null); // Ensure analysis is set to null on error
       toast({
         title: "Error",
         description: "Failed to load golf analysis",
