@@ -791,21 +791,6 @@ export const BettingDashboard = () => {
         awayPitcher: 'Shane Baz'
       },
       {
-        id: `twins-white-sox-2025-07-24`,
-        date: '2025-07-24',
-        homeTeam: 'Minnesota Twins',
-        awayTeam: 'Chicago White Sox',
-        recommendedBet: 'away_runline' as const,
-        confidence: 68,
-        reason: 'Chicago White Sox road underdog +1.5',
-        odds: -145,
-        status: 'lost' as const,
-        result: { homeScore: 7, awayScore: 1, scoreDifference: 6 },
-        profit: -10,
-        homePitcher: 'Pablo Lopez',
-        awayPitcher: 'Garrett Crochet'
-      },
-      {
         id: `athletics-giants-2025-07-24`,
         date: '2025-07-24',
         homeTeam: 'Oakland Athletics',
