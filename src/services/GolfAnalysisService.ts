@@ -10,105 +10,50 @@ export class GolfAnalysisService {
     return stored || this.DEFAULT_API_KEY;
   }
 
-  private static async fetchGolfOdds(): Promise<Array<{ playerName: string; odds: string; bookmaker: string; market: string }>> {
-    const apiKey = this.getApiKey();
-    
+  static async fetchGolfOdds(): Promise<Array<{ playerName: string; odds: string; bookmaker: string; market: string }>> {
     try {
-      console.log('Fetching golf odds from The Odds API...');
-      
-      const sportsResponse = await fetch(`${this.ODDS_API_BASE_URL}/sports/?apiKey=${apiKey}`);
-      if (sportsResponse.ok) {
-        const sports = await sportsResponse.json();
-        const golfSports = sports.filter((sport: any) => sport.key.includes('golf'));
-        console.log('Available golf sports:', golfSports);
-      }
-      
-      const golfEndpoints = [
-        'golf_pga_championship',
-        'golf_masters_tournament', 
-        'golf_us_open',
-        'golf_the_open_championship',
-        'golf_pga_tour'
-      ];
-      
-      for (const endpoint of golfEndpoints) {
-        try {
-          const markets = ['outrights', 'top_5', 'top_10', 'top_20', 'make_cut'];
-          const marketParam = markets.join(',');
-          
-          const response = await fetch(
-            `${this.ODDS_API_BASE_URL}/sports/${endpoint}/odds/?apiKey=${apiKey}&regions=us&markets=${marketParam}&oddsFormat=american&dateFormat=iso`
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log(`${endpoint} response:`, data);
-            const parsedOdds = this.parseGolfOdds(data);
-            if (parsedOdds.length > 0) {
-              return parsedOdds;
-            }
-          }
-        } catch (endpointError) {
-          console.log(`Failed to fetch from ${endpoint}:`, endpointError);
+      // Fetch real golf odds from SportsDataIO
+      const response = await supabase.functions.invoke('golf-live-data', {
+        body: { 
+          endpoint: 'Odds/Tournament/Current',
+          params: {}
         }
+      });
+
+      if (response.data?.success && response.data.data) {
+        const oddsData = response.data.data;
+        return this.parseGolfOdds(oddsData);
       }
-      
-      console.log('No live golf odds available, using mock Top 10 odds');
-      return this.getMockGolfOdds();
+
+      console.log('No live golf odds available from API');
+      return [];
       
     } catch (error) {
       console.error('Error fetching golf odds:', error);
-      return this.getMockGolfOdds();
+      return [];
     }
   }
 
-  private static parseGolfOdds(data: any[]): Array<{ playerName: string; odds: string; bookmaker: string; market: string }> {
+  private static parseGolfOdds(data: any): Array<{ playerName: string; odds: string; bookmaker: string; market: string }> {
     const odds: Array<{ playerName: string; odds: string; bookmaker: string; market: string }> = [];
     
-    if (!Array.isArray(data) || data.length === 0) {
-      return this.getMockGolfOdds();
+    if (!data || !Array.isArray(data)) {
+      return [];
     }
 
-    data.forEach(tournament => {
-      if (tournament.bookmakers && Array.isArray(tournament.bookmakers)) {
-        tournament.bookmakers.forEach((bookmaker: any) => {
-          if (['draftkings', 'fanduel', 'bet365', 'unibet', 'williamhill'].includes(bookmaker.key)) {
-            bookmaker.markets?.forEach((market: any) => {
-              const marketPriority = {
-                'top_10': 1,
-                'top_5': 2,
-                'top_20': 3,
-                'outrights': 4,
-                'make_cut': 5
-              };
-              
-              if (market.outcomes && Object.keys(marketPriority).includes(market.key)) {
-                market.outcomes.forEach((outcome: any) => {
-                  odds.push({
-                    playerName: outcome.name,
-                    odds: outcome.price > 0 ? `+${outcome.price}` : `${outcome.price}`,
-                    bookmaker: bookmaker.title,
-                    market: market.key
-                  });
-                });
-              }
-            });
-          }
+    // Parse SportsDataIO odds format
+    data.forEach((oddsItem: any) => {
+      if (oddsItem.PlayerName && oddsItem.Value) {
+        odds.push({
+          playerName: oddsItem.PlayerName,
+          odds: oddsItem.Value > 0 ? `+${oddsItem.Value}` : `${oddsItem.Value}`,
+          bookmaker: oddsItem.Sportsbook || 'SportsDataIO',
+          market: 'top_10'
         });
       }
     });
 
-    const uniqueOdds = odds
-      .sort((a, b) => {
-        const priorityA = { 'top_10': 1, 'top_5': 2, 'top_20': 3, 'outrights': 4, 'make_cut': 5 }[a.market] || 10;
-        const priorityB = { 'top_10': 1, 'top_5': 2, 'top_20': 3, 'outrights': 4, 'make_cut': 5 }[b.market] || 10;
-        return priorityA - priorityB;
-      })
-      .filter((odd, index, self) => 
-        index === self.findIndex(o => o.playerName === odd.playerName)
-      );
-
-    return uniqueOdds.length > 0 ? uniqueOdds : this.getMockGolfOdds();
+    return odds;
   }
 
   private static getMockGolfOdds(): Array<{ playerName: string; odds: string; bookmaker: string; market: string }> {
