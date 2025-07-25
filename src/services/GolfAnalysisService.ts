@@ -605,9 +605,15 @@ export class GolfAnalysisService {
 
       const players = this.convertApiPlayersToGolfPlayers(playersResponse.data.data);
 
-      // Get real odds from API
-      const odds = await this.fetchGolfOdds();
-      const oddsMap = new Map(odds.map(odd => [odd.playerName.toLowerCase(), odd.odds]));
+      // Try to get odds from API - continue without if not available
+      let oddsMap = new Map<string, string>();
+      try {
+        const odds = await this.fetchGolfOdds();
+        oddsMap = new Map(odds.map(odd => [odd.playerName.toLowerCase(), odd.odds]));
+      } catch (error) {
+        console.warn('Odds data not available, continuing without odds:', error);
+        // Continue without odds - will use "N/A" for odds in picks
+      }
 
       // Analyze players and generate picks
       const analyzedPlayers = players.map(player => ({
