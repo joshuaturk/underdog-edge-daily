@@ -53,16 +53,22 @@ export const BettingDashboard = () => {
   const location = useLocation();
   const { toast } = useToast();
 
-  // Create prioritized sports menu with active item first
+  // Create prioritized sports menu with active links first
   const sportsMenu = [...baseSportsMenu].sort((a, b) => {
     const aIsActive = location.pathname === a.path;
     const bIsActive = location.pathname === b.path;
+    const aHasContent = a.path !== '#'; // Has actual content/page
+    const bHasContent = b.path !== '#';
     
-    // Active item comes first
-    if (aIsActive && !bIsActive) return -1;
-    if (!aIsActive && bIsActive) return 1;
+    // Active page comes first among working links
+    if (aIsActive && aHasContent) return -1;
+    if (bIsActive && bHasContent) return -1;
     
-    // Otherwise maintain original order
+    // Working links come before placeholder links
+    if (aHasContent && !bHasContent) return -1;
+    if (!aHasContent && bHasContent) return 1;
+    
+    // Within same category, maintain original order
     return baseSportsMenu.indexOf(a) - baseSportsMenu.indexOf(b);
   });
 
