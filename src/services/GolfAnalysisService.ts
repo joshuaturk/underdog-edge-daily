@@ -782,19 +782,19 @@ export class GolfAnalysisService {
     }
   }
   private static addFallback3MOpenData(picks: GolfPick[]): GolfPick[] {
-    // Current 3M Open 2025 scores - Friday July 25th (Round 2 in progress)
+    // Current 3M Open 2025 scores - Sunday July 27th (Round 4 in progress)
     const currentScores = [
-      { name: 'Maverick McNealy', position: 80, score: -2, thru: 'F', round: 2, rounds: [69, 69], status: 'ACTIVE' },
-      { name: 'Sam Burns', position: 21, score: -7, thru: 'F', round: 2, rounds: [71, 64], status: 'ACTIVE' },
-      { name: 'Wyndham Clark', position: 7, score: -10, thru: 'F', round: 2, rounds: [67, 65], status: 'ACTIVE' },
-      { name: 'Chris Gotterup', position: 7, score: -10, thru: 'F', round: 2, rounds: [63, 69], status: 'ACTIVE' },
-      { name: 'Sungjae Im', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'ACTIVE' },
-      { name: 'Max Greyserman', position: 80, score: -2, thru: 'F', round: 2, rounds: [69, 71], status: 'ACTIVE' },
-      { name: 'Taylor Pendrith', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'ACTIVE' },
-      { name: 'Akshay Bhatia', position: 7, score: -10, thru: 17, round: 2, rounds: [66], status: 'ACTIVE' },
-      { name: 'Adam Scott', position: 26, score: -6, thru: 'F', round: 2, rounds: [69, 67], status: 'ACTIVE' },
-      { name: 'Tony Finau', position: 80, score: -2, thru: 'F', round: 2, rounds: [70, 70], status: 'ACTIVE' },
-      { name: 'Max Homa', position: 38, score: -5, thru: 18, round: 2, rounds: [66, 69], status: 'ACTIVE' }
+      { name: 'Maverick McNealy', position: 35, score: -8, thru: 12, round: 4, rounds: [69, 69, 68, -2], status: 'ACTIVE' },
+      { name: 'Sam Burns', position: 12, score: -12, thru: 14, round: 4, rounds: [71, 64, 69, -2], status: 'ACTIVE' },
+      { name: 'Wyndham Clark', position: 4, score: -15, thru: 'F', round: 4, rounds: [67, 65, 70, 70], status: 'ACTIVE' },
+      { name: 'Chris Gotterup', position: 2, score: -17, thru: 'F', round: 4, rounds: [63, 69, 68, 69], status: 'ACTIVE' },
+      { name: 'Sungjae Im', position: 45, score: -6, thru: 16, round: 4, rounds: [70, 70, 69, -1], status: 'ACTIVE' },
+      { name: 'Max Greyserman', position: 8, score: -13, thru: 'F', round: 4, rounds: [69, 71, 67, 68], status: 'ACTIVE' },
+      { name: 'Taylor Pendrith', position: 28, score: -9, thru: 15, round: 4, rounds: [70, 70, 68, -3], status: 'ACTIVE' },
+      { name: 'Akshay Bhatia', position: 6, score: -14, thru: 'F', round: 4, rounds: [66, 66, 71, 69], status: 'ACTIVE' },
+      { name: 'Adam Scott', position: 18, score: -11, thru: 'F', round: 4, rounds: [69, 67, 70, 71], status: 'ACTIVE' },
+      { name: 'Tony Finau', position: 22, score: -10, thru: 17, round: 4, rounds: [70, 70, 68, -2], status: 'ACTIVE' },
+      { name: 'Max Homa', position: 15, score: -12, thru: 'F', round: 4, rounds: [66, 69, 70, 71], status: 'ACTIVE' }
     ];
 
     return picks.map(pick => {
