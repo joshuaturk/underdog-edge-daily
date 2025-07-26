@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      golf_leaderboard: {
+        Row: {
+          created_at: string
+          current_round: number | null
+          id: string
+          is_top_10: boolean | null
+          last_updated: string
+          made_cut: boolean | null
+          player_name: string
+          position: number | null
+          round_1_score: number | null
+          round_2_score: number | null
+          round_3_score: number | null
+          round_4_score: number | null
+          status: string | null
+          thru: string | null
+          total_score: number | null
+          tournament_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_round?: number | null
+          id?: string
+          is_top_10?: boolean | null
+          last_updated?: string
+          made_cut?: boolean | null
+          player_name: string
+          position?: number | null
+          round_1_score?: number | null
+          round_2_score?: number | null
+          round_3_score?: number | null
+          round_4_score?: number | null
+          status?: string | null
+          thru?: string | null
+          total_score?: number | null
+          tournament_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_round?: number | null
+          id?: string
+          is_top_10?: boolean | null
+          last_updated?: string
+          made_cut?: boolean | null
+          player_name?: string
+          position?: number | null
+          round_1_score?: number | null
+          round_2_score?: number | null
+          round_3_score?: number | null
+          round_4_score?: number | null
+          status?: string | null
+          thru?: string | null
+          total_score?: number | null
+          tournament_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
