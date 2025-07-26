@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      betting_picks: {
+        Row: {
+          away_pitcher: string | null
+          away_score: number | null
+          away_team: string
+          confidence: number
+          created_at: string
+          date: string
+          home_pitcher: string | null
+          home_score: number | null
+          home_team: string
+          id: string
+          inning: string | null
+          odds: number
+          profit: number | null
+          reason: string
+          recommended_bet: string
+          score_difference: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          away_pitcher?: string | null
+          away_score?: number | null
+          away_team: string
+          confidence: number
+          created_at?: string
+          date: string
+          home_pitcher?: string | null
+          home_score?: number | null
+          home_team: string
+          id: string
+          inning?: string | null
+          odds: number
+          profit?: number | null
+          reason: string
+          recommended_bet: string
+          score_difference?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          away_pitcher?: string | null
+          away_score?: number | null
+          away_team?: string
+          confidence?: number
+          created_at?: string
+          date?: string
+          home_pitcher?: string | null
+          home_score?: number | null
+          home_team?: string
+          id?: string
+          inning?: string | null
+          odds?: number
+          profit?: number | null
+          reason?: string
+          recommended_bet?: string
+          score_difference?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       golf_leaderboard: {
         Row: {
           created_at: string
