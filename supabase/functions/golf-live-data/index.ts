@@ -100,25 +100,25 @@ serve(async (req) => {
       console.log(`ESPN error: ${error.message}`)
     }
 
-    // All APIs failed, return mock data for 3M Open
+    // All APIs failed, return mock data for Wyndham Championship
     console.log('All APIs failed, returning mock data')
-    const mock3MOpenData = [
-      { name: 'Scottie Scheffler', position: 1, score: -15, thru: 'F', status: 'WON' },
-      { name: 'Tom Kim', position: 2, score: -13, thru: 'F', status: 'LOST' },
-      { name: 'Sahith Theegala', position: 3, score: -12, thru: 'F', status: 'LOST' },
-      { name: 'Shane Lowry', position: 4, score: -11, thru: 'F', status: 'LOST' },
-      { name: 'Adam Hadwin', position: 5, score: -10, thru: 'F', status: 'LOST' },
-      { name: 'Matt Fitzpatrick', position: 6, score: -9, thru: 'F', status: 'LOST' },
-      { name: 'Rickie Fowler', position: 7, score: -8, thru: 'F', status: 'LOST' },
-      { name: 'Tony Finau', position: 8, score: -7, thru: 'F', status: 'LOST' },
-      { name: 'Cameron Young', position: 9, score: -6, thru: 'F', status: 'LOST' },
-      { name: 'Hideki Matsuyama', position: 10, score: -5, thru: 'F', status: 'LOST' }
+    const mockWyndhamData = [
+      { name: 'Scottie Scheffler', position: 1, score: -12, thru: 'F', status: 'WON' },
+      { name: 'Russell Henley', position: 2, score: -11, thru: 'F', status: 'LOST' },
+      { name: 'Billy Horschel', position: 3, score: -10, thru: 'F', status: 'LOST' },
+      { name: 'Chris Kirk', position: 4, score: -9, thru: 'F', status: 'LOST' },
+      { name: 'Xander Schauffele', position: 5, score: -8, thru: 'F', status: 'LOST' },
+      { name: 'Shane Lowry', position: 6, score: -7, thru: 'F', status: 'LOST' },
+      { name: 'Collin Morikawa', position: 7, score: -6, thru: 'F', status: 'LOST' },
+      { name: 'Patrick Cantlay', position: 8, score: -5, thru: 'F', status: 'LOST' },
+      { name: 'Sungjae Im', position: 9, score: -4, thru: 'F', status: 'LOST' },
+      { name: 'Cameron Young', position: 10, score: -3, thru: 'F', status: 'LOST' }
     ]
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: mock3MOpenData, 
+        data: mockWyndhamData, 
         source: 'Mock Data', 
         errors 
       }),
