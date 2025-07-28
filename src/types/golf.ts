@@ -45,7 +45,7 @@ export interface GolfPlayer {
     thru: number; // holes completed current round
     currentRound: number;
     rounds: number[]; // scores for each completed round
-    isTop10: boolean;
+    isWinner: boolean; // Changed from isTop10 to isWinner
     status: 'WON' | 'LOST' | 'ACTIVE' | 'CUT';
     teeTime?: string;
     lastUpdated: Date;
@@ -58,10 +58,12 @@ export interface GolfPick {
   confidence: number;
   scoreCardPoints: number;
   reason: string;
-  top10Probability: number;
+  winProbability: number; // Changed from top10Probability to winProbability
+  valueRating: number; // New field for betting value assessment
   keyFactors: string[];
   riskFactors: string[];
-  odds?: string; // e.g., "+185"
+  odds?: string; // e.g., "+185" - for outright winner odds
+  impliedProbability?: number; // Calculated from odds
 }
 
 export interface GolfTournament {

@@ -67,7 +67,7 @@ export const LiveGolfPerformance = ({ picks }: LiveGolfPerformanceProps) => {
     return <span className="text-muted-foreground">-</span>;
   };
 
-  const wonCount = liveScores.filter(pick => pick.player.liveScore?.isTop10 || pick.player.liveScore?.status === 'WON').length;
+  const wonCount = liveScores.filter(pick => pick.player.liveScore?.isWinner || pick.player.liveScore?.status === 'WON').length;
   const lostCount = liveScores.filter(pick => pick.player.liveScore?.status === 'LOST' || pick.player.liveScore?.status === 'CUT').length;
   const activeCount = liveScores.filter(pick => pick.player.liveScore?.status === 'ACTIVE').length;
 
@@ -208,7 +208,7 @@ export const LiveGolfPerformance = ({ picks }: LiveGolfPerformanceProps) => {
                     <TableCell className="text-center">
                       {getStatusBadge(
                         pick.player.liveScore?.status || 'ACTIVE',
-                        pick.player.liveScore?.isTop10 || false
+                        pick.player.liveScore?.isWinner || false
                       )}
                     </TableCell>
                   </TableRow>
@@ -268,7 +268,7 @@ export const LiveGolfPerformance = ({ picks }: LiveGolfPerformanceProps) => {
                     <TableCell className="text-center">
                       {getStatusBadge(
                         pick.player.liveScore?.status || 'ACTIVE',
-                        pick.player.liveScore?.isTop10 || false
+                        pick.player.liveScore?.isWinner || false
                       )}
                     </TableCell>
                   </TableRow>
