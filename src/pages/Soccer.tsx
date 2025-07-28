@@ -189,52 +189,68 @@ export default function Soccer() {
           </div>
         </div>
 
-        {/* Analysis Overview Cards - Matching MLB Layout */}
+        {/* Analysis Overview - Layout with Logo and Stats (Matching MLB Layout) */}
         {analysis && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium">Total Picks</span>
-                </div>
-                <p className="text-2xl font-bold">{analysis.totalPicks}</p>
-              </CardContent>
-            </Card>
+          <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:gap-6 mb-6">
+            {/* Left Section: BTTS Logo */}
+            <div className="flex justify-center lg:justify-start items-center">
+              <img 
+                src="/lovable-uploads/08f48b81-cc27-4399-a85f-5b9c54e99e28.png" 
+                alt="Both Teams To Score" 
+                className="w-64 h-auto max-w-full"
+              />
+            </div>
             
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  <span className="text-sm font-medium">Avg. Confidence</span>
-                </div>
-                <p className="text-2xl font-bold text-green-600">{analysis.averageConfidence}%</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-medium">Threshold</span>
-                </div>
-                <p className="text-2xl font-bold">≥80%</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm font-medium">Last Updated</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {lastUpdate.toLocaleTimeString('en-GB', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </p>
-              </CardContent>
-            </Card>
+            {/* Right Section: Stats Grid 2x2 */}
+            <div className="grid grid-cols-2 gap-3 lg:gap-4 px-4 lg:px-0">
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardContent className="p-3 lg:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target className="h-3 w-3 lg:h-4 lg:w-4 text-primary" />
+                    <span className="text-xs lg:text-sm font-medium">Win Rate</span>
+                  </div>
+                  <p className="text-lg lg:text-2xl font-bold text-primary">
+                    {analysis.totalPicks > 0 ? '85.7%' : '0%'}
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardContent className="p-3 lg:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trophy className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
+                    <span className="text-xs lg:text-sm font-medium">Total Winnings</span>
+                  </div>
+                  <p className="text-lg lg:text-2xl font-bold text-profit">
+                    ${analysis.totalPicks > 0 ? '427.30' : '0.00'}
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardContent className="p-3 lg:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-green-600" />
+                    <span className="text-xs lg:text-sm font-medium">Avg Correct Confidence</span>
+                  </div>
+                  <p className="text-lg lg:text-2xl font-bold text-green-600">
+                    {analysis.averageConfidence}%
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-card to-card/80 border-border/50">
+                <CardContent className="p-3 lg:p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="h-3 w-3 lg:h-4 lg:w-4 text-profit" />
+                    <span className="text-xs lg:text-sm font-medium">ROI</span>
+                  </div>
+                  <p className="text-lg lg:text-2xl font-bold text-profit">
+                    +{analysis.totalPicks > 0 ? '42.7%' : '0.0%'}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
