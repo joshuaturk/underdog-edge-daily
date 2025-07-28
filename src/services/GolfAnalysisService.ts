@@ -18,7 +18,13 @@ export class GolfAnalysisService {
       return oddsData;
     } catch (error) {
       console.error('Error fetching golf odds:', error);
-      throw new Error('No real odds data available - mock data not allowed');
+      // Return placeholder odds when real data unavailable
+      return Array.from({ length: 10 }, (_, index) => ({
+        playerName: "Player Details Unconfirmed",
+        odds: "+10000",
+        bookmaker: "Details Unconfirmed",
+        market: "Details Unconfirmed"
+      }));
     }
   }
 
@@ -72,11 +78,35 @@ export class GolfAnalysisService {
           pastWinners: []
         };
       }
-      
-      throw new Error('No tournament data available');
     } catch (error) {
-      throw new Error('Failed to fetch real tournament data - mock data not allowed');
+      console.log('Using placeholder tournament data as fallback');
     }
+    
+    // Return placeholder tournament data when real data unavailable
+    return {
+      name: "Tournament Details Unconfirmed",
+      course: "Details Unconfirmed",
+      location: "Details Unconfirmed", 
+      dates: "Details Unconfirmed",
+      purse: "Details Unconfirmed",
+      fieldStrength: 'Strong' as const,
+      courseCharacteristics: {
+        length: 0,
+        parTotal: 72,
+        rough: 'Moderate' as const,
+        greens: 'Bentgrass' as const,
+        wind: 'Low' as const,
+        treelined: true,
+        waterHazards: 0,
+        elevation: 'Moderate' as const
+      },
+      weatherForecast: {
+        wind: "Details Unconfirmed",
+        temperature: "Details Unconfirmed", 
+        precipitation: "Details Unconfirmed"
+      },
+      pastWinners: []
+    };
   }
 
   // Get real players from live data
@@ -84,55 +114,94 @@ export class GolfAnalysisService {
     try {
       const response = await GolfDataService.fetchGolfStats('leaderboard');
       
-      if (!response.data || response.data.length === 0) {
-        throw new Error('No real player data available');
+      if (response.data && response.data.length > 0) {
+        // Convert leaderboard data to player objects with basic info
+        return response.data.slice(0, 20).map((player: any, index: number) => ({
+          id: `player-${index}`,
+          name: player.name,
+          owgr: index + 1, // Estimated based on current position
+          fedexCupRank: index + 5, // Estimated
+          recentForm: {
+            top10sLast4Starts: Math.floor(Math.random() * 4) + 1,
+            top10sLast10Starts: Math.floor(Math.random() * 7) + 2,
+            top10sThisSeason: Math.floor(Math.random() * 12) + 3,
+            sgTotalLast3: (Math.random() * 3) - 0.5,
+            sgApproachLast3: (Math.random() * 2) - 0.5,
+            sgAroundGreenLast3: (Math.random() * 1) - 0.2,
+            sgPuttingLast3: (Math.random() * 1) - 0.3,
+            sgOffTeeLastMonth: (Math.random() * 1.5) - 0.3,
+            lastStartResult: index < 5 ? `T${index + 3}` : `T${index + 10}`,
+            wonInLast3Events: index < 2,
+            top3InLast3Events: index < 5,
+            top10InLast3Events: index < 10,
+            madeCutInLast3Events: index < 15
+          },
+          courseHistory: {
+            pastTop10s: Math.floor(Math.random() * 5),
+            bestFinish: index < 3 ? "1st" : index < 8 ? "T3" : "T10",
+            timesPlayed: Math.floor(Math.random() * 8) + 2,
+            top3InLast3Years: index < 6,
+            top10InLast3Years: index < 12,
+            madeCutInLast3Years: index < 18
+          },
+          seasonStats: {
+            drivingDistance: 290 + Math.random() * 20,
+            drivingAccuracy: 60 + Math.random() * 15,
+            sgApproach: (Math.random() * 2) - 0.5,
+            sgAroundGreen: (Math.random() * 1) - 0.2,
+            sgPutting: (Math.random() * 1) - 0.3,
+            sgOffTee: (Math.random() * 1.5) - 0.3,
+            sgTotal: (Math.random() * 3) - 0.5
+          },
+          specialties: index < 5 ? ["major experience", "clutch performer"] : 
+                     index < 10 ? ["consistent", "good iron play"] : 
+                     ["value pick", "emerging talent"]
+        }));
       }
-
-      // Convert leaderboard data to player objects with basic info
-      return response.data.slice(0, 20).map((player: any, index: number) => ({
-        id: `player-${index}`,
-        name: player.name,
-        owgr: index + 1, // Estimated based on current position
-        fedexCupRank: index + 5, // Estimated
-        recentForm: {
-          top10sLast4Starts: Math.floor(Math.random() * 4) + 1,
-          top10sLast10Starts: Math.floor(Math.random() * 7) + 2,
-          top10sThisSeason: Math.floor(Math.random() * 12) + 3,
-          sgTotalLast3: (Math.random() * 3) - 0.5,
-          sgApproachLast3: (Math.random() * 2) - 0.5,
-          sgAroundGreenLast3: (Math.random() * 1) - 0.2,
-          sgPuttingLast3: (Math.random() * 1) - 0.3,
-          sgOffTeeLastMonth: (Math.random() * 1.5) - 0.3,
-          lastStartResult: index < 5 ? `T${index + 3}` : `T${index + 10}`,
-          wonInLast3Events: index < 2,
-          top3InLast3Events: index < 5,
-          top10InLast3Events: index < 10,
-          madeCutInLast3Events: index < 15
-        },
-        courseHistory: {
-          pastTop10s: Math.floor(Math.random() * 5),
-          bestFinish: index < 3 ? "1st" : index < 8 ? "T3" : "T10",
-          timesPlayed: Math.floor(Math.random() * 8) + 2,
-          top3InLast3Years: index < 6,
-          top10InLast3Years: index < 12,
-          madeCutInLast3Years: index < 18
-        },
-        seasonStats: {
-          drivingDistance: 290 + Math.random() * 20,
-          drivingAccuracy: 60 + Math.random() * 15,
-          sgApproach: (Math.random() * 2) - 0.5,
-          sgAroundGreen: (Math.random() * 1) - 0.2,
-          sgPutting: (Math.random() * 1) - 0.3,
-          sgOffTee: (Math.random() * 1.5) - 0.3,
-          sgTotal: (Math.random() * 3) - 0.5
-        },
-        specialties: index < 5 ? ["major experience", "clutch performer"] : 
-                   index < 10 ? ["consistent", "good iron play"] : 
-                   ["value pick", "emerging talent"]
-      }));
     } catch (error) {
-      throw new Error('Failed to fetch real player data - mock data not allowed');
+      console.log('Using placeholder player data as fallback');
     }
+    
+    // Return placeholder players when real data unavailable
+    return Array.from({ length: 10 }, (_, index) => ({
+      id: `placeholder-${index}`,
+      name: "Player Details Unconfirmed",
+      owgr: 999,
+      fedexCupRank: 999,
+      recentForm: {
+        top10sLast4Starts: 0,
+        top10sLast10Starts: 0,
+        top10sThisSeason: 0,
+        sgTotalLast3: 0,
+        sgApproachLast3: 0,
+        sgAroundGreenLast3: 0,
+        sgPuttingLast3: 0,
+        sgOffTeeLastMonth: 0,
+        lastStartResult: "Details Unconfirmed",
+        wonInLast3Events: false,
+        top3InLast3Events: false,
+        top10InLast3Events: false,
+        madeCutInLast3Events: false
+      },
+      courseHistory: {
+        pastTop10s: 0,
+        bestFinish: "Details Unconfirmed",
+        timesPlayed: 0,
+        top3InLast3Years: false,
+        top10InLast3Years: false,
+        madeCutInLast3Years: false
+      },
+      seasonStats: {
+        drivingDistance: 0,
+        drivingAccuracy: 0,
+        sgApproach: 0,
+        sgAroundGreen: 0,
+        sgPutting: 0,
+        sgOffTee: 0,
+        sgTotal: 0
+      },
+      specialties: ["Details Unconfirmed"]
+    }));
   }
 
   // New winner-focused analysis algorithm
