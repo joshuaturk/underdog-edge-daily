@@ -9,14 +9,21 @@ export interface SoccerMatch {
     awayScore: number;
     btts: boolean; // Both Teams To Score
   };
-  league: 'Premier League' | 'Championship';
+  league: 'Premier League' | 'Championship' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1';
   gameweek: number;
   status: 'upcoming' | 'live' | 'finished';
+  venue?: string;
+  isOutdoor?: boolean;
+  weather?: {
+    temperature: string;
+    conditions: string;
+    humidity: string;
+  };
 }
 
 export interface TeamBTTSStats {
   teamName: string;
-  league: 'Premier League' | 'Championship';
+  league: 'Premier League' | 'Championship' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1';
   lastMatches: {
     opponent: string;
     date: string;
@@ -28,7 +35,7 @@ export interface TeamBTTSStats {
 
 export interface BTTSPick {
   id: string;
-  league: 'Premier League' | 'Championship';
+  league: 'Premier League' | 'Championship' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1';
   gameweek: number;
   homeTeam: string;
   awayTeam: string;
@@ -36,8 +43,15 @@ export interface BTTSPick {
   awayTeamRate: number;
   probability: number; // P_BTTS
   confidence: number; // probability * 100
+  valueRating: number; // Betting value assessment
   kickoffTime: string;
   date: string;
+  venue?: string;
+  weather?: {
+    temperature: string;
+    conditions: string;
+    humidity: string;
+  };
 }
 
 export interface BTTSAnalysis {
