@@ -77,6 +77,84 @@ export type Database = {
         }
         Relationships: []
       }
+      btts_analysis: {
+        Row: {
+          average_confidence: number
+          championship_gameweek: number
+          created_at: string
+          id: string
+          last_updated: string
+          premier_league_gameweek: number
+          total_picks: number
+        }
+        Insert: {
+          average_confidence?: number
+          championship_gameweek: number
+          created_at?: string
+          id?: string
+          last_updated?: string
+          premier_league_gameweek: number
+          total_picks?: number
+        }
+        Update: {
+          average_confidence?: number
+          championship_gameweek?: number
+          created_at?: string
+          id?: string
+          last_updated?: string
+          premier_league_gameweek?: number
+          total_picks?: number
+        }
+        Relationships: []
+      }
+      btts_picks: {
+        Row: {
+          away_team: string
+          away_team_rate: number
+          confidence: number
+          created_at: string
+          gameweek: number
+          home_team: string
+          home_team_rate: number
+          id: string
+          kickoff_time: string
+          league: string
+          match_date: string
+          probability: number
+          updated_at: string
+        }
+        Insert: {
+          away_team: string
+          away_team_rate: number
+          confidence: number
+          created_at?: string
+          gameweek: number
+          home_team: string
+          home_team_rate: number
+          id?: string
+          kickoff_time: string
+          league: string
+          match_date: string
+          probability: number
+          updated_at?: string
+        }
+        Update: {
+          away_team?: string
+          away_team_rate?: number
+          confidence?: number
+          created_at?: string
+          gameweek?: number
+          home_team?: string
+          home_team_rate?: number
+          id?: string
+          kickoff_time?: string
+          league?: string
+          match_date?: string
+          probability?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       golf_leaderboard: {
         Row: {
           created_at: string
@@ -134,6 +212,33 @@ export type Database = {
           total_score?: number | null
           tournament_name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      team_btts_stats: {
+        Row: {
+          created_at: string
+          id: string
+          last_updated: string
+          league: string
+          recency_weighted_rate: number
+          team_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          league: string
+          recency_weighted_rate: number
+          team_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_updated?: string
+          league?: string
+          recency_weighted_rate?: number
+          team_name?: string
         }
         Relationships: []
       }
