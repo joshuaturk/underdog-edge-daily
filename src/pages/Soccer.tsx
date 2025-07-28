@@ -137,57 +137,74 @@ export default function Soccer() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-7xl px-4 py-4 lg:py-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5">
+      <div className="container mx-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
         
-        {/* Header Section - Matching MLB Layout */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6 mb-6">
-          <div className="flex items-center gap-3 lg:gap-4">
-            <img src={soccerIcon} alt="Soccer" className="w-10 h-10 lg:w-12 lg:h-12" />
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Soccer BTTS Picks</h1>
-              <p className="text-sm lg:text-base text-muted-foreground">
-                High-confidence Both Teams To Score predictions (≥80%)
-              </p>
+        {/* Header - Mobile optimized (Matching MLB) */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 lg:gap-6">
+          <div className="flex items-center gap-3 justify-center lg:justify-start">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/db562826-74b8-4870-8f78-da45d663e372.png" 
+                alt="betbud.ai"
+                className="h-10 lg:h-12 object-contain"
+              />
             </div>
           </div>
           
-          <div className="flex items-center gap-3 lg:gap-4">
-            <div className="text-right hidden lg:block">
-              <div className="text-sm font-medium text-foreground">Last Updated</div>
-              <div className="text-xs text-muted-foreground">{getETTime()} ET</div>
-            </div>
+          <div className="flex items-center gap-2 justify-center lg:justify-end flex-wrap">
+            <ThemeToggle />
             <Button 
               onClick={loadBTTSAnalysis}
               disabled={isLoading}
-              className="flex items-center gap-2"
-              size="sm"
+              variant="outline" 
+              size="sm" 
+              className="px-3 py-2 h-9"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'mr-1 lg:mr-2'}`} />
+              <span className="hidden lg:inline">Refresh Data</span>
+              <span className="lg:hidden">Refresh</span>
             </Button>
-            <ThemeToggle />
           </div>
         </div>
 
-        {/* Sports Navigation - Matching MLB Layout */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2 p-2 bg-muted rounded-lg">
-            {sportsMenu.map((sport) => (
-              <Button
-                key={sport.name}
-                variant={location.pathname === sport.path ? "default" : "ghost"}
-                size="sm"
-                className="flex items-center gap-2"
-                onClick={() => sport.path !== '#' && navigate(sport.path)}
-                disabled={sport.path === '#'}
-              >
-                <span>{sport.symbol}</span>
-                <span className="hidden sm:inline">{sport.name}</span>
-              </Button>
-            ))}
-          </div>
-        </div>
+        {/* Sports Navigation Menu (Matching MLB) */}
+        <Card className="bg-gradient-to-br from-card to-card/80 border-border/50 rounded-full">
+          <CardContent className="p-2 sm:p-4">
+            {/* Mobile: Horizontal scroll, Desktop: Centered flex */}
+            <div className="overflow-x-auto scrollbar-hide sm:overflow-visible">
+              <div className="flex items-center gap-1 sm:gap-2 sm:justify-center min-w-max sm:min-w-0">
+                {sportsMenu.map((sport, index) => {
+                  const isActive = location.pathname === sport.path;
+                  return (
+                    <Button
+                      key={sport.name}
+                      variant={isActive ? "default" : "ghost"}
+                      size="sm"
+                      className={`flex items-center gap-1 sm:gap-2 rounded-full text-xs sm:text-sm px-2 sm:px-3 flex-shrink-0 ${
+                        isActive 
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                          : "hover:bg-muted"
+                      }`}
+                      onClick={() => {
+                        if (sport.path !== '#') {
+                          navigate(sport.path);
+                        }
+                      }}
+                      disabled={sport.path === '#'}
+                    >
+                      <span className="text-sm sm:text-base" style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, sans-serif' }}>
+                        {sport.symbol}
+                      </span>
+                      <span className="hidden sm:inline">{sport.name}</span>
+                      <span className="sm:hidden">{sport.name.split(' ')[0]}</span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Analysis Overview - Layout with Logo and Stats (Matching MLB Layout) */}
         {analysis && (
