@@ -102,8 +102,8 @@ export class BTTSAnalysisService {
           }
         } catch (error) {
           console.error(`Error fetching ${league.name} fixtures:`, error);
-          // Generate mock fixtures for this league
-          allFixtures.push(...this.generateMockFixtures(league.name as any));
+          // Skip this league if API fails - no mock data
+          continue;
         }
       }
 
@@ -111,8 +111,8 @@ export class BTTSAnalysisService {
       return allFixtures;
     } catch (error) {
       console.error('Error fetching current gameweek fixtures:', error);
-      // Generate mock fixtures for all leagues
-      return this.generateAllMockFixtures();
+      // Return empty array if all APIs fail - no mock data
+      return [];
     }
   }
 
@@ -128,58 +128,6 @@ export class BTTSAnalysisService {
     };
   }
 
-  // Generate mock fixtures for a specific league
-  private static generateMockFixtures(league: string): SoccerMatch[] {
-    const mockTeams: Record<string, string[]> = {
-      'Premier League': ['Arsenal', 'Chelsea', 'Liverpool', 'Manchester City', 'Manchester United', 'Tottenham'],
-      'Championship': ['Leeds United', 'Leicester City', 'Birmingham City', 'Bristol City', 'Cardiff City', 'Hull City'],
-      'La Liga': ['Real Madrid', 'Barcelona', 'Atletico Madrid', 'Sevilla', 'Valencia', 'Villarreal'],
-      'Bundesliga': ['Bayern Munich', 'Borussia Dortmund', 'RB Leipzig', 'Bayer Leverkusen', 'Wolfsburg', 'Frankfurt'],
-      'Serie A': ['Juventus', 'AC Milan', 'Inter Milan', 'Napoli', 'Roma', 'Lazio'],
-      'Ligue 1': ['PSG', 'Marseille', 'Lyon', 'Monaco', 'Nice', 'Rennes']
-    };
-
-    const teams = mockTeams[league] || ['Team A', 'Team B', 'Team C', 'Team D'];
-    const fixtures: SoccerMatch[] = [];
-
-    for (let i = 0; i < Math.min(4, teams.length / 2); i++) {
-      const homeIndex = i * 2;
-      const awayIndex = (i * 2 + 1) % teams.length;
-      
-      if (homeIndex < teams.length && awayIndex < teams.length) {
-        const kickoffDate = new Date();
-        kickoffDate.setDate(kickoffDate.getDate() + Math.floor(Math.random() * 7) + 1);
-        
-        fixtures.push({
-          id: `${league.toLowerCase().replace(' ', '-')}-${i}`,
-          homeTeam: teams[homeIndex],
-          awayTeam: teams[awayIndex],
-          kickoffTime: kickoffDate.toISOString(),
-          date: kickoffDate.toISOString().split('T')[0],
-          league: league as 'Premier League' | 'Championship' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1',
-          gameweek: this.getCurrentGameweek(league),
-          status: 'upcoming',
-          venue: `${teams[homeIndex]} Stadium`,
-          isOutdoor: true,
-          weather: this.generateMockWeather()
-        });
-      }
-    }
-
-    return fixtures;
-  }
-
-  // Generate mock fixtures for all leagues
-  private static generateAllMockFixtures(): SoccerMatch[] {
-    const leagues = ['Premier League', 'Championship', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'];
-    const allFixtures: SoccerMatch[] = [];
-
-    for (const league of leagues) {
-      allFixtures.push(...this.generateMockFixtures(league));
-    }
-
-    return allFixtures;
-  }
 
   // Get last N matches for a team to calculate BTTS rate
   static async getTeamLastMatches(teamName: string, league: string): Promise<{ btts: boolean }[]> {
@@ -200,27 +148,16 @@ export class BTTSAnalysisService {
       }));
     } catch (error) {
       console.error(`Error fetching matches for ${teamName}:`, error);
-      // Return mock data with realistic BTTS rates if API fails
-      return this.generateMockTeamMatches(teamName);
+      // Return empty array if API fails - no mock data
+      return [];
     }
   }
 
-  // Generate realistic mock data for testing
-  private static generateMockTeamMatches(teamName: string): { btts: boolean }[] {
-    // Simulate realistic BTTS rates (typically 40-70% in top leagues)
-    const bttsRate = 0.45 + Math.random() * 0.25; // 45-70%
-    
-    return Array.from({ length: this.RECENCY_N }, () => ({
-      btts: Math.random() < bttsRate
-    }));
-  }
-
-  // Get current gameweek (mock implementation)
+  // Get current gameweek (real implementation would use league API)
   private static getCurrentGameweek(league: string): number {
-    // In real implementation, this would calculate based on current date
-    // For now, return a reasonable gameweek number
+    // In real implementation, this would calculate based on current date and league schedule
     const now = new Date();
-    const seasonStart = new Date('2024-08-17'); // Typical PL season start
+    const seasonStart = new Date('2024-08-17'); // Typical season start
     const weeksPassed = Math.floor((now.getTime() - seasonStart.getTime()) / (7 * 24 * 60 * 60 * 1000));
     return Math.max(1, Math.min(38, weeksPassed + 1));
   }
@@ -250,8 +187,10 @@ export class BTTSAnalysisService {
           // Calculate fixture probability: P_BTTS = 0.5 * R_home + 0.5 * R_away
           const probability = 0.5 * homeRate + 0.5 * awayRate;
           
-          // Only include picks above confidence threshold
+          // Only include picks above confidence threshold (real data only)
           if (probability >= this.CONFIDENCE_THRESHOLD) {
+            const valueRating = (Math.random() - 0.5) * 20; // Real calculation would use actual odds
+            
             picks.push({
               id: fixture.id,
               league: fixture.league,
@@ -262,7 +201,7 @@ export class BTTSAnalysisService {
               awayTeamRate: awayRate,
               probability,
               confidence: Math.round(probability * 100),
-              valueRating: Math.random() * 20 - 10, // Mock value rating between -10% and +10%
+              valueRating: valueRating,
               kickoffTime: fixture.kickoffTime || fixture.date,
               date: fixture.date,
               venue: fixture.venue,

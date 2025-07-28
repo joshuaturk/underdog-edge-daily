@@ -11,6 +11,7 @@ import { BTTSAnalysisService } from '@/services/BTTSAnalysisService';
 import { BTTSAnalysis, BTTSPick } from '@/types/soccer';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { getSoccerTeamLogo, handleSoccerLogoError } from '@/utils/soccerLogos';
 import soccerIcon from '@/assets/soccer-icon.png';
 
 export default function Soccer() {
@@ -283,9 +284,12 @@ export default function Soccer() {
                             
                             {/* Away Team */}
                             <div className="flex items-center gap-3 lg:gap-4">
-                              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-xs lg:text-sm font-semibold">A</span>
-                              </div>
+                              <img 
+                                src={getSoccerTeamLogo(pick.awayTeam)} 
+                                alt={`${pick.awayTeam} logo`}
+                                className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover flex-shrink-0"
+                                onError={handleSoccerLogoError}
+                              />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 lg:gap-3">
                                   <div className="font-semibold text-base lg:text-lg truncate">{pick.awayTeam}</div>
@@ -301,9 +305,12 @@ export default function Soccer() {
                            
                             {/* Home Team */}
                             <div className="flex items-center gap-3 lg:gap-4">
-                              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-xs lg:text-sm font-semibold">H</span>
-                              </div>
+                              <img 
+                                src={getSoccerTeamLogo(pick.homeTeam)} 
+                                alt={`${pick.homeTeam} logo`}
+                                className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover flex-shrink-0"
+                                onError={handleSoccerLogoError}
+                              />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 lg:gap-3">
                                   <div className="font-semibold text-base lg:text-lg truncate">{pick.homeTeam}</div>
@@ -418,9 +425,12 @@ export default function Soccer() {
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 flex-1">
-                                      <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                                        <span className="text-xs font-semibold">A</span>
-                                      </div>
+                                      <img 
+                                        src={getSoccerTeamLogo(pick.awayTeam)} 
+                                        alt={`${pick.awayTeam} logo`}
+                                        className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0"
+                                        onError={handleSoccerLogoError}
+                                      />
                                       <span className="font-medium text-sm sm:text-base truncate">{pick.awayTeam}</span>
                                     </div>
                                     {(pick as any).result && (
@@ -430,9 +440,12 @@ export default function Soccer() {
                                   
                                   <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 flex-1">
-                                      <div className="w-5 h-5 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                                        <span className="text-xs font-semibold">H</span>
-                                      </div>
+                                      <img 
+                                        src={getSoccerTeamLogo(pick.homeTeam)} 
+                                        alt={`${pick.homeTeam} logo`}
+                                        className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0"
+                                        onError={handleSoccerLogoError}
+                                      />
                                       <span className="font-medium text-sm sm:text-base truncate">{pick.homeTeam}</span>
                                     </div>
                                     {(pick as any).result && (
