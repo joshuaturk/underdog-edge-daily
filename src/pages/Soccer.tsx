@@ -24,14 +24,22 @@ export default function Soccer() {
       setIsLoading(true);
       console.log('Loading BTTS analysis...');
       
-      const bttsAnalysis = await BTTSAnalysisService.generateBTTSPicks();
-      setAnalysis(bttsAnalysis);
-      setLastUpdate(new Date());
-      
-      toast({
-        title: "BTTS Analysis Updated", 
-        description: `Found ${bttsAnalysis.totalPicks} high-confidence picks`
-      });
+      const bttsAnalysis = await BTTSAnalysisService.getStoredBTTSAnalysis();
+      if (bttsAnalysis) {
+        setAnalysis(bttsAnalysis);
+        setLastUpdate(new Date());
+        
+        toast({
+          title: "BTTS Analysis Loaded", 
+          description: `Found ${bttsAnalysis.totalPicks} high-confidence picks`
+        });
+      } else {
+        toast({
+          title: "No Analysis Available",
+          description: "Unable to load BTTS analysis. Please try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error loading BTTS analysis:', error);
       toast({

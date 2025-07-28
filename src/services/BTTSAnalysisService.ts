@@ -235,15 +235,87 @@ export class BTTSAnalysisService {
     }
   }
 
-  // Get stored BTTS analysis (for frontend)
+  // Get stored BTTS analysis from database
   static async getStoredBTTSAnalysis(): Promise<BTTSAnalysis | null> {
     try {
-      // In production, this would fetch from Supabase table
-      // For now, generate fresh picks
-      return await this.generateBTTSPicks();
+      // Fetch current analysis metadata
+      const { data: analysisData, error: analysisError } = await supabase
+        .from('btts_analysis')
+        .select('*')
+        .order('last_updated', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (analysisError) {
+        console.log('No stored analysis found, generating fresh picks');
+        return await this.generateBTTSPicks();
+      }
+
+      // Fetch current picks
+      const { data: picksData, error: picksError } = await supabase
+        .from('btts_picks')
+        .select('*')
+        .gte('kickoff_time', new Date().toISOString())
+        .order('confidence', { ascending: false });
+
+      if (picksError) {
+        console.error('Error fetching picks:', picksError);
+        return await this.generateBTTSPicks();
+      }
+
+      // Convert database records to BTTSPick format
+      const picks: BTTSPick[] = (picksData || []).map(pick => ({
+        id: pick.id,
+        league: pick.league as 'Premier League' | 'Championship',
+        gameweek: pick.gameweek,
+        homeTeam: pick.home_team,
+        awayTeam: pick.away_team,
+        homeTeamRate: parseFloat(pick.home_team_rate.toString()),
+        awayTeamRate: parseFloat(pick.away_team_rate.toString()),
+        probability: parseFloat(pick.probability.toString()),
+        confidence: pick.confidence,
+        kickoffTime: pick.kickoff_time,
+        date: pick.match_date
+      }));
+
+      return {
+        lastUpdated: new Date(analysisData.last_updated),
+        currentGameweek: {
+          premierLeague: analysisData.premier_league_gameweek,
+          championship: analysisData.championship_gameweek
+        },
+        picks,
+        totalPicks: analysisData.total_picks,
+        averageConfidence: parseFloat(analysisData.average_confidence.toString())
+      };
     } catch (error) {
       console.error('Error getting stored BTTS analysis:', error);
-      return null;
+      // Fall back to generating fresh picks
+      return await this.generateBTTSPicks();
+    }
+  }
+
+  // Trigger the scheduled update function
+  static async triggerScheduledUpdate(): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('Triggering scheduled BTTS update...');
+      
+      const response = await supabase.functions.invoke('btts-scheduler');
+      
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Scheduled update failed');
+      }
+      
+      return {
+        success: true,
+        message: `Updated successfully: ${response.data.data?.picks_generated || 0} picks generated`
+      };
+    } catch (error) {
+      console.error('Error triggering scheduled update:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Update failed'
+      };
     }
   }
 }
