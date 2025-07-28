@@ -330,14 +330,14 @@ export class BTTSAnalysisService {
       // Convert database records to BTTSPick format
       const picks: BTTSPick[] = (picksData || []).map(pick => ({
         id: pick.id,
-        league: pick.league as 'Premier League' | 'Championship',
+        league: pick.league as 'Premier League' | 'Championship' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1',
         gameweek: pick.gameweek,
         homeTeam: pick.home_team,
         awayTeam: pick.away_team,
-        homeTeamRate: parseFloat(pick.home_team_rate.toString()),
-        awayTeamRate: parseFloat(pick.away_team_rate.toString()),
-        probability: parseFloat(pick.probability.toString()),
-        confidence: pick.confidence,
+        homeTeamRate: pick.home_team_rate ? parseFloat(pick.home_team_rate.toString()) : 0,
+        awayTeamRate: pick.away_team_rate ? parseFloat(pick.away_team_rate.toString()) : 0,
+        probability: pick.probability ? parseFloat(pick.probability.toString()) : 0,
+        confidence: pick.confidence || 0,
         valueRating: Math.random() * 20 - 10, // Mock value rating
         kickoffTime: pick.kickoff_time,
         date: pick.match_date
@@ -351,7 +351,7 @@ export class BTTSAnalysisService {
         },
         picks,
         totalPicks: analysisData.total_picks,
-        averageConfidence: parseFloat(analysisData.average_confidence.toString())
+        averageConfidence: analysisData.average_confidence ? parseFloat(analysisData.average_confidence.toString()) : 0
       };
     } catch (error) {
       console.error('Error getting stored BTTS analysis:', error);

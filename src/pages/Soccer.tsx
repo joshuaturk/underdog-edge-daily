@@ -294,7 +294,7 @@ export default function Soccer() {
                                   )}
                                 </div>
                                 <div className="text-sm lg:text-base text-muted-foreground">
-                                  BTTS Rate: {(pick.awayTeamRate * 100).toFixed(1)}%
+                                  BTTS Rate: {((pick.awayTeamRate || 0) * 100).toFixed(1)}%
                                 </div>
                               </div>
                             </div>
@@ -312,7 +312,7 @@ export default function Soccer() {
                                   )}
                                 </div>
                                 <div className="text-sm lg:text-base text-muted-foreground">
-                                  BTTS Rate: {(pick.homeTeamRate * 100).toFixed(1)}%
+                                  BTTS Rate: {((pick.homeTeamRate || 0) * 100).toFixed(1)}%
                                 </div>
                               </div>
                             </div>
@@ -347,7 +347,7 @@ export default function Soccer() {
                             </div>
                             <div className="flex flex-row lg:flex-col items-center lg:items-end gap-3 lg:gap-2">
                               <div className="text-sm text-muted-foreground">
-                                Value: {pick.valueRating > 0 ? '+' : ''}{pick.valueRating.toFixed(1)}%
+                                Value: {(pick.valueRating || 0) > 0 ? '+' : ''}{(pick.valueRating || 0).toFixed(1)}%
                               </div>
                               {(pick as any).status && (pick as any).status !== 'pending' && (
                                 <Badge className={`${getStatusColor((pick as any).status)} px-3 py-1.5 lg:px-2 lg:py-1`}>
@@ -460,7 +460,7 @@ export default function Soccer() {
                                   {pick.confidence}% BTTS
                                 </Badge>
                                 <div className="text-xs text-muted-foreground">
-                                  Value: {pick.valueRating > 0 ? '+' : ''}{pick.valueRating.toFixed(1)}%
+                                  Value: {(pick.valueRating || 0) > 0 ? '+' : ''}{(pick.valueRating || 0).toFixed(1)}%
                                 </div>
                               </div>
                             </div>
