@@ -452,8 +452,8 @@ export const GolfDashboard = () => {
                             <div className={`text-xl font-bold ${getConfidenceColor(pick.confidence)}`}>
                               {pick.confidence.toFixed(0)}%
                             </div>
-                            <Badge className={`text-xs ${getConfidenceBadge(pick.top10Probability)}`}>
-                              {pick.odds || '+200'} Top 10
+                            <Badge className={`text-xs ${getConfidenceBadge(pick.winProbability)}`}>
+                              {pick.odds || '+200'} Winner
                             </Badge>
                           </div>
                         </div>
