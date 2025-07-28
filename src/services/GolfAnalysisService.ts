@@ -1,5 +1,6 @@
 import { GolfPlayer, GolfPick, GolfTournament, GolfAnalysis } from '@/types/golf';
 import { supabase } from '@/integrations/supabase/client';
+import { GolfDataService } from './GolfDataService';
 
 export class GolfAnalysisService {
   private static readonly ODDS_API_BASE_URL = 'https://api.the-odds-api.com/v4';
@@ -12,25 +13,12 @@ export class GolfAnalysisService {
 
   static async fetchGolfOdds(): Promise<Array<{ playerName: string; odds: string; bookmaker: string; market: string }>> {
     try {
-      // Fetch real golf odds from SportsDataIO
-      const response = await supabase.functions.invoke('golf-live-data', {
-        body: { 
-          endpoint: 'Odds/Tournament/Current',
-          params: {}
-        }
-      });
-
-      if (response.data?.success && response.data.data) {
-        const oddsData = response.data.data;
-        return this.parseGolfOdds(oddsData);
-      }
-
-      console.log('No live golf odds available from API');
-      return [];
-      
+      // Use new five-tier data service for odds
+      const oddsData = await GolfDataService.fetchGolfOdds();
+      return oddsData;
     } catch (error) {
       console.error('Error fetching golf odds:', error);
-      return [];
+      return this.getMockGolfOdds();
     }
   }
 
