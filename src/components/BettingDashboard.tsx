@@ -115,48 +115,76 @@ export const BettingDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize static picks on component mount - with accumulated picks support
+  // Initialize picks: load from database first, then localStorage as fallback
   useEffect(() => {
-    if (allPicks.length === 0) {
-      // Try to load accumulated picks from localStorage first
-      try {
-        const savedData = localStorage.getItem('accumulatedPicksData');
-        if (savedData) {
-          const pickData = JSON.parse(savedData);
-          const savedDate = new Date(pickData.lastUpdate);
-          const todayDate = new Date().toISOString().split('T')[0];
-          const savedDate_str = savedDate.toISOString().split('T')[0];
-          
-          // If we have recent saved data, use it and add today's new picks
-          if (savedDate_str === todayDate && pickData.picks && pickData.picks.length > 0) {
-            console.log('=== LOADING ACCUMULATED PICKS FROM STORAGE ===');
-            console.log('Loaded picks from localStorage:', pickData.picks.length);
-            console.log('Last saved:', pickData.lastUpdate);
-            console.log('Historical count:', pickData.historicalCount);
-            
-            setAllPicks(pickData.picks);
+    const initializePicks = async () => {
+      if (allPicks.length === 0) {
+        console.log('=== INITIALIZING PICKS ===');
+        
+        // First try to load from database
+        try {
+          const dbResult = await ProductionDataService.getPickHistory();
+          if (dbResult.success && dbResult.data && dbResult.data.length > 0) {
+            console.log('Loaded picks from database:', dbResult.data.length);
+            setAllPicks(dbResult.data);
             setLastUpdate(new Date());
-            return; // Use saved data, don't regenerate
+            return;
           }
+        } catch (error) {
+          console.error('Error loading from database:', error);
         }
-      } catch (error) {
-        console.error('Error loading saved picks:', error);
-      }
+        
+        // Fallback to localStorage
+        try {
+          const savedData = localStorage.getItem('accumulatedPicksData');
+          if (savedData) {
+            const pickData = JSON.parse(savedData);
+            const savedDate = new Date(pickData.lastUpdate);
+            const todayDate = new Date().toISOString().split('T')[0];
+            const savedDate_str = savedDate.toISOString().split('T')[0];
+            
+            // If we have recent saved data, use it and add today's new picks
+            if (savedDate_str === todayDate && pickData.picks && pickData.picks.length > 0) {
+              console.log('=== LOADING ACCUMULATED PICKS FROM STORAGE ===');
+              console.log('Loaded picks from localStorage:', pickData.picks.length);
+              console.log('Last saved:', pickData.lastUpdate);
+              console.log('Historical count:', pickData.historicalCount);
+              
+              setAllPicks(pickData.picks);
+              setLastUpdate(new Date());
+              
+              // Migrate localStorage picks to database for persistence
+              console.log('Migrating localStorage picks to database...');
+              const migrationResult = await ProductionDataService.saveBulkPicks(pickData.picks);
+              if (migrationResult.success) {
+                console.log('Successfully migrated picks to database');
+              } else {
+                console.error('Failed to migrate picks:', migrationResult.error);
+              }
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading saved picks:', error);
+        }
       
-      // If no valid saved data, generate fresh picks
-      const lastFetchDate = localStorage.getItem('lastAutoFetch');
-      const today = new Date().toDateString();
-      
-      if (lastFetchDate !== today) {
-        console.log('Initial pick generation for today');
-        generateStaticDailyPicks();
-        localStorage.setItem('lastAutoFetch', today);
-      } else {
-        console.log('Picks already generated today, loading from storage or using fallback');
-        // Try to load from localStorage or generate if needed
-        generateStaticDailyPicks();
+        // If no valid saved data, generate fresh picks
+        const lastFetchDate = localStorage.getItem('lastAutoFetch');
+        const today = new Date().toDateString();
+        
+        if (lastFetchDate !== today) {
+          console.log('Initial pick generation for today');
+          generateStaticDailyPicks();
+          localStorage.setItem('lastAutoFetch', today);
+        } else {
+          console.log('Picks already generated today, loading from storage or using fallback');
+          // Try to load from localStorage or generate if needed
+          generateStaticDailyPicks();
+        }
       }
-    }
+    };
+    
+    initializePicks();
   }, []);
   useEffect(() => {
     const updateLiveScores = async () => {
@@ -375,6 +403,22 @@ export const BettingDashboard = () => {
           
           // Preserve date-based organization when updating live scores
           setAllPicks(updatedPicks);
+          
+          // Save completed picks to database for persistence
+          const completedPicks = updatedPicks.filter(pick => 
+            pick.status === 'won' || pick.status === 'lost' || pick.status === 'push'
+          );
+          
+          if (completedPicks.length > 0) {
+            console.log(`Saving ${completedPicks.length} completed picks to database`);
+            ProductionDataService.saveBulkPicks(completedPicks).then(result => {
+              if (result.success) {
+                console.log('Successfully saved completed picks to database');
+              } else {
+                console.error('Failed to save completed picks:', result.error);
+              }
+            });
+          }
         } else {
           console.log('No changes to update');
         }
