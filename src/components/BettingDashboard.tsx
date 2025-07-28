@@ -186,6 +186,71 @@ export const BettingDashboard = () => {
     
     initializePicks();
   }, []);
+
+  // Function to delete a specific pick
+  const deletePick = async (pickId: string) => {
+    try {
+      // Remove from local state immediately
+      const updatedPicks = allPicks.filter(pick => pick.id !== pickId);
+      setAllPicks(updatedPicks);
+      
+      // Also remove from database
+      const deleteResult = await ProductionDataService.deletePick(pickId);
+      if (deleteResult.success) {
+        toast({
+          title: "Pick Deleted",
+          description: "The pick has been successfully removed.",
+        });
+      } else {
+        console.error('Failed to delete from database:', deleteResult.error);
+        // Still keep it deleted from local state since user requested it
+      }
+      
+      // Update localStorage
+      const pickData = {
+        picks: updatedPicks,
+        lastUpdate: new Date().toISOString(),
+        historicalCount: updatedPicks.filter(p => p.status !== 'pending').length
+      };
+      localStorage.setItem('accumulatedPicksData', JSON.stringify(pickData));
+      
+    } catch (error) {
+      console.error('Error deleting pick:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the pick. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Delete the specific Toronto Blue Jays vs Detroit Tigers game from July 27
+  const deleteTorontoDetroitGame = () => {
+    const targetPick = allPicks.find(pick => 
+      pick.date === '2025-07-27' && 
+      ((pick.homeTeam.toLowerCase().includes('blue jays') || pick.homeTeam.toLowerCase().includes('toronto')) &&
+       (pick.awayTeam.toLowerCase().includes('tigers') || pick.awayTeam.toLowerCase().includes('detroit'))) ||
+      ((pick.awayTeam.toLowerCase().includes('blue jays') || pick.awayTeam.toLowerCase().includes('toronto')) &&
+       (pick.homeTeam.toLowerCase().includes('tigers') || pick.homeTeam.toLowerCase().includes('detroit')))
+    );
+    
+    if (targetPick) {
+      deletePick(targetPick.id);
+    } else {
+      toast({
+        title: "Game Not Found",
+        description: "Could not find the Toronto Blue Jays vs Detroit Tigers game from July 27th.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Automatically delete the Toronto vs Detroit game on component mount
+  useEffect(() => {
+    if (allPicks.length > 0) {
+      deleteTorontoDetroitGame();
+    }
+  }, [allPicks]);
   useEffect(() => {
     const updateLiveScores = async () => {
       if (allPicks.length === 0) return;

@@ -187,4 +187,45 @@ export class ProductionDataService {
       return { success: false, error: 'Failed to restore won picks' };
     }
   }
+
+  static async deletePick(pickId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await supabase
+        .from('betting_picks')
+        .delete()
+        .eq('id', pickId);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting pick:', error);
+      return { success: false, error: 'Failed to delete pick' };
+    }
+  }
+
+  static async deletePickByTeamsAndDate(
+    homeTeam: string, 
+    awayTeam: string, 
+    date: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await supabase
+        .from('betting_picks')
+        .delete()
+        .eq('date', date)
+        .or(`and(home_team.ilike.%${homeTeam}%,away_team.ilike.%${awayTeam}%),and(home_team.ilike.%${awayTeam}%,away_team.ilike.%${homeTeam}%)`);
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting pick by teams and date:', error);
+      return { success: false, error: 'Failed to delete pick' };
+    }
+  }
 }
