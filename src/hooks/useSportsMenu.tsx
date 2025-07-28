@@ -8,7 +8,7 @@ const baseSportsMenu = [
   { name: 'NHL', symbol: '🏒', path: '#' },
   { name: 'NBA', symbol: '🏀', path: '#' },
   { name: 'NFL', symbol: '🏈', path: '#' },
-  { name: 'Soccer', symbol: '⚽', path: '#' },
+  { name: 'Soccer', symbol: '⚽', path: '/soccer' },
   { name: 'Golf', symbol: '⛳', path: '/golf' },
   { name: 'Tennis', symbol: '🎾', path: '#' }
 ];
