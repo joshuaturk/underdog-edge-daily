@@ -1,1 +1,4 @@
 project_id = "yyhvemjyirgaxrkwemde"
+
+[functions.football-data]
+verify_jwt = false
