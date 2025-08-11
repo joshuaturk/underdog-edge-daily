@@ -64,7 +64,8 @@ async function handleFixtures(params: Record<string, any>, apiKey: string) {
     venue: m.venue || undefined,
     status: m.status,
   }))
-  return { success: true, data: { fixtures } }
+  // Return shape expected by frontend service
+  return { success: true, fixtures }
 }
 
 async function handleTeamMatches(params: Record<string, any>, apiKey: string) {
@@ -107,7 +108,8 @@ async function handleTeamMatches(params: Record<string, any>, apiKey: string) {
     btts: (m.score?.fullTime?.home ?? 0) > 0 && (m.score?.fullTime?.away ?? 0) > 0,
   }))
 
-  return { success: true, data: { matches } }
+  // Return shape expected by frontend service
+  return { success: true, matches }
 }
 
 serve(async (req) => {
